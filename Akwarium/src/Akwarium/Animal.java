@@ -480,8 +480,8 @@ public abstract class Animal extends Utility implements Runnable {
 				}
 				
 				synchronized(this) {
-					x = newX;
-					y = newY;
+					//x = newX;
+					//y = newY;
 				}
 				
 								
