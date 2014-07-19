@@ -26,7 +26,7 @@ public class Aquarium extends Utility {
 	private int waterClarity;
 	private int capacity;
 	private Filter filter;
-	private float shift;
+	private float boost;
 	private boolean working;
 	private Lamp lamp;
 	private int indexFix;
@@ -39,6 +39,7 @@ public class Aquarium extends Utility {
 	private int bottom = 0;
 	private int top = 0;
 	private int animalCount = 0;
+	Random rndBoost = new Random();
 	private Shark owner;
 	private Shark player;
 	private JTextArea console;
@@ -310,14 +311,15 @@ public class Aquarium extends Utility {
 		//sender.sendNewCoordinates(a.getIndex(), a.getX(), a.getY());
 	}
 	
-	public void increaseShift (double shift) {
+	public void increaseShift (float b) {
 		
-		shift += shift;
+		this.boost += b;
 	}
 	
-	public float shift () {
+	public int boost () {
 		
-		return shift;
+		rndBoost.nextGaussian();
+		return (int)boost;
 	}
 	
 	

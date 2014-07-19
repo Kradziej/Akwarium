@@ -91,10 +91,10 @@ public abstract class Animal extends Utility implements Runnable {
 		while(threadRun) {
 			
 			
-			if(Aq.isClient()) {
-				asynchCoorUpdate();
-				break;
-			}
+			//if(Aq.isClient()) {
+			//	asynchCoorUpdate();
+			//	break;
+			//}
 				
 			
 			Random rand = new Random();
@@ -143,9 +143,6 @@ public abstract class Animal extends Utility implements Runnable {
 			if(distanceFromBorderTop > newY)
 				newY = distanceFromBorderTop;
 			
-			
-			//Fix positions to make aquarium moving
-			newX = (int) (newX - Aq.shift());         //in pixels, updating in main to increase speed
 			
 			// flip image
 			if(newX - x > 2)

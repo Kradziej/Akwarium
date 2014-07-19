@@ -32,18 +32,13 @@ public class Fish extends Animal {
 	}
 	
 	
-	private Fish (String name) {
-		
-		this();
-		this.name = name;
-	}
-	
 	Fish (Aquarium Aq) {
 		
 		this();
 		this.Aq = Aq;
 		name = getNewAnimalName();
 		this.setInitialCoordinates();
+		v = v + Aq.boost();
 	}
 	
 	// Constructor for multiplayer
@@ -55,7 +50,7 @@ public class Fish extends Animal {
 	
 	Fish (String name, int x, int y, Aquarium Aq) {
 		
-		this(name);
+		this();
 		this.x = x;
 		this.x = y;
 		this.Aq = Aq;

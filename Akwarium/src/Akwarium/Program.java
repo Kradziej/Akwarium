@@ -192,8 +192,8 @@ public class Program {
 			
 			if(isServer) {
 				
-				boost += 0.30f;
-				aquarium.increaseShift(0.85*Math.pow(boost, 2));
+				boost += 0.0001f;
+				aquarium.increaseShift((float)(0.33*Math.pow(boost, 2)));
 				int allAnimals = aquarium.getNumberOfAnimals();
 				Random rand = new Random();
 				int p = rand.nextInt(100);

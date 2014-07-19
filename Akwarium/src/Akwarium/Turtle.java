@@ -31,19 +31,13 @@ public class Turtle extends Animal {
 	}
 	
 	
-	private Turtle (String name) {
-		
-		this();
-		this.name = name;
-	}
-	
-	
 	Turtle (Aquarium Aq) {
 		
 		this();
 		this.Aq = Aq;
 		name = getNewAnimalName();
 		this.setInitialCoordinates();
+		v = v + Aq.boost();
 	}
 	
 	// Constructor for multiplayer
@@ -55,7 +49,7 @@ public class Turtle extends Animal {
 	
 	Turtle (String name, int x, int y, Aquarium Aq) {
 		
-		this(name);
+		this();
 		this.x = x;
 		this.x = y;
 		this.Aq = Aq;
