@@ -25,7 +25,7 @@ public abstract class packetInterpreter implements packetConstants {
 			index = (buffer[0] << 24) >>> 24 | ((buffer[1] << 24) >>> 16);
 
 			if(Aq.getAnimal(index) == null)
-				return 0;        // animals not ready
+				return 0;        // animals not readyy
 			
 			int x = (buffer[2] << 24) >>> 24 | ((buffer[3] << 24) >>> 16) | ((buffer[4] << 24) >>> 8) | (buffer[5] << 24);
 			int y = (buffer[6] << 24) >>> 24 | ((buffer[7] << 24) >>> 16) | ((buffer[8] << 24) >>> 8) | (buffer[9] << 24);
