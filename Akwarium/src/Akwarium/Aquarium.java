@@ -245,10 +245,10 @@ public class Aquarium extends Utility {
 			if(animals[i] == null)
 				continue;
 		
-			if(animals[i].isTerminated()) {
+			if(animals[i].isTerminated() && isServer) {
 				synchronized(this) {
 					animals[i] = null;
-					//packetSender.removeAnimal(i);
+					PacketSender.removeAnimal(i);
 					animalCount--;
 				}
 				continue;
