@@ -12,7 +12,7 @@ public interface PacketConstants {
 
 	public static enum packet {
 		
-		UPDATE_COORDINATES(0x1, 10),
+		UPDATE_COORDINATES(0x1, 11),
 		ADD_ANIMAL(0x2, 12),
 		REMOVE_ANIMAL(0x3, 2),
 		INITIALIZE_IMAGES(0x4, 6),

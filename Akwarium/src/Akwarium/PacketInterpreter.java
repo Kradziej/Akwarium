@@ -29,8 +29,9 @@ public abstract class PacketInterpreter implements PacketConstants {
 			
 			int x = (buffer[2] << 24) >>> 24 | ((buffer[3] << 24) >>> 16) | ((buffer[4] << 24) >>> 8) | (buffer[5] << 24);
 			int y = (buffer[6] << 24) >>> 24 | ((buffer[7] << 24) >>> 16) | ((buffer[8] << 24) >>> 8) | (buffer[9] << 24);
+			int direction = (int)buffer[10] & 0xFF;
 			
-			Aq.updateCooridates(index, x, y);
+			Aq.updateCooridates(index, x, y, direction);
 			return 0;
 		
 		case ADD_ANIMAL:

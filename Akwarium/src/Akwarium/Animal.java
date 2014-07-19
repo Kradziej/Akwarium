@@ -95,6 +95,7 @@ public abstract class Animal extends Utility implements Runnable {
 			int rNumber = rand.nextInt();
 			int newX;
 			int newY;
+			int direction = 0;
 			
 			// set random direction vectors
 			float f = (float)((rand.nextInt(31) + 1) * 0.01f);
@@ -139,10 +140,14 @@ public abstract class Animal extends Utility implements Runnable {
 			
 			
 			// flip image
-			if(newX - x > 2)
+			if(newX - x > 2) {
 				this.flipImage("right");
-			else if(newX - x < -2)
+				direction = 1;
+			}
+			else if(newX - x < -2) {
 				this.flipImage("left");
+				direction = 0;
+			}
 			
 			x = newX;
 			y = newY;
@@ -158,7 +163,7 @@ public abstract class Animal extends Utility implements Runnable {
 			}
 			
 			if (Aq.isServer()) {
-				PacketSender.sendNewCoordinates(index, x, y);
+				PacketSender.sendNewCoordinates(index, x, y, direction);
 			}
 			
 			
@@ -437,6 +442,14 @@ public abstract class Animal extends Utility implements Runnable {
 	public void setVector (float[] vector) {
 		
 		this.vector = vector;
+	}
+
+	public void setDirection(int direction) {
+		
+		if(direction == 0)
+			flipImage("left");
+		else
+			flipImage("right");
 	}
 	
 

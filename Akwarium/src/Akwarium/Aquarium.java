@@ -332,7 +332,7 @@ public class Aquarium extends Utility {
 		Animal.initAnimalsServer();
 	}
 	
-	public void updateCooridates (int index, int x, int y) {
+	public void updateCooridates (int index, int x, int y, int direction) {
 		
 		if(index == 0xFFFF) {
 			owner.setX(x);
@@ -347,6 +347,7 @@ public class Aquarium extends Utility {
 		
 		animals[index].setX(x);
 		animals[index].setY(y);
+		animals[index].setDirection(direction);
 	}
 	
 }

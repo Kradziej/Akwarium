@@ -65,7 +65,7 @@ public abstract class PacketSender implements PacketConstants {
 		return packet.REMOVE_ANIMAL.length()+1;
 	}
 	
-	public static int sendNewCoordinates (int index, int x, int y) {
+	public static int sendNewCoordinates (int index, int x, int y, int direction) {
 		
 		byte[] buffer = new byte[packet.UPDATE_COORDINATES.length()+1];
 		
@@ -80,6 +80,7 @@ public abstract class PacketSender implements PacketConstants {
 		buffer[8] = (byte)(y >>> 8);
 		buffer[9] = (byte)(y >>> 16);
 		buffer[10] = (byte)(y >>> 24);
+		buffer[11] = (byte)direction;
 		
 		try {
 			synchronized (udpOutput) {

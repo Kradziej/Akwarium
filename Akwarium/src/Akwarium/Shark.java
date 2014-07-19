@@ -133,12 +133,14 @@ public class Shark extends Animal implements KeyListener {
 			y = newY;
 			
 			
+			/*
 			if (Aq.isMultiplayer() && Aq.isServer()) {
 				if(isOwner)
-					PacketSender.sendNewCoordinates(0xFFFF, x, y);
+					PacketSender.sendNewCoordinates(0xFFFF, x, y, direciton);
 				else
-					PacketSender.sendNewCoordinates(0xFFFE, x, y);
-			}
+					PacketSender.sendNewCoordinates(0xFFFE, x, y, direction);
+			}*/
+			
 			
 			try {
 				Thread.sleep(70);
@@ -147,7 +149,7 @@ public class Shark extends Animal implements KeyListener {
 			}
 		}
 		
-		threadRun = true;
+	
 	}
 	public String getSpeciesName () {
 		
