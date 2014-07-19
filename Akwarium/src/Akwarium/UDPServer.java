@@ -9,7 +9,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class UDPServer extends packetSender implements Runnable {
+public class UDPServer extends PacketSender implements Runnable {
 	
 	private byte[] buffer = new byte[256];
 	private int port;

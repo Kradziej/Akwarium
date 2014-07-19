@@ -1,21 +1,18 @@
 package Akwarium;
 
-import java.util.Hashtable;
 
-public interface packetConstants {
+public interface PacketConstants {
 	
 	public int UPDATE_COORDINATES = 0x1;
 	public int ADD_ANIMAL = 0x2;
 	public int REMOVE_ANIMAL = 0x3;
 	public int INITIALIZE_IMAGES  = 0x4;
 	public int CONNECTION_INITIALIZATION = 0x5;
-	public int FLOAT_PRECISION = 1000000;
-	
 	
 
 	public static enum packet {
 		
-		UPDATE_COORDINATES(0x1, 18),
+		UPDATE_COORDINATES(0x1, 10),
 		ADD_ANIMAL(0x2, 12),
 		REMOVE_ANIMAL(0x3, 2),
 		INITIALIZE_IMAGES(0x4, 6),

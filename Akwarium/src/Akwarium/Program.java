@@ -89,7 +89,7 @@ public class Program {
 			
 			if(isServer) {
 				server = new TCPServer(tcpInput, udpInput);
-				packetSender.setOutputs(tcpOutput, udpOutput);
+				PacketSender.setOutputs(tcpOutput, udpOutput);
 				server.startThread();
 			}
 			if(isClient) {
@@ -130,7 +130,7 @@ public class Program {
 		
 		// Create aquarium
 		Aquarium aquarium = new Aquarium(new Filter(), new Lamp(), 5000, console, isServer, isClient);
-		packetInterpreter.setAq(aquarium);
+		PacketInterpreter.setAq(aquarium);
 		
 		/*
 		// buttons
@@ -193,7 +193,7 @@ public class Program {
 			if(isServer) {
 				
 				boost += 0.0001f;
-				aquarium.increaseShift((float)(0.33*Math.pow(boost, 2)));
+				aquarium.increaseShift((float)(0.1*Math.pow(boost, 2)));
 				int allAnimals = aquarium.getNumberOfAnimals();
 				Random rand = new Random();
 				int p = rand.nextInt(100);

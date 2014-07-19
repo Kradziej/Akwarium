@@ -10,7 +10,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
-public class UDPClient extends packetInterpreter implements Runnable {
+public class UDPClient extends PacketInterpreter implements Runnable {
 	
 	private byte[] buffer = new byte[256];
 	private int port;

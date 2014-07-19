@@ -91,12 +91,6 @@ public abstract class Animal extends Utility implements Runnable {
 		while(threadRun) {
 			
 			
-			//if(Aq.isClient()) {
-			//	asynchCoorUpdate();
-			//	break;
-			//}
-				
-			
 			Random rand = new Random();
 			int rNumber = rand.nextInt();
 			int newX;
@@ -164,7 +158,7 @@ public abstract class Animal extends Utility implements Runnable {
 			}
 			
 			if (Aq.isServer()) {
-				packetSender.sendNewCoordinates(index, x, y, vector);
+				PacketSender.sendNewCoordinates(index, x, y);
 			}
 			
 			
@@ -372,7 +366,7 @@ public abstract class Animal extends Utility implements Runnable {
 					
 					graphics[i][0][j] = lImg;
 					graphics[i][1][j] = rImg;
-					packetSender.initializeImages(SpeciesList.values()[i].getOrdinal(), j, c, width);
+					PacketSender.initializeImages(SpeciesList.values()[i].getOrdinal(), j, c, width);
 					
 			}
 		}
@@ -446,48 +440,6 @@ public abstract class Animal extends Utility implements Runnable {
 	}
 	
 
-	private void asynchCoorUpdate() {
-
-			while(threadRun) {
-				
-				int newX = 0;
-				int newY = 0;
-				
-				// flip image
-				if(vector[0] > 0.1)
-					this.flipImage("right");
-				else if(vector[0] < -0.1)
-					this.flipImage("left");
-				
-				synchronized(this) {
-					newX = Math.round((vector[0] * v) + x);
-					newY = Math.round((vector[1] * v) + y);
-				}
-				
-				if(newY > Aq.getAquariumHeight() - distanceFromBorderBottom)
-					newY = Aq.getAquariumHeight() - distanceFromBorderBottom;
-				
-				if(distanceFromBorderTop > newY)
-					newY = distanceFromBorderTop;
-				
-				// When out of the screen on left
-				if(x < (0 - this.getImage().getWidth() - 40)) {
-					terminate();
-					break;
-				}
-				
-				synchronized(this) {
-					//x = newX;
-					//y = newY;
-				}
-				
-								
-				try {
-					Thread.sleep(SYNCH_TIME_CLIENT);
-				} catch (InterruptedException e) {
-					System.out.println("Thread " + Thread.currentThread().toString() + " interrupted!");
-				}
-			}
-	}
+	
 
 }

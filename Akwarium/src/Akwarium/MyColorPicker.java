@@ -7,14 +7,14 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 
-public class myColorPicker extends JButton implements ActionListener, Runnable {
+public class MyColorPicker extends JButton implements ActionListener, Runnable {
 
 	private Aquarium aquarium;
 	private String name;
 	private Thread t;
 	private boolean colorPickerVisible = true;
 	
-	myColorPicker(Aquarium aquarium, String name) {
+	MyColorPicker(Aquarium aquarium, String name) {
 		
 		super(name);
 		this.name = name;
@@ -26,7 +26,7 @@ public class myColorPicker extends JButton implements ActionListener, Runnable {
 	public void run() {
 		
 		Color color = JColorChooser.showDialog(this, "Color Picker", null);
-		myButtonAdd.setColor(color);
+		MyButtonAdd.setColor(color);
 		colorPickerVisible = true;
 	}
 	

@@ -15,7 +15,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.JTextArea;
 
-import Akwarium.packetConstants.packet;
+import Akwarium.PacketConstants.packet;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -107,9 +107,9 @@ public class Aquarium extends Utility {
 		}
 		
 		if (isMultiplayer && isServer)
-			packetSender.addAnimal(a.getSpeciesCode(), a.getImageIndex(), a.getIndex(), a.getX(), a.getY(), a.getVelocity());
+			PacketSender.addAnimal(a.getSpeciesCode(), a.getImageIndex(), a.getIndex(), a.getX(), a.getY(), a.getVelocity());
 		
-		//a.startThread();
+		a.startThread();
 		animalCount++;
 	}
 	
@@ -155,8 +155,6 @@ public class Aquarium extends Utility {
 			a.setIndex(index);
 			top++;
 		}
-		
-		//a.startThread();
 	}
 	
 	
@@ -246,10 +244,7 @@ public class Aquarium extends Utility {
 
 			if(animals[i] == null)
 				continue;
-			
-			if(!animals[i].isStarted())
-				animals[i].startThread();
-			
+		
 			if(animals[i].isTerminated()) {
 				synchronized(this) {
 					animals[i] = null;
@@ -318,18 +313,17 @@ public class Aquarium extends Utility {
 	
 	public int boost () {
 		
-		rndBoost.nextGaussian();
-		return (int)boost;
+		return (int)(boost * Math.abs(rndBoost.nextGaussian()));
 	}
 	
 	
 	public void initSharksServer () {
 		
 		owner = new Shark(this, true);
-		packetSender.addAnimal(owner.getSpeciesCode(), 0, 1, owner.getX(), 
+		PacketSender.addAnimal(owner.getSpeciesCode(), 0, 1, owner.getX(), 
 				owner.getY(), owner.getVelocity());
 		player = new Shark(this, false);
-		packetSender.addAnimal(player.getSpeciesCode(), 0, 0, player.getX(), 
+		PacketSender.addAnimal(player.getSpeciesCode(), 0, 0, player.getX(), 
 				player.getY(), player.getVelocity());
 	}
 	
@@ -338,24 +332,21 @@ public class Aquarium extends Utility {
 		Animal.initAnimalsServer();
 	}
 	
-	public void updateCooridates (int index, int x, int y, float[] vector) {
+	public void updateCooridates (int index, int x, int y) {
 		
 		if(index == 0xFFFF) {
 			owner.setX(x);
 			owner.setX(y);
-			owner.setVector(vector);
 			return;
 		}
 		else if(index == 0xFFFE) {
 			player.setY(x);
 			player.setY(y);
-			player.setVector(vector);
 			return;
 		}
 		
 		animals[index].setX(x);
 		animals[index].setY(y);
-		animals[index].setVector(vector);
 	}
 	
 }

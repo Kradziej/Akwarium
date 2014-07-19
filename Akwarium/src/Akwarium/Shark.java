@@ -135,9 +135,9 @@ public class Shark extends Animal implements KeyListener {
 			
 			if (Aq.isMultiplayer() && Aq.isServer()) {
 				if(isOwner)
-					packetSender.sendNewCoordinates(0xFFFF, x, y, vector);
+					PacketSender.sendNewCoordinates(0xFFFF, x, y);
 				else
-					packetSender.sendNewCoordinates(0xFFFE, x, y, vector);
+					PacketSender.sendNewCoordinates(0xFFFE, x, y);
 			}
 			
 			try {

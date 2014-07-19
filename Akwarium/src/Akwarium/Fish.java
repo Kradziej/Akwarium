@@ -38,7 +38,9 @@ public class Fish extends Animal {
 		this.Aq = Aq;
 		name = getNewAnimalName();
 		this.setInitialCoordinates();
-		v = v + Aq.boost();
+		int b = Aq.boost();
+		v = v + b;
+		System.out.println(v + " " +  b);
 	}
 	
 	// Constructor for multiplayer

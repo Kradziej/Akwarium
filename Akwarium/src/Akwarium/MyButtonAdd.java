@@ -6,13 +6,13 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 import javax.swing.JButton;
 
-public class myButtonAdd extends JButton implements ActionListener {
+public class MyButtonAdd extends JButton implements ActionListener {
 
 	private Aquarium aquarium;
 	private String name;
 	private static Color color;
 	
-	myButtonAdd(Aquarium aquarium, String name) {
+	MyButtonAdd(Aquarium aquarium, String name) {
 		
 		super(name);
 		this.name = name;

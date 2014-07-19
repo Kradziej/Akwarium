@@ -5,12 +5,12 @@ import java.awt.event.ActionListener;
 import java.util.Random;
 import javax.swing.JButton;
 
-public class myButtonDelete extends JButton implements ActionListener {
+public class MyButtonDelete extends JButton implements ActionListener {
 
 	private Aquarium aquarium;
 	private String name;
 	
-	myButtonDelete(Aquarium aquarium, String name) {
+	MyButtonDelete(Aquarium aquarium, String name) {
 		
 		super(name);
 		this.name = name;

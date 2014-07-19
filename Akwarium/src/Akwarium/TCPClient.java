@@ -14,7 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
 
-public class TCPClient extends packetInterpreter implements Runnable {
+public class TCPClient extends PacketInterpreter implements Runnable {
 	
 	private byte[] buffer = new byte[64];
 	private static final int PORT = 4945;

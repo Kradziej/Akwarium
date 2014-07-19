@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
-public abstract class packetInterpreter implements packetConstants {
+public abstract class PacketInterpreter implements PacketConstants {
 	
 	private static Aquarium Aq;
 	private static int iv;
@@ -29,11 +29,8 @@ public abstract class packetInterpreter implements packetConstants {
 			
 			int x = (buffer[2] << 24) >>> 24 | ((buffer[3] << 24) >>> 16) | ((buffer[4] << 24) >>> 8) | (buffer[5] << 24);
 			int y = (buffer[6] << 24) >>> 24 | ((buffer[7] << 24) >>> 16) | ((buffer[8] << 24) >>> 8) | (buffer[9] << 24);
-			int v1 = (buffer[10] << 24) >>> 24 | ((buffer[11] << 24) >>> 16) | ((buffer[12] << 24) >>> 8) | (buffer[13] << 24);
-			int v2 = (buffer[14] << 24) >>> 24 | ((buffer[15] << 24) >>> 16) | ((buffer[16] << 24) >>> 8) | (buffer[17] << 24);
 			
-			float[] vector = {(float)v1/FLOAT_PRECISION, (float)v2/FLOAT_PRECISION};
-			Aq.updateCooridates(index, x, y, vector);
+			Aq.updateCooridates(index, x, y);
 			return 0;
 		
 		case ADD_ANIMAL:

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.PipedOutputStream;
 import java.util.Random;
 
-public abstract class packetSender implements packetConstants {
+public abstract class PacketSender implements PacketConstants {
 
 	private static PipedOutputStream tcpOutput;
 	private static PipedOutputStream udpOutput;
@@ -65,7 +65,7 @@ public abstract class packetSender implements packetConstants {
 		return packet.REMOVE_ANIMAL.length()+1;
 	}
 	
-	public static int sendNewCoordinates (int index, int x, int y, float[] vector) {
+	public static int sendNewCoordinates (int index, int x, int y) {
 		
 		byte[] buffer = new byte[packet.UPDATE_COORDINATES.length()+1];
 		
@@ -80,16 +80,6 @@ public abstract class packetSender implements packetConstants {
 		buffer[8] = (byte)(y >>> 8);
 		buffer[9] = (byte)(y >>> 16);
 		buffer[10] = (byte)(y >>> 24);
-		int v1 = Math.round((vector[0] * FLOAT_PRECISION));    //could change for precision
-		int v2 = Math.round((vector[1] * FLOAT_PRECISION));
-		buffer[11] = (byte)v1;
-		buffer[12] = (byte)(v1 >>> 8);
-		buffer[13] = (byte)(v1 >>> 16);
-		buffer[14] = (byte)(v1 >>> 24);
-		buffer[15] = (byte)v2;
-		buffer[16] = (byte)(v2 >>> 8);
-		buffer[17] = (byte)(v2 >>> 16);
-		buffer[18] = (byte)(v2 >>> 24);
 		
 		try {
 			synchronized (udpOutput) {

@@ -17,7 +17,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Random;
 
-public class TCPServer extends packetSender implements Runnable {
+public class TCPServer extends PacketSender implements Runnable {
 	
 	private static final int PORT = 4945;
 	private byte[] bufferIn = new byte[64];
@@ -54,7 +54,7 @@ public class TCPServer extends packetSender implements Runnable {
 			while (in.read(bufferIn) != -1) {
 				if((byte)(bufferIn[0] ^ 0x80) == 0) {	 	  // get hello message
 					out = client.getOutputStream();
-					packetSender.sendIv();   // send iv
+					PacketSender.sendIv();   // send iv
 					break;
 				}
 			}
