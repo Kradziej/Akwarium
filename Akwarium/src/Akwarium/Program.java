@@ -103,7 +103,7 @@ public class Program {
 			// Wait for connection
 			if(isServer) {
 				
-				while(!client.isConnected()) {
+				while(!server.isConnected()) {
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
@@ -116,7 +116,7 @@ public class Program {
 			
 			if(isClient) {
 			
-				while(!server.isConnected()) {
+				while(!client.isConnected()) {
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
