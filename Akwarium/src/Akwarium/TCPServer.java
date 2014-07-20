@@ -17,16 +17,15 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Random;
 
-public class TCPServer extends PacketSender implements Runnable {
+public class TCPServer implements Runnable, PacketConstants {
 	
-	private static final int PORT = 4945;
 	private byte[] bufferIn = new byte[64];
 	private byte[] bufferOut = new byte[64];
-	private InetAddress IPAddress;
-	private int iv;
 	private UDPServer sendCoor;
 	private boolean isConnected;
+	private static int port = 4945;
 	Thread t;
+	private InetAddress IPAddress;     // server client is connected with
 	private PipedInputStream tcpInput;
 	private PipedInputStream udpInput;
 	
@@ -48,8 +47,9 @@ public class TCPServer extends PacketSender implements Runnable {
 		
 		
 		try {
-			server = new ServerSocket(PORT);
+			server = new ServerSocket(port);
 			client = server.accept();
+			IPAddress = client.getInetAddress();
 			in = client.getInputStream();
 			while (in.read(bufferIn) != -1) {
 				if((byte)(bufferIn[0] ^ 0x80) == 0) {	 	  // get hello message
@@ -79,9 +79,9 @@ public class TCPServer extends PacketSender implements Runnable {
 						return;
 					} 		
 				} else if((byte)(bufferIn[0] ^ 0xFE) == 0) {   // iv ready
-					 isConnected = true;
-					 sendCoor = new UDPServer(udpInput, client.getInetAddress(), PORT+1);
+					 sendCoor = new UDPServer(udpInput, client.getInetAddress(), port);
 					 sendCoor.startThread();
+					 isConnected = true;
 				}
 			}
 		
@@ -89,7 +89,7 @@ public class TCPServer extends PacketSender implements Runnable {
 			if(e.getClass() ==  ConnectException.class)
 				System.out.println("Cannot connect to client");
 			if(e.getClass() ==  BindException.class)
-				System.out.println("Cannot bind to port " + PORT);
+				System.out.println("Cannot bind to port " + port);
 			else
 				System.out.println("Cannot read data from client");
 				
@@ -123,5 +123,15 @@ public class TCPServer extends PacketSender implements Runnable {
 	}
 	
 
+	public InetAddress getIPAddress () {
+		
+		return IPAddress;
+	}
+	
+	public int getNextPort () {
+		
+		port++;
+		return port;
+	}
 
 }

@@ -17,12 +17,10 @@ import java.util.Random;
 public class TCPClient extends PacketInterpreter implements Runnable {
 	
 	private byte[] buffer = new byte[64];
-	private static final int PORT = 4945;
-	private int iv;
+	private static int port = 4945;
 	private boolean isConnected;
-	private InetAddress IPAddress;
+	private InetAddress IPAddress;    // address of server
 	private UDPClient recCoor;
-	private boolean runServer = true;
 	private Thread t;
 	
 	
@@ -84,7 +82,7 @@ public class TCPClient extends PacketInterpreter implements Runnable {
 		try {
 			
 			client = new Socket();
-			client.connect(new InetSocketAddress(IPAddress, PORT), 0); // socket.accept()
+			client.connect(new InetSocketAddress(IPAddress, port), 0); // socket.accept()
 			out = client.getOutputStream();
 			out.write(buffer, 0, 5);   // send hello message
 			in = client.getInputStream();
@@ -96,7 +94,7 @@ public class TCPClient extends PacketInterpreter implements Runnable {
 					buffer[0] = (byte)0xFE;   // iv resolved
 					buffer[1] = (byte)0x00;
 					out.write(buffer, 0, 2);
-					recCoor = new UDPClient(iv, PORT+1);
+					recCoor = new UDPClient(port);
 					recCoor.startThread();
 					isConnected = true;
 					break;
@@ -126,7 +124,7 @@ public class TCPClient extends PacketInterpreter implements Runnable {
 			if(e.getClass() ==  ConnectException.class)
 				System.out.println("Cannot connect to server");
 			if(e.getClass() ==  BindException.class)
-				System.out.println("Cannot bind to port " + PORT);
+				System.out.println("Cannot bind to port " + port);
 			if(e.getClass() == NoRouteToHostException.class)
 				System.out.println("Client disconnected");
 			else
@@ -158,6 +156,17 @@ public class TCPClient extends PacketInterpreter implements Runnable {
 	public boolean isConnected () {
 		
 		return isConnected;
+	}
+
+	public InetAddress getIPAddress() {
+		
+		return IPAddress;
+	}
+	
+	public int getNextPort () {
+		
+		port++;
+		return port;
 	}
 
 }

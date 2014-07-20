@@ -21,10 +21,9 @@ public class UDPClient extends PacketInterpreter implements Runnable {
 	private Thread t;
 	
 	
-	UDPClient (int iv, int port) {
+	UDPClient (int port) {
 		
 		this.port = port;
-		this.iv = iv;
 	}
 	
 	public void run () {
@@ -55,9 +54,7 @@ public class UDPClient extends PacketInterpreter implements Runnable {
 		
 			// Analyse packet
 			try {
-				//while((op = in.read()) == 1) {
 				interpret(in.read(), in);  // update coordinates
-				//}
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.out.println("Cannot read/send data to server");

@@ -8,7 +8,6 @@ public interface PacketConstants {
 	public int REMOVE_ANIMAL = 0x3;
 	public int INITIALIZE_IMAGES  = 0x4;
 	public int CONNECTION_INITIALIZATION = 0x5;
-	
 
 	public static enum packet {
 		

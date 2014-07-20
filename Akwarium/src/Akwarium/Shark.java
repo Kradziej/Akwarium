@@ -62,28 +62,17 @@ public class Shark extends Animal implements KeyListener {
 			newY = Math.round((vector[1] * v) + y);
 			
 			
-			//if(newX > Aq.getAquariumWidth() - distanceFromBorderRight || distanceFromBorderLeft > newX) {
-			//	vector[0] = -(vector[0]);
-			//	newX = Math.round((vector[0] * v) + x);
-			//		
-			//}
+			if(newX > Aq.getAquariumWidth() - this.getImage().getWidth())
+				newX = Aq.getAquariumWidth() - this.getImage().getWidth();
 			
-			if(newX > Aq.getAquariumWidth())
-				newX = 0 - this.getImage().getWidth() + 2;
+			if(0 > newX)
+				newX = 0;
 			
-			if(-(this.getImage().getWidth()) > newX)
-				newX = Aq.getAquariumWidth() - 2;
-			
-			if(newY > Aq.getAquariumHeight() - distanceFromBorderBottom) {
-				//vector[1] = Math.abs(vector[1]) < 0.10f ? -(Math.abs(vector[1]) + 0.10f) : 0;
-				//newY = Math.round((vector[1] * v) + y);
+			if(newY > Aq.getAquariumHeight() - distanceFromBorderBottom)
 				newY = Aq.getAquariumHeight() - distanceFromBorderBottom;
-			}
 			
-			if(distanceFromBorderTop > newY) {
-				
+			if(distanceFromBorderTop > newY)
 				newY = distanceFromBorderTop;
-			}
 			
 			float boost = 0.13f; 
 			
@@ -124,22 +113,22 @@ public class Shark extends Animal implements KeyListener {
 			
 			
 			// flip image
-			//if(newX - x > 2)
-			//	this.flipImage("right");
-			//else if(newX - x < -2)
-			//	this.flipImage("left");
+			if(newX - x > 2)
+				this.flipImage("right");
+			else if(newX - x < -2)
+				this.flipImage("left");
 
 			x = newX;
 			y = newY;
 			
 			
-			/*
+			
 			if (Aq.isMultiplayer() && Aq.isServer()) {
 				if(isOwner)
-					PacketSender.sendNewCoordinates(0xFFFF, x, y, direciton);
+					PacketSender.sendNewCoordinates(0xFFFF, x, y, 0);
 				else
-					PacketSender.sendNewCoordinates(0xFFFE, x, y, direction);
-			}*/
+					PacketSender.sendNewCoordinates(0xFFFE, x, y, 0);
+			}
 			
 			
 			try {
@@ -208,8 +197,8 @@ public class Shark extends Animal implements KeyListener {
 	protected void setInitialCoordinates () {
 		
 		Random rand = new Random();
-		this.x = rand.nextInt(Aq.getAquariumWidth() - 160) + 80;
-		this.y = rand.nextInt(Aq.getAquariumHeight() - 160) + 80;
+		this.x = 3;
+		this.y = rand.nextInt(Aq.getAquariumHeight() - 120) + 60;
 	}
 	
 	public void setImageIndex(int imageIndex) {}

@@ -81,7 +81,6 @@ public abstract class Animal extends Utility implements Runnable {
 	protected int distanceFromBorderRight = 135;
 	protected int distanceFromBorderTop = 25;
 	protected int distanceFromBorderBottom = 100;
-	private static final int SYNCH_TIME_CLIENT = 30;
 	private static final int SYNCH_TIME_SERVER = 30;
 	
 	
@@ -265,7 +264,7 @@ public abstract class Animal extends Utility implements Runnable {
 	protected void setInitialCoordinates () {
 		
 		Random rand = new Random();
-		this.x = Aq.getAquariumWidth();
+		this.x = Aq.getAquariumWidth() + 60;
 		this.y = rand.nextInt(Aq.getAquariumHeight() - 20) + 10;
 	}
 

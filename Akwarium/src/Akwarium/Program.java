@@ -69,8 +69,10 @@ public class Program {
 		PipedInputStream tcpInput = null;
 		PipedOutputStream udpOutput = null;
 		PipedInputStream udpInput = null;
-		TCPServer server = null;
-		TCPClient client = null;
+		TCPServer client = null;
+		TCPClient server = null;
+		UDPServer playerOut = null;
+		UDPClient playerIn = null;
 	
 		
 		// Initialize multiplayer if checked
@@ -81,6 +83,7 @@ public class Program {
 				udpInput = new PipedInputStream(udpOutput);
 				tcpOutput = new PipedOutputStream();
 				tcpInput = new PipedInputStream(tcpOutput);
+				PacketSender.setOutputs(tcpOutput, udpOutput);
 			} catch (IOException e) {
 				System.out.println("Cannot create pipes");
 				e.printStackTrace();
@@ -88,44 +91,41 @@ public class Program {
 			}
 			
 			if(isServer) {
-				server = new TCPServer(tcpInput, udpInput);
-				PacketSender.setOutputs(tcpOutput, udpOutput);
-				server.startThread();
+				client = new TCPServer(tcpInput, udpInput);  // sender
+				client.startThread();
 			}
 			if(isClient) {
-				client = new TCPClient(ip);
-				client.startThread();
+				server = new TCPClient(ip);    //receiver
+				server.startThread();
 			}
 		}
 		
 		// Wait for connection
-		if(isMultiplayer) {
-			if(isServer) {
+		if(isServer) {
+			
+			while(!client.isConnected()) {
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					return;
+				}
+			}
 				
-				while(!server.isConnected()) {
-					try {
-						Thread.sleep(200);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						return;
-					}
-				}
-					
-			}
-			
-			if(isClient) {
-			
-				while(!client.isConnected()) {
-					try {
-						Thread.sleep(200);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						return;
-					}
-				}
-			}
-			
 		}
+		
+		if(isClient) {
+		
+			while(!server.isConnected()) {
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					return;
+				}
+			}
+		}
+			
 		
 		
 		// Create aquarium
@@ -164,24 +164,17 @@ public class Program {
 		
 		
 		// Create init animals
-		try {
-			if(isServer) {
-				aquarium.initAnimalsServer();
-				//aquarium.initSharksServer();
+		if(isServer) {
+			aquarium.initAnimalsServer();
+			aquarium.initSharksServer();   
+			playerIn = new UDPClient(server.getNextPort());
+			playerIn.startThread();
 			
-				for(int i = 0; i < 5; i++) {
-					aquarium.addAnimal();
-				}
-			}
-		} catch (InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e1) {
-			System.out.println("Cannot create any fishes");
-			e1.printStackTrace();
-			System.exit(-1);
-			
+		} else if(isClient) {
+			playerOut = new UDPServer(udpInput, client.getIPAddress(), client.getNextPort());
+			playerOut.startThread();
 		}
-		
+	
 		
 		
 		float boost = 1.00f;
