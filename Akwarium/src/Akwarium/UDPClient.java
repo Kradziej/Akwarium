@@ -12,7 +12,7 @@ import java.net.SocketException;
 
 public class UDPClient extends PacketInterpreter implements Runnable {
 	
-	private byte[] buffer = new byte[256];
+	private byte[] buffer = new byte[64];
 	private int port;
 	private boolean runServer = true;
 	private int iv;

@@ -58,8 +58,8 @@ public abstract class Animal extends Utility implements Runnable {
 	protected BufferedImage rightDirImage;
 	public static BufferedImage[] resources = new BufferedImage[2];
 	public static BufferedImage[][][] graphics;    // [0]for all species [1]first is left, second right [2]number of buff images
-	public static BufferedImage sharkOwner;
-	public static BufferedImage sharkPlayer;
+	public static BufferedImage sharkOwnerImage;
+	public static BufferedImage sharkPlayerImage;
 	public static int numberOfBufferedImages = 30;
 	private byte[] buffer = new byte[64];
 	protected String name;

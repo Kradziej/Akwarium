@@ -31,11 +31,11 @@ public class Shark extends Animal implements KeyListener {
 		this.isOwner = isOwner;
 		
 		if(isOwner) {
-			rightDirImage = copyImage(sharkOwner);
-			leftDirImage = copyImage(sharkOwner);
+			rightDirImage = copyImage(sharkOwnerImage);
+			leftDirImage = copyImage(sharkOwnerImage);
 		} else {
-			rightDirImage = copyImage(sharkPlayer);
-			leftDirImage = copyImage(sharkPlayer);
+			rightDirImage = copyImage(sharkPlayerImage);
+			leftDirImage = copyImage(sharkPlayerImage);
 		}
 		
 		AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
@@ -123,11 +123,11 @@ public class Shark extends Animal implements KeyListener {
 			
 			
 			
-			if (Aq.isMultiplayer() && Aq.isServer()) {
+			if (Aq.isMultiplayer()) {
 				if(isOwner)
-					PacketSender.sendNewCoordinates(0xFFFF, x, y, 0);
-				else
 					PacketSender.sendNewCoordinates(0xFFFE, x, y, 0);
+				else
+					PacketSender.sendNewCoordinates(0xFFFD, x, y, 0);
 			}
 			
 			

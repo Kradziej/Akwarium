@@ -73,7 +73,11 @@ public class Program {
 		TCPClient client = null;
 		UDPServer playerOut = null;
 		UDPClient playerIn = null;
-	
+		
+		// Create aquarium
+		Aquarium aquarium = new Aquarium(new Filter(), new Lamp(), 5000, console, isServer, isClient);
+		PacketInterpreter.setAq(aquarium);
+		
 		
 		// Initialize multiplayer if checked
 		if(isMultiplayer) {
@@ -128,11 +132,7 @@ public class Program {
 		}
 			
 		
-		
-		// Create aquarium
-		Aquarium aquarium = new Aquarium(new Filter(), new Lamp(), 5000, console, isServer, isClient);
-		PacketInterpreter.setAq(aquarium);
-		
+	
 		/*
 		// buttons
 		frame.add(bPanel, BorderLayout.PAGE_START);

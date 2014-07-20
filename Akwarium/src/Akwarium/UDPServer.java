@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 
 public class UDPServer implements Runnable, PacketConstants {
 	
-	private byte[] buffer = new byte[256];
+	private byte[] buffer = new byte[64];
 	private int port;
 	private InetAddress IPAddress;
 	private int iv;
@@ -22,7 +22,7 @@ public class UDPServer implements Runnable, PacketConstants {
 		
 		this.port = port;
 		this.IPAddress = IPAddress;
-		this.packetInput = in;
+		packetInput = in;
 	}
 	
 	

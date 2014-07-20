@@ -65,8 +65,8 @@ public class Aquarium extends Utility {
 		try {
 			Animal.resources[0] = ImageIO.read(Program.class.getClass().getResource("/resources/fish.png"));
 			Animal.resources[1] = ImageIO.read(Program.class.getClass().getResource("/resources/turtle.png"));
-			Animal.sharkOwner = ImageIO.read(Program.class.getClass().getResource("/resources/shark.png"));
-			Animal.sharkPlayer = ImageIO.read(Program.class.getClass().getResource("/resources/shark.png"));
+			Animal.sharkOwnerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark.png"));
+			Animal.sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark.png"));
 		} catch (IOException e2) {
 			System.out.println("Cannot load resources");
 			e2.printStackTrace();
@@ -97,7 +97,7 @@ public class Aquarium extends Utility {
 		int n = rand.nextInt(allSpecies.length);
 		Animal a = (Animal) allSpecies[n].getInstance().getDeclaredConstructor(Aquarium.class).newInstance(this);
 		
-		if(top == 0xFFFD)
+		if(top == 0xFFFC)
 			top = bottom = 0;
 		
 		synchronized(this) {
@@ -123,11 +123,17 @@ public class Aquarium extends Utility {
 				owner.setX(x);
 				owner.setY(y);
 				owner.setVelocity(v);
+				animals[0xFFFE] = owner;
+				return;
 			} else {
 				player = new Shark(this, false);
 				player.setX(x);
 				player.setY(y);
 				player.setVelocity(v);
+				dAq.addKeyListener(player);
+				player.startThread();
+				animals[0xFFFD] = player;
+				return;
 			}
 		}
 		
@@ -147,7 +153,7 @@ public class Aquarium extends Utility {
 		//newAnimal.setVelocity(v);
 		a.setImageIndex(imageIndex);
 		
-		if(top == 0xFFFD)
+		if(top == 0xFFFC)
 			top = bottom = 0;
 		
 		synchronized(this) {
@@ -257,8 +263,8 @@ public class Aquarium extends Utility {
 			dAq.drawAnimal(g2d, animals[i]);
 			
 		}
-		//dAq.drawAnimal(g2d, owner);
-		//dAq.drawAnimal(g2d, player);
+		dAq.drawAnimal(g2d, owner);
+		dAq.drawAnimal(g2d, player);
 		
 		dAq.drawBuffer(buffer);
 		g2d.dispose();
@@ -322,9 +328,14 @@ public class Aquarium extends Utility {
 		owner = new Shark(this, true);
 		PacketSender.addAnimal(owner.getSpeciesCode(), 0, 1, owner.getX(), 
 				owner.getY(), owner.getVelocity());
+		dAq.addKeyListener(owner);
+		owner.startThread();
+		animals[0xFFFE] = owner;
 		player = new Shark(this, false);
 		PacketSender.addAnimal(player.getSpeciesCode(), 0, 0, player.getX(), 
 				player.getY(), player.getVelocity());
+		player.startThread();
+		animals[0xFFFD] = player;
 	}
 	
 	public void initAnimalsServer() {
@@ -332,14 +343,24 @@ public class Aquarium extends Utility {
 		Animal.initAnimalsServer();
 	}
 	
+	public Animal getPlayer () {
+		
+		return player;
+	}
+	
+	public Animal getOwner () {
+		
+		return owner;
+	}
+	
 	public void updateCooridates (int index, int x, int y, int direction) {
 		
-		if(index == 0xFFFF) {
+		if(index == 0xFFFE) {
 			owner.setX(x);
 			owner.setX(y);
 			return;
 		}
-		else if(index == 0xFFFE) {
+		else if(index == 0xFFFD) {
 			player.setY(x);
 			player.setY(y);
 			return;
