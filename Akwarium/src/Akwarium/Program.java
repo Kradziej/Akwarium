@@ -69,8 +69,8 @@ public class Program {
 		PipedInputStream tcpInput = null;
 		PipedOutputStream udpOutput = null;
 		PipedInputStream udpInput = null;
-		TCPServer client = null;
-		TCPClient server = null;
+		TCPServer server = null;
+		TCPClient client = null;
 		UDPServer playerOut = null;
 		UDPClient playerIn = null;
 	
@@ -91,37 +91,38 @@ public class Program {
 			}
 			
 			if(isServer) {
-				client = new TCPServer(tcpInput, udpInput);  // sender
-				client.startThread();
-			}
-			if(isClient) {
-				server = new TCPClient(ip);    //receiver
+				server = new TCPServer(tcpInput, udpInput);  // sender
 				server.startThread();
 			}
-		}
-		
-		// Wait for connection
-		if(isServer) {
-			
-			while(!client.isConnected()) {
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					return;
-				}
+			if(isClient) {
+				client = new TCPClient(ip);    //receiver
+				client.startThread();
 			}
+		
+			
+			// Wait for connection
+			if(isServer) {
 				
-		}
-		
-		if(isClient) {
-		
-			while(!server.isConnected()) {
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					return;
+				while(!client.isConnected()) {
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						return;
+					}
+				}
+					
+			}
+			
+			if(isClient) {
+			
+				while(!server.isConnected()) {
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						return;
+					}
 				}
 			}
 		}
