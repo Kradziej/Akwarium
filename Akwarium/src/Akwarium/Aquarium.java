@@ -61,17 +61,8 @@ public class Aquarium extends Utility {
 		dAq = new DrawAq(this);
 		dAq.setBackground(backgroundColor);
 		
-		// Load resources
-		try {
-			Animal.resources[0] = ImageIO.read(Program.class.getClass().getResource("/resources/fish.png"));
-			Animal.resources[1] = ImageIO.read(Program.class.getClass().getResource("/resources/turtle.png"));
-			Animal.sharkOwnerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark.png"));
-			Animal.sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark2.png"));
-		} catch (IOException e2) {
-			System.out.println("Cannot load resources");
-			e2.printStackTrace();
-			System.exit(-1);
-		}
+		// resources
+		Animal.loadResources();
 	}
 	
 	public int getNumberOfAnimals () {
