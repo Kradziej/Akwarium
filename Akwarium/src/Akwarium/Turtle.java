@@ -37,9 +37,7 @@ public class Turtle extends Animal {
 		this.Aq = Aq;
 		name = getNewAnimalName();
 		this.setInitialCoordinates();
-		int b = Aq.boost();
-		v = v + b;
-		System.out.println(v + " " +  b);
+		v +=  Aq.boost();
 	}
 	
 	// Constructor for multiplayer

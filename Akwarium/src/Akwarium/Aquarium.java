@@ -40,8 +40,8 @@ public class Aquarium extends Utility {
 	private int top = 0;
 	private int animalCount = 0;
 	Random rndBoost = new Random();
-	private Shark owner;
-	private Shark player;
+	private Shark owner;   //0xFFFE
+	private Shark player;  //0xFFFD
 	private JTextArea console;
 	private boolean isMultiplayer;
 	private boolean isServer;  // w zaleznosci czy client czy server jeden bedzie puszczal thready drugi nie
@@ -334,7 +334,6 @@ public class Aquarium extends Utility {
 		player = new Shark(this, false);
 		PacketSender.addAnimal(player.getSpeciesCode(), 0, 0, player.getX(), 
 				player.getY(), player.getVelocity());
-		player.startThread();
 		animals[0xFFFD] = player;
 	}
 	
@@ -358,11 +357,13 @@ public class Aquarium extends Utility {
 		if(index == 0xFFFE) {
 			owner.setX(x);
 			owner.setX(y);
+			System.out.println(x+" "+y);
 			return;
 		}
 		else if(index == 0xFFFD) {
 			player.setY(x);
 			player.setY(y);
+			System.out.println(x+" "+y);
 			return;
 		}
 		

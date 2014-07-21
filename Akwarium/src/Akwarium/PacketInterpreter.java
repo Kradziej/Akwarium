@@ -43,7 +43,7 @@ public abstract class PacketInterpreter implements PacketConstants {
 			x = (buffer[4] << 24) >>> 24 | ((buffer[5] << 24) >>> 16) | ((buffer[6] << 24) >>> 8);
 			y = (buffer[7] << 24) >>> 24 | ((buffer[8] << 24) >>> 16) | ((buffer[9] << 24) >>> 8);
 			int v = (buffer[10] << 24) >>> 24 | ((buffer[11] << 24) >>> 16);
-			System.out.println(index);
+			
 			
 			try {
 				Aq.addAnimal(code, imageIndex, index, x, y, v);
