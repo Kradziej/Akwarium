@@ -348,13 +348,13 @@ public class Aquarium extends Utility {
 		if(index == 0xFFFE) {
 			owner.setX(x);
 			owner.setY(y);
-			System.out.println(x+" "+y);
+			owner.setDirection(direction);
 			return;
 		}
 		else if(index == 0xFFFD) {
 			player.setX(x);
 			player.setY(y);
-			System.out.println(x+" "+y);
+			player.setDirection(direction);
 			return;
 		}
 		

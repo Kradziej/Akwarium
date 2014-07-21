@@ -56,11 +56,11 @@ public abstract class Animal extends Utility implements Runnable {
 	protected BufferedImage image;
 	protected BufferedImage leftDirImage;
 	protected BufferedImage rightDirImage;
-	public static BufferedImage[] resources = new BufferedImage[2];
-	public static BufferedImage[][][] graphics;    // [0]for all species [1]first is left, second right [2]number of buff images
-	public static BufferedImage sharkOwnerImage;
-	public static BufferedImage sharkPlayerImage;
-	public static int numberOfBufferedImages = 30;
+	protected static BufferedImage[] resources = new BufferedImage[2];
+	protected static BufferedImage[][][] graphics;    // [0]for all species [1]first is left, second right [2]number of buff images
+	protected static BufferedImage sharkOwnerImage;
+	protected static BufferedImage sharkPlayerImage;
+	protected static int numberOfBufferedImages = 30;
 	protected String name;
 	protected int x;
 	protected int y;
@@ -76,10 +76,10 @@ public abstract class Animal extends Utility implements Runnable {
 	private int weight;
 	protected int imageIndex;
 	private Food food;
-	protected int distanceFromBorderLeft = 0;
-	protected int distanceFromBorderRight = 135;
-	protected int distanceFromBorderTop = 25;
-	protected int distanceFromBorderBottom = 100;
+	protected static int distanceFromBorderLeft = 0;
+	protected static int distanceFromBorderRight = 135;
+	protected static int distanceFromBorderTop = 25;
+	protected static int distanceFromBorderBottom = 100;
 	private static final int SYNCH_TIME_SERVER = 30;
 	
 	
@@ -453,10 +453,10 @@ public abstract class Animal extends Utility implements Runnable {
 	public static void loadResources() {
 		
 		try {
-			Animal.resources[0] = ImageIO.read(Program.class.getClass().getResource("/resources/fish.png"));
-			Animal.resources[1] = ImageIO.read(Program.class.getClass().getResource("/resources/turtle.png"));
-			Animal.sharkOwnerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark.png"));
-			Animal.sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark2.png"));
+			resources[0] = ImageIO.read(Program.class.getClass().getResource("/resources/fish.png"));
+			resources[1] = ImageIO.read(Program.class.getClass().getResource("/resources/turtle.png"));
+			sharkOwnerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark.png"));
+			sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark2.png"));
 		} catch (IOException e2) {
 			System.out.println("Cannot load resources");
 			e2.printStackTrace();
