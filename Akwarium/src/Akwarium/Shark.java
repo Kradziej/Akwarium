@@ -30,18 +30,13 @@ public class Shark extends Animal implements KeyListener {
 		name = "Sharky";
 		this.isOwner = isOwner;
 		
-		if(isOwner) {
+		if(isOwner)
 			rightDirImage = copyImage(sharkOwnerImage);
-			leftDirImage = copyImage(sharkOwnerImage);
-		} else {
+		else
 			rightDirImage = copyImage(sharkPlayerImage);
-			leftDirImage = copyImage(sharkPlayerImage);
-		}
 		
-		AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
-		tx.translate(-leftDirImage.getWidth(null), 0);
-		AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-		leftDirImage = op.filter(leftDirImage, null);
+		
+		leftDirImage = flipImage(copyImage(rightDirImage));
 		image = rightDirImage;
 		this.setInitialCoordinates();
 		v = 8;
@@ -55,7 +50,6 @@ public class Shark extends Animal implements KeyListener {
 			Random rand = new Random();
 			int newX;
 			int newY;
-			int direction = 0;
 			
 			// calculate new position from velocity and vector
 			// check if it's out of window

@@ -65,6 +65,7 @@ public abstract class Animal extends Utility implements Runnable {
 	protected int x;
 	protected int y;
 	protected float[] vector = {1,0};
+	protected int direction;
 	protected int v;   // pixels per sec
 	protected int index;
 	protected Aquarium Aq;
@@ -93,7 +94,6 @@ public abstract class Animal extends Utility implements Runnable {
 			int rNumber = rand.nextInt();
 			int newX;
 			int newY;
-			int direction = 0;
 			
 			// set random direction vectors
 			float f = (float)((rand.nextInt(31) + 1) * 0.01f);
@@ -322,6 +322,7 @@ public abstract class Animal extends Utility implements Runnable {
 		BufferedImage copy = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics g = copy.createGraphics();
 		g.drawImage(src, 0, 0, null);
+		g.dispose();
 		return copy;
 	}
 	
@@ -455,8 +456,8 @@ public abstract class Animal extends Utility implements Runnable {
 		try {
 			resources[0] = ImageIO.read(Program.class.getClass().getResource("/resources/fish.png"));
 			resources[1] = ImageIO.read(Program.class.getClass().getResource("/resources/turtle.png"));
-			sharkOwnerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark.png"));
-			sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark2.png"));
+			sharkOwnerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark_blue.png"));
+			sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark_red.png"));
 		} catch (IOException e2) {
 			System.out.println("Cannot load resources");
 			e2.printStackTrace();

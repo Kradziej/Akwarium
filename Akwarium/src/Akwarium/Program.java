@@ -52,7 +52,7 @@ public class Program {
 		InetAddress ip = null;
 		try {
 			//ip = InetAddress.getByName(addr.getIpAddress());
-			ip = InetAddress.getByName("192.168.5.100");
+			ip = InetAddress.getByName("192.168.5.101");
 		} catch (UnknownHostException e) {
 			System.out.println("Host not found");
 			e.printStackTrace();
@@ -186,7 +186,7 @@ public class Program {
 			
 			if(isServer) {
 				
-				boost += 0.0001f;
+				boost += 0.00001f;
 				aquarium.increaseShift((float)(0.1*Math.pow(boost, 2)));
 				int allAnimals = aquarium.getNumberOfAnimals();
 				Random rand = new Random();
