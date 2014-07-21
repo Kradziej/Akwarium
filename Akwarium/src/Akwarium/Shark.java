@@ -118,21 +118,21 @@ public class Shark extends Animal implements KeyListener {
 			else if(newX - x < -2)
 				this.flipImage("left");
 
-			x = newX;
-			y = newY;
+			if(x != newX || y != newY) {
+				x = newX;
+				y = newY;
+				
+				if (Aq.isMultiplayer()) {
+					if(isOwner)
+						PacketSender.sendNewCoordinates(0xFFFE, x, y, 0);
+					else
+						PacketSender.sendNewCoordinates(0xFFFD, x, y, 0);
+				}
 			
-			
-			
-			if (Aq.isMultiplayer()) {
-				if(isOwner)
-					PacketSender.sendNewCoordinates(0xFFFE, x, y, 0);
-				else
-					PacketSender.sendNewCoordinates(0xFFFD, x, y, 0);
 			}
 			
-			
 			try {
-				Thread.sleep(70);
+				Thread.sleep(30);
 			} catch (InterruptedException e) {
 				System.out.println("Thread " + Thread.currentThread().toString() + " interrupted!");
 			}
@@ -202,5 +202,7 @@ public class Shark extends Animal implements KeyListener {
 	}
 	
 	public void setImageIndex(int imageIndex) {}
+	
+	
 
 }

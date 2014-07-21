@@ -61,7 +61,6 @@ public abstract class Animal extends Utility implements Runnable {
 	public static BufferedImage sharkOwnerImage;
 	public static BufferedImage sharkPlayerImage;
 	public static int numberOfBufferedImages = 30;
-	private byte[] buffer = new byte[64];
 	protected String name;
 	protected int x;
 	protected int y;

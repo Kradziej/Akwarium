@@ -66,7 +66,7 @@ public class Aquarium extends Utility {
 			Animal.resources[0] = ImageIO.read(Program.class.getClass().getResource("/resources/fish.png"));
 			Animal.resources[1] = ImageIO.read(Program.class.getClass().getResource("/resources/turtle.png"));
 			Animal.sharkOwnerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark.png"));
-			Animal.sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark.png"));
+			Animal.sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark2.png"));
 		} catch (IOException e2) {
 			System.out.println("Cannot load resources");
 			e2.printStackTrace();
@@ -356,12 +356,12 @@ public class Aquarium extends Utility {
 		
 		if(index == 0xFFFE) {
 			owner.setX(x);
-			owner.setX(y);
+			owner.setY(y);
 			System.out.println(x+" "+y);
 			return;
 		}
 		else if(index == 0xFFFD) {
-			player.setY(x);
+			player.setX(x);
 			player.setY(y);
 			System.out.println(x+" "+y);
 			return;
