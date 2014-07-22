@@ -89,6 +89,10 @@ public class TCPClient extends PacketInterpreter implements Runnable {
 			int op;
 			while ((op = in.read()) != -1) {
 				
+				if(op == 2) {
+					int ssss = 0;
+				}
+				
 				switch(interpret(op, in)) {
 				case 1:
 					buffer[0] = (byte)0xFE;   // iv resolved

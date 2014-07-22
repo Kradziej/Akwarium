@@ -81,13 +81,33 @@ public abstract class Animal extends Utility implements Runnable {
 	protected static int distanceFromBorderRight = 135;
 	protected static int distanceFromBorderTop = 25;
 	protected static int distanceFromBorderBottom = 100;
-	private static final int SYNCH_TIME_SERVER = 30;
+	protected static final int SYNCH_TIME = 30;
 	
 	
 	
 	public void run() {
 		
 		while(threadRun) {
+			
+			
+			if(Aq.isClient()) {
+				while(threadRun) {
+					if(Aq.containsShark(this)) {
+						terminate();
+						break;
+					}
+					
+					try {
+						Thread.sleep(SYNCH_TIME);
+					} catch (InterruptedException e) {
+						System.out.println("Thread " + Thread.currentThread().toString() + " interrupted!");
+					}
+			
+				}
+				
+				break;
+			}
+			
 			
 			
 			Random rand = new Random();
@@ -152,7 +172,10 @@ public abstract class Animal extends Utility implements Runnable {
 			
 			
 			// Conditions when on shark -> terminated
-			//terminated = Aq.containsShark(this);  // TURN THIS ON LATER! SIC ;----D
+			if(Aq.containsShark(this)) {
+				terminate();
+				break;
+			}
 	
 			// When out of the screen on left
 			if(x < (0 - this.getImage().getWidth() - 40)) {
@@ -166,7 +189,7 @@ public abstract class Animal extends Utility implements Runnable {
 			
 			
 			try {
-				Thread.sleep(SYNCH_TIME_SERVER);
+				Thread.sleep(SYNCH_TIME);
 			} catch (InterruptedException e) {
 				System.out.println("Thread " + Thread.currentThread().toString() + " interrupted!");
 			}
@@ -344,7 +367,7 @@ public abstract class Animal extends Utility implements Runnable {
 		return buff;
 	}
 	
-	public static void initAnimalsServer () {
+	public static void initAnimalsServer (Aquarium Aq) {
 		
 		
 		Color maskColor = new Color(255,255,255);
@@ -370,7 +393,8 @@ public abstract class Animal extends Utility implements Runnable {
 					
 					graphics[i][0][j] = lImg;
 					graphics[i][1][j] = rImg;
-					PacketSender.initializeImages(SpeciesList.values()[i].getOrdinal(), j, c, width);
+					if(Aq.isMultiplayer())
+						PacketSender.initializeImages(SpeciesList.values()[i].getOrdinal(), j, c, width);
 					
 			}
 		}

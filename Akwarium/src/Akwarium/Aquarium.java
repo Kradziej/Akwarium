@@ -97,7 +97,7 @@ public class Aquarium extends Utility {
 			top++;
 		}
 		
-		if (isMultiplayer && isServer)
+		if (isServer)
 			PacketSender.addAnimal(a.getSpeciesCode(), a.getImageIndex(), a.getIndex(), a.getX(), a.getY(), a.getVelocity());
 		
 		a.startThread();
@@ -152,6 +152,8 @@ public class Aquarium extends Utility {
 			a.setIndex(index);
 			top++;
 		}
+		
+		a.startThread();
 	}
 	
 	
@@ -242,11 +244,14 @@ public class Aquarium extends Utility {
 			if(animals[i] == null)
 				continue;
 		
-			if(animals[i].isTerminated() && isServer) {
+			if((isServer || !isMultiplayer) && animals[i].isTerminated()) {
 				synchronized(this) {
-					animals[i] = null;
-					PacketSender.removeAnimal(i);
-					animalCount--;
+					if(isServer)
+						PacketSender.removeAnimal(i);
+					if(isServer || !isMultiplayer) {
+						animals[i] = null;
+						animalCount--;
+					}
 				}
 				continue;
 			}
@@ -254,8 +259,10 @@ public class Aquarium extends Utility {
 			dAq.drawAnimal(g2d, animals[i]);
 			
 		}
+		
 		dAq.drawAnimal(g2d, owner);
-		dAq.drawAnimal(g2d, player);
+		if(isMultiplayer)
+			dAq.drawAnimal(g2d, player);
 		
 		dAq.drawBuffer(buffer);
 		g2d.dispose();
@@ -273,10 +280,12 @@ public class Aquarium extends Utility {
 
 	public boolean containsShark (Animal a) {
 		
+		boolean isEatenPlayer = false;
 		// hitbox reduction
 		Rectangle2D rect = new Rectangle2D.Double(a.getX(), a.getY(), a.getImage().getWidth() - 20, a.getImage().getHeight() - 10);
 		boolean isEatenOwner = rect.intersects(owner.getX(), owner.getY(), owner.getImage().getWidth(), owner.getImage().getHeight());
-		boolean isEatenPlayer = rect.intersects(player.getX(), player.getY(), player.getImage().getWidth(), player.getImage().getHeight());
+		if(isMultiplayer)
+			isEatenPlayer = rect.intersects(player.getX(), player.getY(), player.getImage().getWidth(), player.getImage().getHeight());
 		
 		return isEatenOwner | isEatenPlayer;
 		// set something like adding points to player or deduct health when medusa attack xD
@@ -317,20 +326,22 @@ public class Aquarium extends Utility {
 	public void initSharksServer () {
 		
 		owner = new Shark(this, true);
-		PacketSender.addAnimal(owner.getSpeciesCode(), 0, 1, owner.getX(), 
-				owner.getY(), owner.getVelocity());
+		if(isMultiplayer)
+			PacketSender.addAnimal(owner.getSpeciesCode(), 0, 1, owner.getX(), owner.getY(), owner.getVelocity());
 		dAq.addKeyListener(owner);
 		owner.startThread();
 		animals[0xFFFE] = owner;
-		player = new Shark(this, false);
-		PacketSender.addAnimal(player.getSpeciesCode(), 0, 0, player.getX(), 
-				player.getY(), player.getVelocity());
-		animals[0xFFFD] = player;
+		if(isMultiplayer) {
+			player = new Shark(this, false);
+			PacketSender.addAnimal(player.getSpeciesCode(), 0, 0, player.getX(), 
+					player.getY(), player.getVelocity());
+			animals[0xFFFD] = player;
+		}
 	}
 	
 	public void initAnimalsServer() {
 		
-		Animal.initAnimalsServer();
+		Animal.initAnimalsServer(this);
 	}
 	
 	public Animal getPlayer () {

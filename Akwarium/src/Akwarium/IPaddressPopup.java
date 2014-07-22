@@ -69,6 +69,8 @@ public class IPaddressPopup extends JDialog implements ActionListener {
 		
 		if(e.getSource().equals(single)) {
 			
+			client.setSelected(false);
+			server.setSelected(false);
 			this.setVisible(false);
 		}
 		

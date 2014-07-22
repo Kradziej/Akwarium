@@ -39,7 +39,7 @@ public class Shark extends Animal implements KeyListener {
 		leftDirImage = flipImage(copyImage(rightDirImage));
 		image = rightDirImage;
 		this.setInitialCoordinates();
-		v = 8;
+		v = 14;
 	}
 	
 	public void run() {
@@ -69,42 +69,30 @@ public class Shark extends Animal implements KeyListener {
 			if(distanceFromBorderTop > newY)
 				newY = distanceFromBorderTop;
 			
-			float boost = 0.13f; 
+			float boost = 1.0f; 
 			
 			for (int k : keys) {
 			switch(k) {
 				case KeyEvent.VK_UP:
-					vector[1] -= boost;
+					vector[1] = -boost;
 					break;
 				case KeyEvent.VK_DOWN:
-					vector[1] += boost;
+					vector[1] = boost;
 					break;
 				case KeyEvent.VK_RIGHT:
-					vector[0] += boost;
+					vector[0] = boost;
 					break;
 				case KeyEvent.VK_LEFT:
-					vector[0] -= boost;
+					vector[0] = -boost;
 					break;
 				}
 			}
 			
-			
-			float reduction = 0.05f;
-			float inertia = 0.06f;
 			// Reduce Movement
-			if (vector[0] > inertia)
-				vector[0] -= reduction;
-			else if(vector[0] < -inertia)
-				vector[0] += reduction;
-			else
+			if(keys.size() == 0) {
 				vector[0] = 0;
-			
-			if (vector[1] > inertia)
-				vector[1] -= reduction;
-			else if(vector[1] < -inertia)
-				vector[1] += reduction;
-			else
 				vector[1] = 0;
+			}
 			
 			
 			// flip image
@@ -121,17 +109,17 @@ public class Shark extends Animal implements KeyListener {
 				x = newX;
 				y = newY;
 				
-				if (Aq.isMultiplayer()) {
-					if(isOwner)
-						PacketSender.sendNewCoordinates(0xFFFE, x, y, direction);
-					else
-						PacketSender.sendNewCoordinates(0xFFFD, x, y, direction);
+			if (Aq.isMultiplayer()) {
+				if(isOwner)
+					PacketSender.sendNewCoordinates(0xFFFE, x, y, direction);
+				else
+					PacketSender.sendNewCoordinates(0xFFFD, x, y, direction);
 				}
 			
 			}
 			
 			try {
-				Thread.sleep(30);
+				Thread.sleep(SYNCH_TIME);
 			} catch (InterruptedException e) {
 				System.out.println("Thread " + Thread.currentThread().toString() + " interrupted!");
 			}

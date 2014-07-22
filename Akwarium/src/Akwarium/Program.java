@@ -52,7 +52,7 @@ public class Program {
 		InetAddress ip = null;
 		try {
 			//ip = InetAddress.getByName(addr.getIpAddress());
-			ip = InetAddress.getByName("192.168.5.101");
+			ip = InetAddress.getByName("localhost");
 		} catch (UnknownHostException e) {
 			System.out.println("Host not found");
 			e.printStackTrace();
@@ -103,32 +103,6 @@ public class Program {
 				client.startThread();
 			}
 		
-			
-			// Wait for connection
-			if(isServer) {
-				
-				while(!server.isConnected()) {
-					try {
-						Thread.sleep(200);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						return;
-					}
-				}
-					
-			}
-			
-			if(isClient) {
-			
-				while(!client.isConnected()) {
-					try {
-						Thread.sleep(200);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						return;
-					}
-				}
-			}
 		}
 			
 		
@@ -163,6 +137,34 @@ public class Program {
 		frame.invalidate();
 		frame.repaint();
 		
+		if(isMultiplayer) {
+			// Wait for connection
+			if(isServer) {
+				
+				while(!server.isConnected()) {
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						return;
+					}
+				}
+					
+			}
+			
+			if(isClient) {
+			
+				while(!client.isConnected()) {
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						return;
+					}
+				}
+			}
+		}
+		
 		
 		// Create init animals
 		if(isServer) {
@@ -174,6 +176,9 @@ public class Program {
 		} else if(isClient) {
 			playerOut = new UDPServer(udpInput, client.getIPAddress(), client.getNextPort());
 			playerOut.startThread();
+		} else {
+			aquarium.initAnimalsServer();
+			aquarium.initSharksServer();  
 		}
 	
 		
@@ -184,7 +189,7 @@ public class Program {
 
 			aquarium.updateData();
 			
-			if(isServer) {
+			if(isServer || !isMultiplayer) {
 				
 				boost += 0.00001f;
 				aquarium.increaseShift((float)(0.1*Math.pow(boost, 2)));
@@ -200,24 +205,15 @@ public class Program {
 					createPet(aquarium);
 				}
 				
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					return;
-				}
-				
-			} else if(isClient) {
-				
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					return;
-				}
 			}
-				
 			
+			
+			try {
+				Thread.sleep(40);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return;
+			}
 			
 		}
 		
