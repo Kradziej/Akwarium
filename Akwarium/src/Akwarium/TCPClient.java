@@ -12,13 +12,19 @@ import java.net.InetSocketAddress;
 import java.net.NoRouteToHostException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Random;
 
-public class TCPClient extends PacketInterpreter implements Runnable {
+import javax.swing.JOptionPane;
+
+public class TCPClient extends Connection implements Runnable {
 	
 	private byte[] buffer = new byte[64];
 	private static int port = 4945;
 	private boolean isConnected;
+	private boolean disconnected;
+	private boolean isServerUp;
+	private boolean serverDown;
 	private InetAddress IPAddress;    // address of server
 	private UDPClient recCoor;
 	private Thread t;
@@ -32,39 +38,6 @@ public class TCPClient extends PacketInterpreter implements Runnable {
 	public void run () {
 		
 		
-		// nowe 2 klasy server i klient posiadaja Aq zeby odswierzac liste i synchro daj
-		// Animal musi miec handle do servera i tworzyc nowe polaczenie wysylajace gdy polozenie jest odswiezane lub inne pierdy
-		// wykorzystujac indeks w tablicy czyli kazdy nowy obiekt Animal musi miec tez zapisany w sobie index (DODAJ!)
-		// grajacy jest klientem i nasluchuje zmian
-		// serwer wysywa zmiany tylko gdy je dostanie od threadow animalsow by index
-		// serwer moze wysylac rozne komendy take usun dodaj tylko ze wtedy nie robimy threada dla tworzonego animalsa
-		// 1 bajt odswiezanie pozycji0x0/dodawanie0x01/usuwanie0x02/ komenda
-		// odswiezanie pozycji 0x1  --> UDP
-		// 2 bajty indeks zwierzaka na liscie
-		// 3 bajty pozycja x
-		// 3 bajty pozycja y
-		// 6 bajtow vektorki
-		// dodawanie 0x2
-		// 2 bajty indeks zwierzaka na liscie
-		// 1 bajt typ zwierzaka 0x0 ryba / 0x1 zolw / 0x2 meduza
-		// 1 bajt index obrazka dla tej ryby (255)
-		// 3 bajty pozycja x poczatkowa
-		// 3 bajty pozycja y poczatkowa
-		// 2 bajt predkosc
-		// x bajtow nazwa
-		// usuwanie 0x03
-		// 2 bajty indeks zwierzaka na liscie
-		// inicjalizacja 0x04 -> dane do inicjalizacji po czym 0x04 zeby wywolac wyswietlanie
-		// dodawane po kolei
-		// 1 bajt typ zwierzaka 0x0 ryba / 0x1 zolw / 0x2 meduza
-		// 1 bajt indeks na liscie obrazkow
-		// 3 bajty color R / G / B
-		// 1 bajt width
-		// wyslanie iv 0x05
-		
-		
-		
-
 		ServerSocket server = null;
 		Socket client = null;
 		InputStream in = null;
@@ -83,17 +56,14 @@ public class TCPClient extends PacketInterpreter implements Runnable {
 			
 			client = new Socket();
 			client.connect(new InetSocketAddress(IPAddress, port), 0); // socket.accept()
+			isServerUp = true;
 			out = client.getOutputStream();
 			out.write(buffer, 0, 5);   // send hello message
 			in = client.getInputStream();
 			int op;
 			while ((op = in.read()) != -1) {
 				
-				if(op == 2) {
-					int ssss = 0;
-				}
-				
-				switch(interpret(op, in)) {
+				switch(PacketInterpreter.interpret(op, in)) {
 				case 1:
 					buffer[0] = (byte)0xFE;   // iv resolved
 					buffer[1] = (byte)0x00;
@@ -125,17 +95,29 @@ public class TCPClient extends PacketInterpreter implements Runnable {
 			}
 			
 		} catch (IOException e) {
-			if(e.getClass() ==  ConnectException.class)
+			if(e.getClass() ==  SocketException.class) {
+				System.out.println("Server disconnected");
+				disconnected = true;
+				isConnected = false;
+			} else if(e.getClass() ==  ConnectException.class) {
 				System.out.println("Cannot connect to server");
-			if(e.getClass() ==  BindException.class)
+				serverDown = true;
+			} else if(e.getClass() ==  BindException.class) {
 				System.out.println("Cannot bind to port " + port);
-			if(e.getClass() == NoRouteToHostException.class)
-				System.out.println("Client disconnected");
-			else
+				JOptionPane.showMessageDialog(null, 
+						"Cannot bind to port " + port,
+					    "Bind error",
+					    JOptionPane.ERROR_MESSAGE);
+				System.exit(-1);
+			} else if(e.getClass() == NoRouteToHostException.class) {
+				System.out.println("Internet connection problem");
+				serverDown = true;
+			} else {
 				System.out.println("Cannot read/send data to server");
-				
-			e.printStackTrace();
-			System.exit(-1);
+				e.printStackTrace();
+				System.exit(-1);
+			}
+			
 		}
 		
 		
@@ -144,10 +126,11 @@ public class TCPClient extends PacketInterpreter implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("Cannot close socket");
-			System.exit(-1);
+			return;
 		}
 		
-		recCoor.terminate();
+		if(recCoor != null)
+			recCoor.terminate();
 	}
 	
 	
@@ -160,6 +143,21 @@ public class TCPClient extends PacketInterpreter implements Runnable {
 	public boolean isConnected () {
 		
 		return isConnected;
+	}
+	
+	public boolean isServerUp () {
+		
+		return isServerUp;
+	}
+	
+	public boolean isDisconnected () {
+		
+		return disconnected;
+	}
+	
+	public boolean getServerDown () {
+		
+		return serverDown;
 	}
 
 	public InetAddress getIPAddress() {

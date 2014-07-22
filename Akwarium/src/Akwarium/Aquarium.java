@@ -27,13 +27,11 @@ public class Aquarium extends Utility {
 	private int capacity;
 	private Filter filter;
 	private float boost;
-	private boolean working;
+	private boolean working = true;
 	private Lamp lamp;
 	private int indexFix;
 	private DrawAq dAq;
 	private Color backgroundColor = new Color(111, 181, 223);
-	private String statusOff = "Akwarium wylaczone";
-	private String statusOn = "Akwarium wlaczone";
 	///private List<Animal> animals = new ArrayList<Animal>();
 	private Animal[] animals = new Animal[0xFFFF];
 	private int bottom = 0;
@@ -60,9 +58,6 @@ public class Aquarium extends Utility {
 		isMultiplayer = isClient | isServer;
 		dAq = new DrawAq(this);
 		dAq.setBackground(backgroundColor);
-		
-		// resources
-		Animal.loadResources();
 	}
 	
 	public int getNumberOfAnimals () {
@@ -154,6 +149,7 @@ public class Aquarium extends Utility {
 		}
 		
 		a.startThread();
+		animalCount++;
 	}
 	
 	
@@ -162,17 +158,9 @@ public class Aquarium extends Utility {
 		return working;
 	}
 	
-	public void showStatus() {
+	public void reset () {
 		
-		if(isWorking())
-			console.setText(statusOn);
-		else
-			console.setText(statusOff);
-	}
-	
-	public void start() {
-		console.setText("Uruchamianie akwarium...");
-		working = true;
+		working = false;
 	}
 	
 	public boolean fillWithWater (int water) {
@@ -244,14 +232,11 @@ public class Aquarium extends Utility {
 			if(animals[i] == null)
 				continue;
 		
-			if((isServer || !isMultiplayer) && animals[i].isTerminated()) {
+			if(animals[i].isTerminated()) {
 				synchronized(this) {
-					if(isServer)
-						PacketSender.removeAnimal(i);
-					if(isServer || !isMultiplayer) {
-						animals[i] = null;
-						animalCount--;
-					}
+					//PacketSender.removeAnimal(i);
+					animals[i] = null;
+					animalCount--;
 				}
 				continue;
 			}
@@ -373,6 +358,18 @@ public class Aquarium extends Utility {
 		animals[index].setY(y);
 		animals[index].setDirection(direction);
 	}
+
+	public void killAllAnimals() {
+		
+		for (int i = bottom; i < top; i++) {
+
+			if(animals[i] == null)
+				continue;
+			
+			animals[i].terminate();
+		}
+	}
+	
 	
 }
 	

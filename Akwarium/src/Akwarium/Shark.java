@@ -27,7 +27,6 @@ public class Shark extends Animal implements KeyListener {
 		
 		this();
 		this.Aq = Aq;
-		name = "Sharky";
 		this.isOwner = isOwner;
 		
 		if(isOwner)

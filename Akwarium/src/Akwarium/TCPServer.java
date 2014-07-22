@@ -17,12 +17,15 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Random;
 
-public class TCPServer implements Runnable, PacketConstants {
+import javax.swing.JOptionPane;
+
+public class TCPServer extends Connection implements Runnable, PacketConstants {
 	
 	private byte[] bufferIn = new byte[64];
 	private byte[] bufferOut = new byte[64];
 	private UDPServer sendCoor;
 	private boolean isConnected;
+	private boolean disconnected;
 	private static int port = 4945;
 	Thread t;
 	private InetAddress IPAddress;     // server client is connected with
@@ -48,6 +51,7 @@ public class TCPServer implements Runnable, PacketConstants {
 		
 		try {
 			server = new ServerSocket(port);
+			server.setSoTimeout(0);
 			client = server.accept();
 			IPAddress = client.getInetAddress();
 			in = client.getInputStream();
@@ -86,15 +90,23 @@ public class TCPServer implements Runnable, PacketConstants {
 			}
 		
 		} catch (IOException e) {
-			if(e.getClass() ==  ConnectException.class)
-				System.out.println("Cannot connect to client");
-			if(e.getClass() ==  BindException.class)
+			if(e.getClass() ==  SocketException.class) {
+				System.out.println("Client disconnected");
+				disconnected = true;
+				isConnected = false;
+			} else if(e.getClass() ==  BindException.class) {
 				System.out.println("Cannot bind to port " + port);
-			else
+				JOptionPane.showMessageDialog(null, 
+						"Cannot bind to port " + port,
+					    "Bind error",
+					    JOptionPane.ERROR_MESSAGE);
+				System.exit(-1);
+			} else {
 				System.out.println("Cannot read data from client");
+				e.printStackTrace();
+				System.exit(-1);
+			}
 				
-			e.printStackTrace();
-			System.exit(-1);
 		}
 		
 		
@@ -122,6 +134,10 @@ public class TCPServer implements Runnable, PacketConstants {
 		return isConnected;
 	}
 	
+	public boolean isDisconnected () {
+		
+		return disconnected;
+	}
 
 	public InetAddress getIPAddress () {
 		

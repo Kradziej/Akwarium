@@ -61,7 +61,6 @@ public abstract class Animal extends Utility implements Runnable {
 	protected static BufferedImage sharkOwnerImage;
 	protected static BufferedImage sharkPlayerImage;
 	protected static int numberOfBufferedImages = 30;
-	protected String name;
 	protected int x;
 	protected int y;
 	protected float[] vector = {1,0};
@@ -91,8 +90,21 @@ public abstract class Animal extends Utility implements Runnable {
 			
 			
 			if(Aq.isClient()) {
+				
+				int notMoving = 0;
+				int oldX = 0;
+				int oldY = 0;
 				while(threadRun) {
-					if(Aq.containsShark(this)) {
+					
+					if(oldX == x && oldY == y)
+						notMoving++;
+					else
+						notMoving = 0;
+
+					oldX = x;
+					oldY = y;
+					
+					if(notMoving == 3) {
 						terminate();
 						break;
 					}
@@ -201,48 +213,6 @@ public abstract class Animal extends Utility implements Runnable {
 	protected abstract void setImageIndex(int imageIndex);
 	
 	
-	protected String getNewAnimalName () {
-		
-		
-		return "bot" + this.hashCode();
-		/*
-		String name = null;
-		
-		try {
-			URL url = new URL("http://www.behindthename.com/random/random.php?number=1&gender=m&surname=&all=yes");
-			URLConnection conn = url.openConnection();
-			conn.setConnectTimeout(1000);
-			conn.setReadTimeout(1000);
-			
-			BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String line;
-		
-			while ((line = br.readLine()) != null) {
-			
-				if(line.matches( ".*class=\"plain\".*")) {
-					int begin = line.indexOf('>') + 1;
-					int end = line.indexOf('<', begin);
-					name = line.substring(begin, end);
-					break;
-				}			
-			}
-		} catch (IOException e) {
-			return "bot" + this.hashCode();
-		}
-		
-		return name.matches(".*[^A-Za-z0-9_].*") ? getNewAnimalName () : name;
-		*/
-	}
-	
-	protected String getName() {
-		
-		return name;
-	}
-	
-	protected void setName (String name) {
-		
-		this.name = name;
-	}
 
 	protected Color getColor() {
 		return c;
@@ -478,10 +448,12 @@ public abstract class Animal extends Utility implements Runnable {
 	public static void loadResources() {
 		
 		try {
-			resources[0] = ImageIO.read(Program.class.getClass().getResource("/resources/fish.png"));
-			resources[1] = ImageIO.read(Program.class.getClass().getResource("/resources/turtle.png"));
-			sharkOwnerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark_blue.png"));
-			sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark_red.png"));
+			if (resources[0] == null) {
+				resources[0] = ImageIO.read(Program.class.getClass().getResource("/resources/fish.png"));
+				resources[1] = ImageIO.read(Program.class.getClass().getResource("/resources/turtle.png"));
+				sharkOwnerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark_blue.png"));
+				sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark_red.png"));
+			}
 		} catch (IOException e2) {
 			System.out.println("Cannot load resources");
 			e2.printStackTrace();

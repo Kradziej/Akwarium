@@ -36,8 +36,7 @@ public abstract class PacketSender implements PacketConstants {
 			}
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream");
-			e.printStackTrace();
-			System.exit(-1);
+			return 0;
 		}
 		return packet.ADD_ANIMAL.length()+1;
 		
@@ -59,8 +58,7 @@ public abstract class PacketSender implements PacketConstants {
 			}
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream");
-			e.printStackTrace();
-			System.exit(-1);
+			return 0;
 		}
 		return packet.REMOVE_ANIMAL.length()+1;
 	}
@@ -89,28 +87,11 @@ public abstract class PacketSender implements PacketConstants {
 			}
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream");
-			e.printStackTrace();
-			System.exit(-1);
+			return 0;
 		}
 		return packet.UPDATE_COORDINATES.length()+1;
 	}
 	
-	public static byte[] formatCoordinatesPacket (int index, int x, int y) {
-		
-		 byte[] buffer = new byte[packet.UPDATE_COORDINATES.length()+1];
-		
-		buffer[0] = (byte)packet.UPDATE_COORDINATES.op();
-		buffer[1] = (byte)index;
-		buffer[2] = (byte)(index >>> 8);
-		buffer[3] = (byte) x;
-		buffer[4] = (byte)(x >>> 8);
-		buffer[5] = (byte)(x >>> 16);
-		buffer[6] = (byte) y;
-		buffer[7] = (byte)(y >>> 8);
-		buffer[8] = (byte)(y >>> 16);
-		
-		return buffer;
-	}
 	
 	public static int initializeImages (int code, int index, Color color, int width) {
 		
@@ -131,9 +112,9 @@ public abstract class PacketSender implements PacketConstants {
 			}
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream");
-			e.printStackTrace();
-			System.exit(-1);
+			return 0;
 		}
+		
 		return packet.INITIALIZE_IMAGES.length()+1;
 	}
 	
@@ -156,8 +137,7 @@ public abstract class PacketSender implements PacketConstants {
 			}
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream");
-			e.printStackTrace(); 
-			System.exit(-1);
+			return 0;
 		}
 		return packet.CONNECTION_INITIALIZATION.length()+1;
 	}

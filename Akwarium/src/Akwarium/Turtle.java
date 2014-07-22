@@ -35,7 +35,6 @@ public class Turtle extends Animal {
 		
 		this();
 		this.Aq = Aq;
-		name = getNewAnimalName();
 		this.setInitialCoordinates();
 		v +=  Aq.boost();
 	}
@@ -60,7 +59,6 @@ public class Turtle extends Animal {
 		this();
 		this.x = x;
 		this.y = y;
-		name = getNewAnimalName();
 		this.Aq = Aq;
 	}
 	

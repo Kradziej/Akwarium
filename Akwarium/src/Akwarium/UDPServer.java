@@ -9,6 +9,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import javax.swing.JOptionPane;
+
 public class UDPServer implements Runnable, PacketConstants {
 	
 	private byte[] buffer = new byte[64];
@@ -34,10 +36,14 @@ public class UDPServer implements Runnable, PacketConstants {
 		try {
 			socket = new DatagramSocket();
 		} catch (SocketException e) {
-			e.printStackTrace();
-			if(e.getClass() ==  BindException.class)
+			if(e.getClass() ==  BindException.class) {
 				System.out.println("Cannot create socket on port " + port);
-			System.exit(-1);
+				JOptionPane.showMessageDialog(null, 
+						"Cannot bind to port " + port,
+					    "Bind error",
+					    JOptionPane.ERROR_MESSAGE);
+				System.exit(-1);
+			}
 		}
 		
 		
@@ -56,9 +62,7 @@ public class UDPServer implements Runnable, PacketConstants {
 			
 		} catch (IOException e) {
 		
-			System.out.println("Cannot send data to server");
-			e.printStackTrace();
-			System.exit(-1);
+			System.out.println("Cannot read data from input stream");
 		}
 		
 		socket.close();

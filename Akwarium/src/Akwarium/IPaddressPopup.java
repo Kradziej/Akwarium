@@ -6,6 +6,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.net.InetAddress;
 
 import javax.swing.BorderFactory;
@@ -42,22 +45,27 @@ public class IPaddressPopup extends JDialog implements ActionListener {
 		this.add(panelText, BorderLayout.PAGE_START);
 		this.add(radioButtons, BorderLayout.CENTER);
 		this.add(buttons, BorderLayout.PAGE_END);
-		this.setLocationRelativeTo(null);
-		this.setResizable(false);
 		multi.addActionListener(this);
 		single.addActionListener(this);
 		client.addActionListener(this);
 		server.addActionListener(this);
+		//exit on X clicked
+		this.addWindowListener(new WindowAdapter() {
+		
+			@Override
+		    public void windowClosing(WindowEvent e) {
+		        System.exit(0);
+		    }
+		});
+		
 		server.setSelected(true);
 		this.invalidate();
 		this.pack();
+		this.setLocationRelativeTo(null);
+		this.setResizable(false);
 	}
 	
 	
-	void test() {
-		
-	}
-
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -65,7 +73,7 @@ public class IPaddressPopup extends JDialog implements ActionListener {
 		if(e.getSource().equals(multi)) {
 			
 			this.setVisible(false);
-		} 
+		}
 		
 		if(e.getSource().equals(single)) {
 			
@@ -76,11 +84,13 @@ public class IPaddressPopup extends JDialog implements ActionListener {
 		
 		if(e.getSource().equals(server)) {
 			
+			server.setSelected(true);
 			client.setSelected(false);
 		}
 		
 		if(e.getSource().equals(client)) {
 			
+			client.setSelected(true);
 			server.setSelected(false);
 			
 		}

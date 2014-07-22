@@ -10,6 +10,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+import javax.swing.JOptionPane;
+
 public class UDPClient extends PacketInterpreter implements Runnable {
 	
 	private byte[] buffer = new byte[64];
@@ -32,8 +34,11 @@ public class UDPClient extends PacketInterpreter implements Runnable {
 		try {
 			socket = new DatagramSocket(port);
 		} catch (SocketException e) {
-			e.printStackTrace();
 			System.out.println("Cannot create socket on port " + port);
+			JOptionPane.showMessageDialog(null, 
+					"Cannot bind to port " + port,
+				    "Bind error",
+				    JOptionPane.ERROR_MESSAGE);
 			System.exit(-1);
 		}
 		
@@ -46,9 +51,14 @@ public class UDPClient extends PacketInterpreter implements Runnable {
 			try {
 				socket.receive(rPacket);   // start listening for coordinates
 			} catch (IOException e) {
-				e.printStackTrace();
-				System.out.println("Failed to read data from socket");
-				System.exit(-1);
+				if(e.getClass() ==  SocketException.class) {
+					System.out.println("Server disconnected");
+					break;
+				} else {
+					e.printStackTrace();
+					System.out.println("Failed to read data from socket");
+					System.exit(-1);
+				}
 			}
 			
 		
@@ -57,8 +67,8 @@ public class UDPClient extends PacketInterpreter implements Runnable {
 				interpret(in.read(), in);  // update coordinates
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("Cannot read/send data to server");
-				System.exit(-1);
+				System.out.println("Cannot read data from input stream");
+				break;
 			}
 		
 			
@@ -66,10 +76,12 @@ public class UDPClient extends PacketInterpreter implements Runnable {
 				in.reset();    // reset buffer
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("Cannot reset input");
-				System.exit(-1);
+				System.out.println("Cannot reset input stream");
+				break;
 			}
 		}
+		
+		socket.close();
 		
 	}	
 	
