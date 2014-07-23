@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -13,6 +14,7 @@ import java.net.InetAddress;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -27,28 +29,40 @@ public class IPaddressPopup extends JDialog implements ActionListener {
 	private JTextField ipText = new JTextField("IP address");
 	private JRadioButton client = new JRadioButton("Client");
 	private JRadioButton server = new JRadioButton("Server");
+	private JComboBox<String> resolutionsCbox =  new JComboBox<String>(DrawAq.getAvailableResolutions());;
 	private JPanel panelText = new JPanel(new BorderLayout());
 	private JPanel buttons = new JPanel(new FlowLayout());
+	private JPanel options = new JPanel(new BorderLayout());
 	private JPanel radioButtons = new JPanel(new FlowLayout());
 	
 	IPaddressPopup () {
 		
 		this.setTitle("Akwarium");
 		ipText.selectAll();
+		ipText.setPreferredSize(new Dimension(0, 22));
 		panelText.add(ipText);
 		buttons.add(multi);
 		buttons.add(single);
 		radioButtons.add(server);
 		radioButtons.add(client);
-		buttons.setBorder(BorderFactory.createEmptyBorder(8, 8, 0, 8));
+		resolutionsCbox.setPreferredSize(new Dimension(0, 11));
+		options.add(radioButtons, BorderLayout.PAGE_START);
+		options.add(resolutionsCbox,  BorderLayout.CENTER);
+		options.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
+		//options.add(radioButtons, BorderLayout.PAGE_START);
+		//options.add(resolutionsPanel, BorderLayout.CENTER);
+		//radioButtons.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		buttons.setBorder(BorderFactory.createEmptyBorder(8, 8, 4, 8));
 		panelText.setBorder(BorderFactory.createEmptyBorder(8, 8, 0, 8));
 		this.add(panelText, BorderLayout.PAGE_START);
-		this.add(radioButtons, BorderLayout.CENTER);
+		//this.add(radioButtons, BorderLayout.CENTER);
+		this.add(options, BorderLayout.CENTER); 
 		this.add(buttons, BorderLayout.PAGE_END);
 		multi.addActionListener(this);
 		single.addActionListener(this);
 		client.addActionListener(this);
 		server.addActionListener(this);
+		resolutionsCbox.addActionListener(this);
 		//exit on X clicked
 		this.addWindowListener(new WindowAdapter() {
 		
@@ -65,10 +79,14 @@ public class IPaddressPopup extends JDialog implements ActionListener {
 		this.setResizable(false);
 	}
 	
-	
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		
+		if(e.getSource().equals(resolutionsCbox)) {
+			
+			 DrawAq.setResolution(((JComboBox)e.getSource()).getSelectedIndex());
+		}
 		
 		if(e.getSource().equals(multi)) {
 			
@@ -96,8 +114,7 @@ public class IPaddressPopup extends JDialog implements ActionListener {
 		}
 	}
 	
-	
-	
+
 	public boolean isServer () {
 		
 		return server.isSelected();

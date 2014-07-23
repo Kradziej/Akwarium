@@ -27,7 +27,11 @@ public class Turtle extends Animal {
 		rightDirImage = graphics[index][1][selectImage];
 		imageIndex = selectImage;
 		image = rightDirImage;
-		v = rand.nextInt(6) + 4;
+		imageWidth = image.getWidth();
+		imageHeight = image.getHeight();
+		hitboxW = imageWidth - Math.round(0.3f * imageWidth);
+		hitboxH = imageHeight - Math.round(0.3f * imageHeight);
+		v = 5;
 	}
 	
 	
@@ -36,7 +40,7 @@ public class Turtle extends Animal {
 		this();
 		this.Aq = Aq;
 		this.setInitialCoordinates();
-		v +=  Aq.boost();
+		v = Math.round(v * Aq.boost());
 	}
 	
 	// Constructor for multiplayer

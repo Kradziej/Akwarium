@@ -11,4 +11,5 @@ public abstract class Connection {
 	protected boolean isServerUp () {return false;}
 	protected boolean getServerDown () {return false;}
 	protected abstract boolean isDisconnected ();
+	protected abstract boolean isGraphicsReady ();
 }

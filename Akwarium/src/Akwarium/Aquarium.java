@@ -223,10 +223,9 @@ public class Aquarium extends Utility {
 			dAq.clear();
 			return;
 		}
-		Image buffer = null;
 		
-		buffer = dAq.getBuffer();
-		Graphics2D g2d = (Graphics2D)buffer.getGraphics();
+		dAq.createBuffer();
+		
 		for (int i = bottom; i < top; i++) {
 
 			if(animals[i] == null)
@@ -241,17 +240,15 @@ public class Aquarium extends Utility {
 				continue;
 			}
 				
-			dAq.drawAnimal(g2d, animals[i]);
+			dAq.drawAnimal(animals[i]);
 			
 		}
 		
-		dAq.drawAnimal(g2d, owner);
+		dAq.drawAnimal(owner);
 		if(isMultiplayer)
-			dAq.drawAnimal(g2d, player);
+			dAq.drawAnimal(player);
 		
-		dAq.drawBuffer(buffer);
-		g2d.dispose();
-		
+		dAq.drawBuffer();
 		
 		while(animals[bottom] == null && bottom < top)
 			bottom++;
@@ -266,11 +263,16 @@ public class Aquarium extends Utility {
 	public boolean containsShark (Animal a) {
 		
 		boolean isEatenPlayer = false;
+		
 		// hitbox reduction
-		Rectangle2D rect = new Rectangle2D.Double(a.getX(), a.getY(), a.getImage().getWidth() - 20, a.getImage().getHeight() - 10);
-		boolean isEatenOwner = rect.intersects(owner.getX(), owner.getY(), owner.getImage().getWidth(), owner.getImage().getHeight());
+		Rectangle2D rect = new Rectangle2D.Double(a.getX(), a.getY(), 
+				a.getHitboxW(), a.getHitboxH());
+		boolean isEatenOwner = rect.intersects(owner.getX(), owner.getY(), 
+				owner.getHitboxW(), owner.getHitboxH());
 		if(isMultiplayer)
-			isEatenPlayer = rect.intersects(player.getX(), player.getY(), player.getImage().getWidth(), player.getImage().getHeight());
+			isEatenPlayer = rect.intersects(player.getX(), player.getY(), 
+					player.getHitboxW(), player.getHitboxH());
+		
 		
 		return isEatenOwner | isEatenPlayer;
 		// set something like adding points to player or deduct health when medusa attack xD
@@ -292,19 +294,17 @@ public class Aquarium extends Utility {
 		return isServer;
 	}
 
-	public void sendCoordinates (Animal a) {
+	public void setBoost (float b) {
 		
-		//sender.sendNewCoordinates(a.getIndex(), a.getX(), a.getY());
+		this.boost = b;
 	}
 	
-	public void increaseShift (float b) {
+	public float boost () {
 		
-		this.boost += b;
-	}
-	
-	public int boost () {
-		
-		return (int)(boost * Math.abs(rndBoost.nextGaussian()));
+			//return (int)(boost * Math.abs(rndBoost.nextGaussian()));
+			float base = (float)Math.abs(rndBoost.nextGaussian()) + 0.3f;
+			System.out.println(boost);
+			return (base += boost);
 	}
 	
 	

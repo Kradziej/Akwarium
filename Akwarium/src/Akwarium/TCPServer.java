@@ -26,17 +26,24 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 	private UDPServer sendCoor;
 	private boolean isConnected;
 	private boolean disconnected;
-	private static int port = 4945;
+	private boolean isGraphicsReady;
+	private static int port;
 	Thread t;
 	private InetAddress IPAddress;     // server client is connected with
 	private PipedInputStream tcpInput;
 	private PipedInputStream udpInput;
 	
+	
+	TCPServer () {
+		
+		port = 4945;
+	}
+	
 	TCPServer (PipedInputStream tcp, PipedInputStream udp) {
 		
+		this();
 		tcpInput = tcp;
 		udpInput = udp;
-		
 	}
 	
 	public void run () {
@@ -50,6 +57,7 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 		
 		
 		try {
+			
 			server = new ServerSocket(port);
 			server.setSoTimeout(0);
 			client = server.accept();
@@ -71,22 +79,35 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 				tcpInput.read(bufferOut, 1, bytesToRead);
 				out.write(bufferOut, 0, bytesToRead+1);
 				in.read(bufferIn);
-				if(bufferIn[0] == 0x00) {			//OK
-					retries = 0;
-				} else if((byte)(bufferIn[0] ^ 0xFF) == 0) {    //FAILED
-					retries++;
-					if(retries > 4) {
-						System.out.println("DESYNCHRONIZATION");
-						isConnected = false;
-						client.close();
-						server.close();
-						return;
-					} 		
-				} else if((byte)(bufferIn[0] ^ 0xFE) == 0) {   // iv ready
-					 sendCoor = new UDPServer(udpInput, client.getInetAddress(), port);
-					 sendCoor.startThread();
-					 isConnected = true;
+				
+				switch (bufferIn[0] & 0x000000FF) {
+				
+					case 0x00:     // ok
+						retries = 0;
+						break;
+						
+					case 0xFF:    // failed
+						retries++;
+						if(retries > 4) {
+							System.out.println("DESYNCHRONIZATION");
+							isConnected = false;
+							client.close();
+							server.close();
+							return;
+						}
+						break;
+						
+					case 0xFE:   // iv ready
+						sendCoor = new UDPServer(udpInput, client.getInetAddress(), port);
+						sendCoor.startThread();
+						isConnected = true;
+						break;
+						
+					case 0xFD:   // graphics ready
+						isGraphicsReady = true;
+						break;
 				}
+				
 			}
 		
 		} catch (IOException e) {
@@ -137,6 +158,11 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 	public boolean isDisconnected () {
 		
 		return disconnected;
+	}
+	
+	public boolean isGraphicsReady () {
+		
+		return isGraphicsReady;
 	}
 
 	public InetAddress getIPAddress () {

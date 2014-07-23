@@ -60,6 +60,10 @@ public abstract class Animal extends Utility implements Runnable {
 	protected static BufferedImage[][][] graphics;    // [0]for all species [1]first is left, second right [2]number of buff images
 	protected static BufferedImage sharkOwnerImage;
 	protected static BufferedImage sharkPlayerImage;
+	protected int imageWidth;
+	protected int imageHeight;
+	protected int hitboxW;
+	protected int hitboxH;
 	protected static int numberOfBufferedImages = 30;
 	protected int x;
 	protected int y;
@@ -145,10 +149,10 @@ public abstract class Animal extends Utility implements Runnable {
 			f = (float)((rand.nextInt(17) + 1) * 0.01f);
 			if(rNumber < 0) {
 				float sum = vector[1] + f;
-				vector[1] = sum > 0.5f ? vector[1] - f : sum; 
+				vector[1] = sum > 0.25f ? vector[1] - f : sum; 
 			} else {
 				float sum = vector[1] - f;
-				vector[1] = sum < -0.5f ? vector[1] + f : sum; 
+				vector[1] = sum < -0.25f ? vector[1] + f : sum; 
 			}
 			
 			// calculate new position from velocity and vector
@@ -170,11 +174,11 @@ public abstract class Animal extends Utility implements Runnable {
 			
 			
 			// flip image
-			if(newX - x > 2) {
+			if(newX - x > 1) {
 				this.flipImage("right");
 				direction = 1;
 			}
-			else if(newX - x < -2) {
+			else if(newX - x < -1) {
 				this.flipImage("left");
 				direction = 0;
 			}
@@ -370,7 +374,7 @@ public abstract class Animal extends Utility implements Runnable {
 		}
 	}
 	
-	public static void initAnimalsClient (int code, int index, Color color, int width) {
+	public static boolean initAnimalsClient (int code, int index, Color color, int width) {
 		
 		// SEND INIT TO CLIENT XD
 		Color maskColor = new Color(255,255,255);
@@ -402,6 +406,11 @@ public abstract class Animal extends Utility implements Runnable {
 		BufferedImage lImg = Animal.flipImage(Animal.copyImage(rImg));
 		Animal.graphics[ord][0][index] = lImg;
 		Animal.graphics[ord][1][index] = rImg;
+		
+		if(index == (numberOfBufferedImages - 1))
+			return true;
+		
+		return false;
 	}
 	
 	public boolean isTerminated () {
@@ -437,7 +446,7 @@ public abstract class Animal extends Utility implements Runnable {
 		this.vector = vector;
 	}
 
-	public void setDirection(int direction) {
+	public void setDirection (int direction) {
 		
 		if(direction == 0)
 			flipImage("left");
@@ -445,7 +454,7 @@ public abstract class Animal extends Utility implements Runnable {
 			flipImage("right");
 	}
 
-	public static void loadResources() {
+	public static void loadResources () {
 		
 		try {
 			if (resources[0] == null) {
@@ -459,6 +468,26 @@ public abstract class Animal extends Utility implements Runnable {
 			e2.printStackTrace();
 			System.exit(-1);
 		}
+	}
+
+	public int getImageWidth () {
+		
+		return imageWidth;
+	}
+
+	public int getImageHeight () {
+		
+		return imageHeight;
+	}
+
+	public int getHitboxW () {
+		
+		return hitboxW;
+	}
+
+	public int getHitboxH () {
+		
+		return hitboxH;
 	}
 	
 

@@ -175,28 +175,32 @@ public class Program {
 				aquarium.initSharksServer();  
 			}
 		
-			//waitresponse isGraphicsReady
+			if(isMultiplayer)
+				waitGraphicsReady();
 			
-			float boost = 1.00f;
+			float boost = 1f;
+			double boostPow;
 			int SYNCH_TIME = 40;
 			
-			while(con.isConnected()) {
+			while(!isMultiplayer || con.isConnected()) {
 	
 				aquarium.updateData();
 				
 				if(isServer || !isMultiplayer) {
 					
-					boost += 0.00001f;
-					aquarium.increaseShift((float)(0.1*Math.pow(boost, 2)));
+					boost += 0.01f;
+					//aquarium.increaseShift((float)(0.015*Math.pow(boost, 2)));
+					boostPow = Math.pow(boost, 0.5);
+					aquarium.setBoost((float)(boostPow  *  Math.log(boostPow)));
 					int allAnimals = aquarium.getNumberOfAnimals();
 					Random rand = new Random();
 					int p = rand.nextInt(100);
 					
-					if (p < 40 && allAnimals < 7) {
+					if (p < 35 && allAnimals < 8) {
 						createPet(aquarium);
-					} else if (p < 20 && allAnimals < 8) {
+					} else if (p < 15 && allAnimals < 10) {
 						createPet(aquarium);
-					} else if (p < 10 && allAnimals < 10) {
+					} else if (p < 5 && allAnimals < 14) {
 						createPet(aquarium);
 					}
 					
@@ -252,6 +256,20 @@ public class Program {
 	}
 	
 	
+	public static boolean waitGraphicsReady () {
+		
+		while(!con.isGraphicsReady()) {
+			
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				System.exit(-1);
+			}
+		}
+		
+		return true;
+	}
 	
 	public static boolean waitConnection () {
 		

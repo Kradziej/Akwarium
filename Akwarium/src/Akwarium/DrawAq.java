@@ -2,8 +2,10 @@ package Akwarium;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
 import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -16,8 +18,12 @@ public class DrawAq extends Canvas {
 	private Aquarium Aq;
 	//public static int width = 1152;
 	//public static int height = 768;
-	public static int width = 800;
-	public static int height = 600;
+	private static int resolutionIndex;
+	private static Dimension[] resolutions = {new Dimension(800, 600), new Dimension(1024, 768), 
+			new Dimension(1152, 864), new Dimension(1280, 800), new Dimension(1280, 960), 
+			new Dimension(1444, 900), new Dimension(1680, 1050), new Dimension(1920, 1200)};
+	private Image buffer;
+	private Graphics2D g2dBuffer;
 	//private BufferedImage background; 
 	
 	DrawAq (Aquarium Aq) {
@@ -36,7 +42,7 @@ public class DrawAq extends Canvas {
 		
 		JFrame frame = new JFrame(name);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(width, height);
+		frame.setSize(resolutions[resolutionIndex]);
 		frame.setLocationRelativeTo(null);
 		frame.setLayout(new BorderLayout());
 		frame.setResizable(false);
@@ -66,9 +72,9 @@ public class DrawAq extends Canvas {
 	}
 
 
-	public void drawAnimal (Graphics2D g2d, Animal a) {
+	public void drawAnimal (Animal a) {
 		
-		g2d.drawImage(a.getImage(), a.getX(), a.getY(), this);
+		g2dBuffer.drawImage(a.getImage(), a.getX(), a.getY(), this);
 	}
 	
 	public void paint (Graphics g) {
@@ -76,21 +82,37 @@ public class DrawAq extends Canvas {
 		super.paint(g);
 	}
 	
-	public Image getBuffer () {
+	public void createBuffer () {
 		
-		Image buffer = createImage(Aq.getAquariumWidth(), Aq.getAquariumHeight());
-		return buffer;
+		buffer = createImage(Aq.getAquariumWidth(), Aq.getAquariumHeight());
+		g2dBuffer = (Graphics2D)buffer.getGraphics();
 	}
 	
-	public void drawBuffer (Image buffer) {
+	public void drawBuffer () {
 		
 		Graphics g = this.getGraphics();
 		Graphics2D g2d = (Graphics2D)g;
 		RenderingHints rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    g2d.setRenderingHints(rh);
 		g2d.drawImage(buffer, 0, 0, null);
+		g2dBuffer.dispose();
 	}
 	
+	public static String[] getAvailableResolutions () {
+		
+		String[] res = new String[resolutions.length];
+		for (int i = 0; i < res.length; i++) {
+			
+			res[i] = (int)resolutions[i].getWidth() + "x" + (int)resolutions[i].getHeight();
+		}
+	
+		return res;
+	}
+	
+	public static void setResolution (int index) {
+		
+		resolutionIndex = index;
+	}
 	
 	
 	/*public void redrawAnimals () {

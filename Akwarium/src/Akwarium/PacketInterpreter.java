@@ -70,7 +70,9 @@ public abstract class PacketInterpreter implements PacketConstants {
 			index = (int)buffer[1] & 0xFF;
 			Color color = new Color(buffer[2] & 0xFF, buffer[3] & 0xFF, buffer[4] & 0xFF);
 			int width = (int)buffer[5] & 0xFF;
-			Animal.initAnimalsClient(code, index, color, width);
+			if(Animal.initAnimalsClient(code, index, color, width))
+				return 2;
+			
 			return 0;
 			
 		case CONNECTION_INITIALIZATION:

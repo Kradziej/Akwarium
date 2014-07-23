@@ -37,8 +37,12 @@ public class Shark extends Animal implements KeyListener {
 		
 		leftDirImage = flipImage(copyImage(rightDirImage));
 		image = rightDirImage;
+		imageWidth = image.getWidth();
+		imageHeight = image.getHeight();
+		hitboxW = imageWidth - Math.round(0.35f * imageWidth);
+		hitboxH = imageHeight - Math.round(0.35f * imageHeight);
 		this.setInitialCoordinates();
-		v = 14;
+		v = 19;
 	}
 	
 	public void run() {
@@ -70,20 +74,22 @@ public class Shark extends Animal implements KeyListener {
 			
 			float boost = 1.0f; 
 			
-			for (int k : keys) {
-			switch(k) {
-				case KeyEvent.VK_UP:
-					vector[1] = -boost;
-					break;
-				case KeyEvent.VK_DOWN:
-					vector[1] = boost;
-					break;
-				case KeyEvent.VK_RIGHT:
-					vector[0] = boost;
-					break;
-				case KeyEvent.VK_LEFT:
-					vector[0] = -boost;
-					break;
+			synchronized(this) {
+				for (int k : keys) {
+				switch(k) {
+					case KeyEvent.VK_UP:
+						vector[1] = -boost;
+						break;
+					case KeyEvent.VK_DOWN:
+						vector[1] = boost;
+						break;
+					case KeyEvent.VK_RIGHT:
+						vector[0] = boost;
+						break;
+					case KeyEvent.VK_LEFT:
+						vector[0] = -boost;
+						break;
+					}
 				}
 			}
 			
@@ -137,14 +143,14 @@ public class Shark extends Animal implements KeyListener {
 	}
 	
 	@Override
-	public synchronized void keyPressed(KeyEvent e) {
+	public void keyPressed(KeyEvent e) {
 		
 		keys.add(e.getKeyCode());
 	}
 	
 
 	@Override
-	public synchronized void keyReleased(KeyEvent e) {
+	public void keyReleased(KeyEvent e) {
 		
 		keys.remove(e.getKeyCode());
 	}
