@@ -37,6 +37,8 @@ public class Aquarium extends Utility {
 	private int bottom = 0;
 	private int top = 0;
 	private int animalCount = 0;
+	private float xScale;
+	private float yScale;
 	Random rndBoost = new Random();
 	private Shark owner;   //0xFFFE
 	private Shark player;  //0xFFFD
@@ -102,26 +104,6 @@ public class Aquarium extends Utility {
 	
 	// Adding animal, function for client !!!
 	public void addAnimal (int code, int imageIndex, int index, int x, int y, int v) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		
-		if(code == Shark.CODE) {
-			if(index == 1) {
-				owner = new Shark(this, true);
-				owner.setX(x);
-				owner.setY(y);
-				owner.setVelocity(v);
-				animals[0xFFFE] = owner;
-				return;
-			} else {
-				player = new Shark(this, false);
-				player.setX(x);
-				player.setY(y);
-				player.setVelocity(v);
-				dAq.addKeyListener(player);
-				player.startThread();
-				animals[0xFFFD] = player;
-				return;
-			}
-		}
 		
 		Animal.SpeciesList[] allSpecies = Animal.SpeciesList.values();
 		Animal a = null;
@@ -303,13 +285,30 @@ public class Aquarium extends Utility {
 		
 			//return (int)(boost * Math.abs(rndBoost.nextGaussian()));
 			float base = (float)Math.abs(rndBoost.nextGaussian()) + 0.3f;
-			System.out.println(boost);
+			//System.out.println(boost);
 			return (base += boost);
 	}
 	
 	
-	public void initSharksServer () {
+	public void initSharks () {
 		
+		if(isMultiplayer) {
+			owner = new Shark(this, true);
+			player = new Shark(this, false);
+			if(isClient) {
+				dAq.addKeyListener(player);
+				player.startThread();
+			} else {
+				dAq.addKeyListener(owner);
+				owner.startThread();
+			}
+		} else {
+			owner = new Shark(this, true);
+			dAq.addKeyListener(owner);
+			owner.startThread();
+		}
+		
+		/*
 		owner = new Shark(this, true);
 		if(isMultiplayer)
 			PacketSender.addAnimal(owner.getSpeciesCode(), 0, 1, owner.getX(), owner.getY(), owner.getVelocity());
@@ -321,12 +320,12 @@ public class Aquarium extends Utility {
 			PacketSender.addAnimal(player.getSpeciesCode(), 0, 0, player.getX(), 
 					player.getY(), player.getVelocity());
 			animals[0xFFFD] = player;
-		}
+		}*/
 	}
 	
-	public void initAnimalsServer() {
+	public void initAnimals() {
 		
-		Animal.initAnimalsServer(this);
+		Animal.initAnimals(this);
 	}
 	
 	public Animal getPlayer () {
@@ -339,20 +338,24 @@ public class Aquarium extends Utility {
 		return owner;
 	}
 	
-	public void updateCooridates (int index, int x, int y, int direction) {
+	public void updateSharks (int index, int x, int y, int v, int direction) {
 		
-		if(index == 0xFFFE) {
+		if(index == 0) {
+			
 			owner.setX(x);
 			owner.setY(y);
+			owner.setVelocity(v);
 			owner.setDirection(direction);
-			return;
-		}
-		else if(index == 0xFFFD) {
+		} else {
+			
 			player.setX(x);
 			player.setY(y);
+			player.setVelocity(v);
 			player.setDirection(direction);
-			return;
 		}
+	}
+	
+	public void updateCooridates (int index, int x, int y, int direction) {
 		
 		animals[index].setX(x);
 		animals[index].setY(y);
@@ -368,6 +371,8 @@ public class Aquarium extends Utility {
 			
 			animals[i].terminate();
 		}
+		owner.terminate();
+		player.terminate();
 	}
 	
 	

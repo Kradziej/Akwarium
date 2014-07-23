@@ -13,8 +13,12 @@ public abstract class PacketSender implements PacketConstants {
 	
 	public static int addAnimal (int code, int imageIndex, int index, int x, int y, int v) {
 		
-		 byte[] buffer = new byte[packet.ADD_ANIMAL.length()+1];
-		
+		byte[] buffer = new byte[packet.ADD_ANIMAL.length()+1];
+		 
+		// scale
+		x = Math.round(x * DrawAq.xScale());
+		y = Math.round(y * DrawAq.yScale());
+		 
 		buffer[0] = (byte)packet.ADD_ANIMAL.op();
 		buffer[1] = (byte)index;
 		buffer[2] = (byte)(index >>> 8);
@@ -23,11 +27,13 @@ public abstract class PacketSender implements PacketConstants {
 		buffer[5] = (byte) x;
 		buffer[6] = (byte)(x >>> 8);
 		buffer[7] = (byte)(x >>> 16);
-		buffer[8] = (byte) y;
-		buffer[9] = (byte)(y >>> 8);
-		buffer[10] = (byte)(y >>> 16);
-		buffer[11] = (byte)v;
-		buffer[12] = (byte)(v >>> 8);
+		buffer[8] = (byte)(x >>> 24);
+		buffer[9] = (byte) y;
+		buffer[10] = (byte)(y >>> 8);
+		buffer[11] = (byte)(y >>> 16);
+		buffer[12] = (byte)(y >>> 24);
+		buffer[13] = (byte)v;
+		buffer[14] = (byte)(v >>> 8);
 		
 		try {
 			synchronized(tcpOutput) {
@@ -66,6 +72,10 @@ public abstract class PacketSender implements PacketConstants {
 	public static int sendNewCoordinates (int index, int x, int y, int direction) {
 		
 		byte[] buffer = new byte[packet.UPDATE_COORDINATES.length()+1];
+		
+		// scale
+		x = Math.round(x * DrawAq.xScale());
+		y = Math.round(y * DrawAq.yScale());
 		
 		buffer[0] = (byte)packet.UPDATE_COORDINATES.op();
 		buffer[1] = (byte)index;
@@ -140,6 +150,41 @@ public abstract class PacketSender implements PacketConstants {
 			return 0;
 		}
 		return packet.CONNECTION_INITIALIZATION.length()+1;
+	}
+	
+	public static int sharkUpdate (int index, int x, int y, int v, int direction) {
+		
+		byte[] buffer = new byte[packet.SHARK_UPDATE.length()+1];
+		
+		if(index == 0) {  // owner coordinates send to the client
+			x = Math.round(x * DrawAq.xScale());
+			y = Math.round(y * DrawAq.yScale());
+		}
+		
+		buffer[0] = (byte)packet.SHARK_UPDATE.op();
+		buffer[1] = (byte)index;
+		buffer[2] = (byte) x;
+		buffer[3] = (byte)(x >>> 8);
+		buffer[4] = (byte)(x >>> 16);
+		buffer[5] = (byte)(x >>> 24);
+		buffer[6] = (byte) y;
+		buffer[7] = (byte)(y >>> 8);
+		buffer[8] = (byte)(y >>> 16);
+		buffer[9] = (byte)(y >>> 24);
+		buffer[10] = (byte)v;
+		buffer[11] = (byte)(v >>> 8);
+		buffer[12] = (byte)direction;
+		
+		try {
+			synchronized (udpOutput) {
+				udpOutput.write(buffer, 0, packet.SHARK_UPDATE.length()+1);
+				udpOutput.flush();
+			}
+		} catch (IOException e) {
+			System.out.println("Cannot send data to stream");
+			return 0;
+		}
+		return packet.SHARK_UPDATE.length()+1;
 	}
 	
 	

@@ -24,6 +24,8 @@ public class DrawAq extends Canvas {
 			new Dimension(1444, 900), new Dimension(1680, 1050), new Dimension(1920, 1200)};
 	private Image buffer;
 	private Graphics2D g2dBuffer;
+	private static float xScale;
+	private static float yScale;
 	//private BufferedImage background; 
 	
 	DrawAq (Aquarium Aq) {
@@ -114,23 +116,24 @@ public class DrawAq extends Canvas {
 		resolutionIndex = index;
 	}
 	
+	public static Dimension getResolution () {
+		
+		return resolutions[resolutionIndex];
+	}
 	
-	/*public void redrawAnimals () {
+	public static void setScales (float x, float y) {
 		
-		Graphics g = this.getGraphics();
-		Graphics2D g2d = (Graphics2D)g;
-		RenderingHints rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-	    g2d.setRenderingHints(rh);
-	    
-	    Image buffer = createImage(Aq.getAquariumWidth(), Aq.getAquariumHeight());
-		Graphics2D g2dBuffer = (Graphics2D)buffer.getGraphics();
-
-		synchronized(Aq) {
-			for(Animal a : Aq.getAnimals())
-				drawAnimal(g2dBuffer, a);
-		}
+		xScale = x;
+		yScale = y;
+	}
+	
+	public static float xScale () {
 		
-		g2d.drawImage(buffer, 0, 0, null);
-		g2dBuffer.dispose();
-	}*/
+		return xScale;
+	}
+	
+	public static float yScale () {
+		
+		return yScale;
+	}
 }

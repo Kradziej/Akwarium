@@ -51,8 +51,8 @@ public class Shark extends Animal implements KeyListener {
 		while(threadRun) {
 			
 			Random rand = new Random();
-			int newX;
-			int newY;
+			int newX = 0;
+			int newY = 0;
 			
 			// calculate new position from velocity and vector
 			// check if it's out of window
@@ -110,18 +110,17 @@ public class Shark extends Animal implements KeyListener {
 				direction = 0;
 			}
 
-			if(x != newX || y != newY) {
-				x = newX;
-				y = newY;
+			x = newX;
+			y = newY;
 				
 			if (Aq.isMultiplayer()) {
 				if(isOwner)
-					PacketSender.sendNewCoordinates(0xFFFE, x, y, direction);
+					PacketSender.sharkUpdate(0, x, y, v, direction);
 				else
-					PacketSender.sendNewCoordinates(0xFFFD, x, y, direction);
-				}
-			
+					PacketSender.sharkUpdate(1, x, y, v, direction);
 			}
+			
+	
 			
 			try {
 				Thread.sleep(SYNCH_TIME);

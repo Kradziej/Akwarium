@@ -36,8 +36,6 @@ public class Program {
 	static PipedInputStream tcpInput;
 	static PipedOutputStream udpOutput;
 	static PipedInputStream udpInput;
-	//static TCPServer server;
-	//static TCPClient client;
 	static Connection con;
 	static UDPServer playerOut;
 	static UDPClient playerIn;
@@ -162,17 +160,18 @@ public class Program {
 			
 			// Create init animals
 			if(isServer) {
-				aquarium.initAnimalsServer();
-				aquarium.initSharksServer();   
+				aquarium.initAnimals();
+				aquarium.initSharks();
 				playerIn = new UDPClient(con.getNextPort());
 				playerIn.startThread();
 				
 			} else if(isClient) {
+				aquarium.initSharks();
 				playerOut = new UDPServer(udpInput, con.getIPAddress(), con.getNextPort());
 				playerOut.startThread();
 			} else {
-				aquarium.initAnimalsServer();
-				aquarium.initSharksServer();  
+				aquarium.initAnimals();
+				aquarium.initSharks();  
 			}
 		
 			if(isMultiplayer)

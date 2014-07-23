@@ -1,6 +1,7 @@
 package Akwarium;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,7 +21,7 @@ import javax.swing.JOptionPane;
 public class TCPClient extends Connection implements Runnable {
 	
 	private byte[] buffer = new byte[64];
-	private static int port;
+	private int port = 4945;
 	private boolean isConnected;
 	private boolean disconnected;
 	private boolean isGraphicsReady;
@@ -62,7 +63,26 @@ public class TCPClient extends Connection implements Runnable {
 			client.connect(new InetSocketAddress(IPAddress, port), 0); // socket.accept()
 			isServerUp = true;
 			out = client.getOutputStream();
-			out.write(buffer, 0, 5);   // send hello message
+			
+			// send hello message
+			out.write(buffer, 0, 5);
+			
+			// send settings
+			Dimension d = DrawAq.getResolution();
+			buffer[0] = (byte)0x81;
+			int w = (int)d.getWidth();
+			buffer[1] = (byte) w;
+			buffer[2] = (byte)(w >>> 8);
+			buffer[3] = (byte)(w >>> 16);
+			buffer[4] = (byte)(w >>> 24);
+			int h = (int)d.getHeight();
+			buffer[5] = (byte) h;
+			buffer[6] = (byte)(h >>> 8);
+			buffer[7] = (byte)(h >>> 16);
+			buffer[8] = (byte)(h >>> 24);
+			out.write(buffer, 0, 9);
+
+			// Run listening
 			in = client.getInputStream();
 			int op;
 			while ((op = in.read()) != -1) {
@@ -105,6 +125,7 @@ public class TCPClient extends Connection implements Runnable {
 						out.write(buffer, 0, 2);
 						isGraphicsReady = true;
 						break;
+						
 				}
 			}
 			

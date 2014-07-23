@@ -26,12 +26,13 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 	private UDPServer sendCoor;
 	private boolean isConnected;
 	private boolean disconnected;
+	private boolean isSettingsReady;
 	private boolean isGraphicsReady;
-	private static int port;
-	Thread t;
+	private int port = 4945;
 	private InetAddress IPAddress;     // server client is connected with
 	private PipedInputStream tcpInput;
 	private PipedInputStream udpInput;
+	Thread t;
 	
 	
 	TCPServer () {
@@ -53,6 +54,8 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 		Socket client = null;
 		InputStream in = null;
 		OutputStream out = null;
+		int op;
+		int bytesToRead;
 		int retries = 0;
 		
 		
@@ -63,16 +66,27 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 			client = server.accept();
 			IPAddress = client.getInetAddress();
 			in = client.getInputStream();
-			while (in.read(bufferIn) != -1) {
-				if((byte)(bufferIn[0] ^ 0x80) == 0) {	 	  // get hello message
+			
+			
+			while ((op = in.read()) != -1) {
+				
+				// hello message
+				if((op ^ 0x80) == 0) {	 	  
 					out = client.getOutputStream();
 					PacketSender.sendIv();   // send iv
-					break;
+					continue;
+				}
+				
+				// wait for settings from client like resolution values
+				if((op ^ 0x81) == 0) {	
+					if(PacketInterpreter.interpret(op, in) == 0) {
+						isSettingsReady = true;
+						break;
+					}
 				}
 			}
 			
-			int op;
-			int bytesToRead;
+			
 			while ((op = tcpInput.read()) != -1) {
 				bytesToRead = packet.getSize(op);
 				bufferOut[0] = (byte)op;

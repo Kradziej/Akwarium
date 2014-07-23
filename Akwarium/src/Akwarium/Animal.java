@@ -341,7 +341,7 @@ public abstract class Animal extends Utility implements Runnable {
 		return buff;
 	}
 	
-	public static void initAnimalsServer (Aquarium Aq) {
+	public static void initAnimals (Aquarium Aq) {
 		
 		
 		Color maskColor = new Color(255,255,255);
