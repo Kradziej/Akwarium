@@ -26,6 +26,7 @@ public class DrawAq extends Canvas {
 	private Graphics2D g2dBuffer;
 	private static float xScale;
 	private static float yScale;
+	private static float animalScale;
 	//private BufferedImage background; 
 	
 	DrawAq (Aquarium Aq) {
@@ -48,6 +49,8 @@ public class DrawAq extends Canvas {
 		frame.setLocationRelativeTo(null);
 		frame.setLayout(new BorderLayout());
 		frame.setResizable(false);
+		// set animal scale
+		animalScale = (float)(resolutions[resolutionIndex].getWidth() / 800);
 		return frame;
 	}
 	
@@ -135,5 +138,10 @@ public class DrawAq extends Canvas {
 	public static float yScale () {
 		
 		return yScale;
+	}
+	
+	public static float animalScale () {
+		
+		return animalScale;
 	}
 }

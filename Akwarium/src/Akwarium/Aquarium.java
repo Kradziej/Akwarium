@@ -256,9 +256,16 @@ public class Aquarium extends Utility {
 					player.getHitboxW(), player.getHitboxH());
 		
 		
-		return isEatenOwner | isEatenPlayer;
 		// set something like adding points to player or deduct health when medusa attack xD
+		if(isEatenOwner) {
+			//System.out.println(Math.round((owner.getImageWidth() / a.getImageWidth()) * 10));
+			System.out.println(owner.getImageWidth() +" "+ a.getImageWidth());
+			System.out.println(((double)owner.getImageWidth() / (double)a.getImageWidth()) * 5);
+		} else if(isEatenPlayer) {
+			System.out.println(Math.round((player.getImageWidth() / a.getImageWidth()) * 100));
+		}
 		
+		return isEatenOwner | isEatenPlayer;
 	}
 
 	public boolean isMultiplayer () {
