@@ -110,29 +110,16 @@ public class Program {
 			JPanel bPanel = DrawAq.createPanel(new GridLayout(0,4));
 			JPanel tPanel = DrawAq.createPanel(new BorderLayout());
 			
-			// Console
-			frame.add(tPanel, BorderLayout.PAGE_START);
-			JTextArea console = new JTextArea();
-			console.setEditable(false);
-			tPanel.add(console);
-			
-			
 			// Create aquarium
-			Aquarium aquarium = new Aquarium(new Filter(), new Lamp(), 5000, console, isServer, isClient);
+			Aquarium aquarium = new Aquarium(new Filter(), new Lamp(), 5000, isServer, isClient);
 			PacketInterpreter.setAq(aquarium);
-						
-			/*
-			// buttons
-			frame.add(bPanel, BorderLayout.PAGE_START);
-			JButton addAnimalButton = new myButtonAdd(aquarium, "Add new pet");
-			JButton removeAnimalButton = new myButtonDelete(aquarium, "Remove pet");
-			JButton ColorPicker = new myColorPicker(aquarium, "Color picker");
-			JButton addShark = new myButtonAddShark(aquarium, "Shark!");
-			bPanel.add(addAnimalButton);
-			bPanel.add(removeAnimalButton);
-			bPanel.add(ColorPicker);
-			bPanel.add(addShark);
-			*/
+
+			
+			// Add status panel
+			JPanel sPanel = new StatusPanel(aquarium);
+			frame.add(sPanel, BorderLayout.PAGE_START);
+			sPanel.setPreferredSize(new Dimension(0, (int)(24 * DrawAq.xAnimalScale())));
+			
 			
 			// Set initial focus on canvas
 			aquarium.getCanvas().setFocusable(true);

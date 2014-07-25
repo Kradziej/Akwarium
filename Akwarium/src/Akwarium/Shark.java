@@ -34,7 +34,7 @@ public class Shark extends Animal implements KeyListener {
 		else
 			rightDirImage = copyImage(sharkPlayerImage);
 		
-		rightDirImage = scaleImage(rightDirImage, Math.round(rightDirImage.getWidth() * DrawAq.animalScale()));
+		rightDirImage = scaleImage(rightDirImage, Math.round(rightDirImage.getWidth() * DrawAq.xAnimalScale()));
 		leftDirImage = flipImage(copyImage(rightDirImage));
 		image = rightDirImage;
 		imageWidth = image.getWidth();

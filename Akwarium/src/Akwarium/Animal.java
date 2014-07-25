@@ -362,7 +362,7 @@ public abstract class Animal extends Utility implements Runnable {
 					
 					Color c = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
 					Animal.changeImageColor(rImg, maskColor, c);
-					rImg = Animal.scaleImage(rImg, Math.round(width * DrawAq.animalScale()));
+					rImg = Animal.scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
 					BufferedImage lImg = Animal.flipImage(Animal.copyImage(rImg));
 					
 					graphics[i][0][j] = lImg;
@@ -402,7 +402,7 @@ public abstract class Animal extends Utility implements Runnable {
 		
 		BufferedImage rImg = Animal.copyImage(Animal.resources[ord]);
 		Animal.changeImageColor(rImg, maskColor, color);
-		rImg = Animal.scaleImage(rImg, Math.round(width * DrawAq.animalScale()));
+		rImg = Animal.scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
 		BufferedImage lImg = Animal.flipImage(Animal.copyImage(rImg));
 		Animal.graphics[ord][0][index] = lImg;
 		Animal.graphics[ord][1][index] = rImg;

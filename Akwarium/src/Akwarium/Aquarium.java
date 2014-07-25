@@ -42,19 +42,16 @@ public class Aquarium extends Utility {
 	Random rndBoost = new Random();
 	private Shark owner;   //0xFFFE
 	private Shark player;  //0xFFFD
-	private JTextArea console;
 	private boolean isMultiplayer;
 	private boolean isServer;  // w zaleznosci czy client czy server jeden bedzie puszczal thready drugi nie
 	private boolean isClient; 
 	
 	
-	public Aquarium (Filter filter, Lamp lamp, int capacity, JTextArea console, 
-			boolean isServer, boolean isClient) {
+	public Aquarium (Filter filter, Lamp lamp, int capacity, boolean isServer, boolean isClient) {
 		
 		this.lamp = lamp;
 		this.filter = filter;
 		this.capacity = capacity;
-		this.console = console;
 		this.isClient = isClient;
 		this.isServer = isServer;
 		isMultiplayer = isClient | isServer;
