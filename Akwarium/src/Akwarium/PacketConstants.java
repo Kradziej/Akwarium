@@ -1,5 +1,7 @@
 package Akwarium;
 
+import java.util.concurrent.BlockingQueue;
+
 
 public interface PacketConstants {
 	
@@ -11,7 +13,39 @@ public interface PacketConstants {
 	public int SHARK_UPDATE = 0x6;
 	public int UPDATE_POINTS = 0x7;
 	public int SETTINGS = 0x81;
+	
 
+	public class packetBlock {
+		
+		private byte[] buffer;
+		private boolean isTcpPacket;
+		private int length;
+		
+		packetBlock(byte[] buffer, boolean isTcpPacket) {
+			
+			this.isTcpPacket = isTcpPacket;
+			this.buffer = buffer;
+			this.length = buffer.length;
+		}
+		
+		public boolean isTcpPacket() {
+			
+			return isTcpPacket;
+		}
+		
+		public byte[] getBuffer() {
+			
+			return buffer;
+		}
+		
+		public int size() {
+			
+			return length;
+		}
+	}
+	
+
+	
 	public static enum packet {
 		
 		UPDATE_COORDINATES(0x1, 11),

@@ -4,12 +4,59 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.PipedOutputStream;
 import java.util.Random;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
-public abstract class PacketSender implements PacketConstants {
+public class PacketSender extends Thread implements PacketConstants {
 
 	private static PipedOutputStream tcpOutput;
 	private static PipedOutputStream udpOutput;
+	private static ArrayBlockingQueue<packetBlock> queue;
 	private static int iv;
+	private static boolean threadRun = true;
+	
+	public void run() {
+		
+		packetBlock packet;
+		
+		while(threadRun) {
+			try {
+				packet = queue.poll(30, TimeUnit.MICROSECONDS);
+				if(packet == null)
+					continue;
+			} catch (InterruptedException e) {
+				System.out.println("Queue interrapted!");
+				e.printStackTrace();
+				return;
+			}
+			
+			try {
+				
+				if(packet.isTcpPacket()) {
+					
+					tcpOutput.write(packet.getBuffer(), 0, packet.size());
+					tcpOutput.flush();
+				} else {
+					
+					udpOutput.write(packet.getBuffer(), 0, packet.size());
+					udpOutput.flush();
+				}
+				
+			} catch (IOException e) {
+				System.out.println("Cannot send data to stream");
+				e.printStackTrace();
+				return;
+			}
+			
+		}
+	}
+	
+	protected static void terminate () {
+		
+		threadRun = false;
+	}
+	
 	
 	public static int addAnimal (int code, int imageIndex, int index, int x, int y, int v) {
 		
@@ -35,6 +82,8 @@ public abstract class PacketSender implements PacketConstants {
 		buffer[13] = (byte)v;
 		buffer[14] = (byte)(v >>> 8);
 		
+		
+		/*
 		try {
 			synchronized(tcpOutput) {
 				tcpOutput.write(buffer, 0, packet.ADD_ANIMAL.length()+1);
@@ -43,9 +92,10 @@ public abstract class PacketSender implements PacketConstants {
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream for " + packet.ADD_ANIMAL.toString());
 			return 0;
-		}
-		return packet.ADD_ANIMAL.length()+1;
+		}*/
 		
+		queue.offer(new packetBlock(buffer, true));
+		return packet.ADD_ANIMAL.length()+1;
 		
 	}
 	
@@ -57,6 +107,7 @@ public abstract class PacketSender implements PacketConstants {
 		buffer[1] = (byte)index;
 		buffer[2] = (byte)(index >>> 8);
 		
+		/*
 		try {
 			synchronized(tcpOutput) {
 				tcpOutput.write(buffer, 0, packet.REMOVE_ANIMAL.length()+1);
@@ -65,7 +116,9 @@ public abstract class PacketSender implements PacketConstants {
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream");
 			return 0;
-		}
+		}*/
+		
+		queue.offer(new packetBlock(buffer, true));
 		return packet.REMOVE_ANIMAL.length()+1;
 	}
 	
@@ -90,6 +143,7 @@ public abstract class PacketSender implements PacketConstants {
 		buffer[10] = (byte)(y >>> 24);
 		buffer[11] = (byte)direction;
 		
+		/*
 		try {
 			synchronized (udpOutput) {
 				udpOutput.write(buffer, 0, packet.UPDATE_COORDINATES.length()+1);
@@ -100,7 +154,9 @@ public abstract class PacketSender implements PacketConstants {
 			e.printStackTrace();
 			System.exit(-1);
 			return 0;
-		}
+		}*/
+		
+		queue.offer(new packetBlock(buffer, false));
 		return packet.UPDATE_COORDINATES.length()+1;
 	}
 	
@@ -117,6 +173,7 @@ public abstract class PacketSender implements PacketConstants {
 		buffer[5] = (byte)color.getBlue();
 		buffer[6] = (byte)width;
 		
+		/*
 		try {
 			synchronized(tcpOutput) {
 				tcpOutput.write(buffer, 0, packet.INITIALIZE_IMAGES.length()+1);
@@ -125,8 +182,10 @@ public abstract class PacketSender implements PacketConstants {
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream for " + packet.INITIALIZE_IMAGES.toString());
 			return 0;
-		}
+		}*/
 		
+		
+		queue.offer(new packetBlock(buffer, true));
 		return packet.INITIALIZE_IMAGES.length()+1;
 	}
 	
@@ -142,6 +201,7 @@ public abstract class PacketSender implements PacketConstants {
 		buffer[3] = (byte)(iv >>> 16);
 		buffer[4] = (byte)(iv >>> 24);
 		
+		/*
 		try {
 			synchronized(tcpOutput) {
 				tcpOutput.write(buffer, 0, packet.CONNECTION_INITIALIZATION.length()+1);
@@ -150,7 +210,9 @@ public abstract class PacketSender implements PacketConstants {
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream for " + packet.CONNECTION_INITIALIZATION.toString());
 			return 0;
-		}
+		}*/
+		
+		queue.offer(new packetBlock(buffer, true));
 		return packet.CONNECTION_INITIALIZATION.length()+1;
 	}
 	
@@ -177,6 +239,7 @@ public abstract class PacketSender implements PacketConstants {
 		buffer[11] = (byte)(v >>> 8);
 		buffer[12] = (byte)direction;
 		
+		/*
 		try {
 			synchronized (udpOutput) {
 				udpOutput.write(buffer, 0, packet.SHARK_UPDATE.length()+1);
@@ -185,7 +248,9 @@ public abstract class PacketSender implements PacketConstants {
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream for " + packet.SHARK_UPDATE.toString());
 			return 0;
-		}
+		}*/
+		
+		queue.offer(new packetBlock(buffer, false));
 		return packet.SHARK_UPDATE.length()+1;
 	}
 	
@@ -203,6 +268,8 @@ public abstract class PacketSender implements PacketConstants {
 		buffer[5] = (byte)(points >>> 24);
 		buffer[6] = (byte)health;
 		
+		
+		/*
 		try {
 			synchronized (udpOutput) {
 				udpOutput.write(buffer, 0, packet.UPDATE_POINTS.length()+1);
@@ -211,15 +278,18 @@ public abstract class PacketSender implements PacketConstants {
 		} catch (IOException e) {
 			System.out.println("Cannot send data to stream for " + packet.UPDATE_POINTS.toString());
 			return 0;
-		}
+		}*/
+		
+		queue.offer(new packetBlock(buffer, false));
 		return packet.UPDATE_POINTS.length()+1;
 	}
 
 	
-	public static void setOutputs (PipedOutputStream tcp, PipedOutputStream udp) {
+	public static void initSender (PipedOutputStream tcp, PipedOutputStream udp) {
 		
 		tcpOutput = tcp;
 		udpOutput = udp;
+		queue = new ArrayBlockingQueue<packetBlock>(150, true);
 	}
 	
 }

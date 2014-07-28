@@ -39,6 +39,7 @@ public class Program {
 	static Connection con;
 	static UDPServer playerOut;
 	static UDPClient playerIn;
+	static PacketSender packetSenderThread;
 	static IPaddressPopup addr = new IPaddressPopup();
 	
 	public static void main(String[] args) {
@@ -77,7 +78,9 @@ public class Program {
 					udpInput = new PipedInputStream(udpOutput);
 					tcpOutput = new PipedOutputStream();
 					tcpInput = new PipedInputStream(tcpOutput);
-					PacketSender.setOutputs(tcpOutput, udpOutput);
+					PacketSender.initSender(tcpOutput, udpOutput);
+					packetSenderThread = new PacketSender();
+					packetSenderThread.start();
 				} catch (IOException e) {
 					System.out.println("Cannot create pipes");
 					e.printStackTrace();
@@ -225,7 +228,9 @@ public class Program {
 			if(isClient)
 				msg = "Server disconnected.";
 			
-			JOptionPane.showMessageDialog(null, msg, "Connection error", JOptionPane.WARNING_MESSAGE);
+			// terminate sender
+			PacketSender.terminate();
+			packetSenderThread = null;
 			
 			try {
 				tcpOutput.close();
@@ -248,6 +253,8 @@ public class Program {
 			frame.dispose();
 			frame = null;
 			
+			
+			JOptionPane.showMessageDialog(null, msg, "Connection error", JOptionPane.WARNING_MESSAGE);
 		
 		}
 		

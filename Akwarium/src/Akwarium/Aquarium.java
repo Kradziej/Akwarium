@@ -228,8 +228,6 @@ public class Aquarium extends Utility {
 		
 
 		if(top == bottom) {
-			//sharks here not clear
-			dAq.clear();
 			return;
 		}
 		
