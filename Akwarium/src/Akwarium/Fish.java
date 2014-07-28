@@ -30,9 +30,9 @@ public class Fish extends Animal {
 		image = rightDirImage;
 		imageWidth = image.getWidth();
 		imageHeight = image.getHeight();
-		hitboxW = imageWidth - Math.round(0.3f * imageWidth);
-		hitboxH = imageHeight - Math.round(0.3f * imageHeight);
-		v = 5;
+		hitboxW = imageWidth - Math.round(0.45f * imageWidth);
+		hitboxH = imageHeight - Math.round(0.45f * imageHeight);
+		v = (int)(7 * DrawAq.xAnimalScale());
 	}
 	
 	

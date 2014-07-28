@@ -60,6 +60,8 @@ public abstract class Animal extends Utility implements Runnable {
 	protected static BufferedImage[][][] graphics;    // [0]for all species [1]first is left, second right [2]number of buff images
 	protected static BufferedImage sharkOwnerImage;
 	protected static BufferedImage sharkPlayerImage;
+	protected static BufferedImage mine;
+	protected static BufferedImage blank;
 	protected int imageWidth;
 	protected int imageHeight;
 	protected int hitboxW;
@@ -67,8 +69,8 @@ public abstract class Animal extends Utility implements Runnable {
 	protected static int numberOfBufferedImages = 30;
 	protected int x;
 	protected int y;
-	protected float[] vector = {1,0};
-	protected int direction;
+	protected float[] vector = {0,0};
+	protected int direction = 1;
 	protected int v;   // pixels per sec
 	protected int index;
 	protected Aquarium Aq;
@@ -82,8 +84,8 @@ public abstract class Animal extends Utility implements Runnable {
 	private Food food;
 	protected static int distanceFromBorderLeft = 0;
 	protected static int distanceFromBorderRight = 135;
-	protected static int distanceFromBorderTop = 25;
-	protected static int distanceFromBorderBottom = 100;
+	protected static int distanceFromBorderTop = 15;
+	protected static int distanceFromBorderBottom = 60;
 	protected static final int SYNCH_TIME = 30;
 	
 	
@@ -113,11 +115,7 @@ public abstract class Animal extends Utility implements Runnable {
 						break;
 					}
 					
-					try {
-						Thread.sleep(SYNCH_TIME);
-					} catch (InterruptedException e) {
-						System.out.println("Thread " + Thread.currentThread().toString() + " interrupted!");
-					}
+					sleepThread(SYNCH_TIME);
 			
 				}
 				
@@ -174,15 +172,12 @@ public abstract class Animal extends Utility implements Runnable {
 			
 			
 			// flip image
-			if(newX - x > 1) {
-				this.flipImage("right");
+			if(newX - x > 1)
 				direction = 1;
-			}
-			else if(newX - x < -1) {
-				this.flipImage("left");
+			else if(newX - x < -1)
 				direction = 0;
-			}
 			
+			setDirection(direction);
 			x = newX;
 			y = newY;
 			
@@ -357,13 +352,13 @@ public abstract class Animal extends Utility implements Runnable {
 			
 			for(int j = 0; j < numberOfBufferedImages; j++) {
 			
-					BufferedImage rImg = Animal.copyImage(Animal.resources[i]);
-					int width = 70 + rand.nextInt(40);
+					BufferedImage rImg = copyImage(Animal.resources[i]);
+					int width = 50 + rand.nextInt(20);
 					
 					Color c = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
-					Animal.changeImageColor(rImg, maskColor, c);
-					rImg = Animal.scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
-					BufferedImage lImg = Animal.flipImage(Animal.copyImage(rImg));
+					changeImageColor(rImg, maskColor, c);
+					rImg = scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
+					BufferedImage lImg = flipImage(copyImage(rImg));
 					
 					graphics[i][0][j] = lImg;
 					graphics[i][1][j] = rImg;
@@ -378,10 +373,10 @@ public abstract class Animal extends Utility implements Runnable {
 		
 		// SEND INIT TO CLIENT XD
 		Color maskColor = new Color(255,255,255);
-		Animal.SpeciesList[] allSpecies = Animal.SpeciesList.values();
-		Animal.SpeciesList animal = null;
+		SpeciesList[] allSpecies = SpeciesList.values();
+		SpeciesList animal = null;
 		
-		for(Animal.SpeciesList spec : allSpecies) {
+		for(SpeciesList spec : allSpecies) {
 			if(spec.getOrdinal() == code) {
 				animal = spec;
 				break;
@@ -389,23 +384,23 @@ public abstract class Animal extends Utility implements Runnable {
 		}
 		
 		int ord = animal.getOrdinal();
-		if(Animal.graphics == null) {
+		if(graphics == null) {
 			int speciesNumber = SpeciesList.values().length;
-			Animal.graphics = new BufferedImage[speciesNumber][][];
+			graphics = new BufferedImage[speciesNumber][][];
 		}
-		if(Animal.graphics[ord] == null)
-			Animal.graphics[ord] = new BufferedImage[2][];
-		if(Animal.graphics[ord][0] == null) {
-			Animal.graphics[ord][0] = new BufferedImage[numberOfBufferedImages];
-			Animal.graphics[ord][1] = new BufferedImage[numberOfBufferedImages];
+		if(graphics[ord] == null)
+			graphics[ord] = new BufferedImage[2][];
+		if(graphics[ord][0] == null) {
+			graphics[ord][0] = new BufferedImage[numberOfBufferedImages];
+			graphics[ord][1] = new BufferedImage[numberOfBufferedImages];
 		}
 		
-		BufferedImage rImg = Animal.copyImage(Animal.resources[ord]);
-		Animal.changeImageColor(rImg, maskColor, color);
-		rImg = Animal.scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
-		BufferedImage lImg = Animal.flipImage(Animal.copyImage(rImg));
-		Animal.graphics[ord][0][index] = lImg;
-		Animal.graphics[ord][1][index] = rImg;
+		BufferedImage rImg = copyImage(resources[ord]);
+		changeImageColor(rImg, maskColor, color);
+		rImg = scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
+		BufferedImage lImg = flipImage(copyImage(rImg));
+		graphics[ord][0][index] = lImg;
+		graphics[ord][1][index] = rImg;
 		
 		if(index == (numberOfBufferedImages - 1))
 			return true;
@@ -462,35 +457,45 @@ public abstract class Animal extends Utility implements Runnable {
 				resources[1] = ImageIO.read(Program.class.getClass().getResource("/resources/turtle.png"));
 				sharkOwnerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark_blue.png"));
 				sharkPlayerImage = ImageIO.read(Program.class.getClass().getResource("/resources/shark_red.png"));
+				mine = ImageIO.read(Program.class.getClass().getResource("/resources/naval_mine.png"));
+				blank = ImageIO.read(Program.class.getClass().getResource("/resources/blank.png"));
 			}
-		} catch (IOException e2) {
+		} catch (IOException e) {
 			System.out.println("Cannot load resources");
-			e2.printStackTrace();
+			e.printStackTrace();
 			System.exit(-1);
 		}
 	}
 
-	public int getImageWidth () {
+	protected int getImageWidth () {
 		
 		return imageWidth;
 	}
 
-	public int getImageHeight () {
+	protected int getImageHeight () {
 		
 		return imageHeight;
 	}
 
-	public int getHitboxW () {
+	protected int getHitboxW () {
 		
 		return hitboxW;
 	}
 
-	public int getHitboxH () {
+	protected int getHitboxH () {
 		
 		return hitboxH;
 	}
 	
 
+	protected void sleepThread (int time) {
+		
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			System.out.println("Thread " + Thread.currentThread().toString() + " interrupted!");
+		}
+	}
 	
 
 }

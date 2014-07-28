@@ -120,6 +120,14 @@ public abstract class PacketInterpreter implements PacketConstants {
 			DrawAq.setScales((float)(w / d.getWidth()), (float)(h / d.getHeight()));
 			return 0;
 		
+		
+		case UPDATE_POINTS:
+			
+			packetInput.read(buffer, 0, packet.UPDATE_POINTS.length());
+			index = buffer[0] & 0xFF;
+			int points = (buffer[1] << 24) >>> 24 | ((buffer[2] << 24) >>> 16) | ((buffer[3] << 24) >>> 8) | (buffer[4] << 24);
+			int health =  buffer[5] & 0xFF;
+			Aq.updatePoints(index, points, health);
 		}
 		
 		return -1;

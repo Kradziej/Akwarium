@@ -31,7 +31,7 @@ public class Turtle extends Animal {
 		imageHeight = image.getHeight();
 		hitboxW = imageWidth - Math.round(0.3f * imageWidth);
 		hitboxH = imageHeight - Math.round(0.3f * imageHeight);
-		v = 5;
+		v = (int)(5 * DrawAq.xAnimalScale());
 	}
 	
 	

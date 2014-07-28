@@ -12,6 +12,9 @@ import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
 
 public class DrawAq extends Canvas {
 
@@ -21,13 +24,14 @@ public class DrawAq extends Canvas {
 	private static int resolutionIndex;
 	private static Dimension[] resolutions = {new Dimension(800, 600), new Dimension(1024, 768), 
 			new Dimension(1152, 864), new Dimension(1280, 800), new Dimension(1280, 960), 
-			new Dimension(1444, 900), new Dimension(1680, 1050), new Dimension(1920, 1200)};
+			new Dimension(1366, 768), new Dimension(1444, 900)};
 	private Image buffer;
 	private Graphics2D g2dBuffer;
 	private static float xScale;
 	private static float yScale;
 	private static float xAnimalScale;
 	private static float yAnimalScale;
+	private static boolean isMinimized;
 	//private BufferedImage background; 
 	
 	DrawAq (Aquarium Aq) {
@@ -51,8 +55,23 @@ public class DrawAq extends Canvas {
 		frame.setLayout(new BorderLayout());
 		frame.setResizable(false);
 		// set animal scale
-		xAnimalScale = (float)(resolutions[resolutionIndex].getWidth() / 800);
-		yAnimalScale = (float)(resolutions[resolutionIndex].getHeight() / 600);
+		xAnimalScale = (float)(getResolution().getWidth() / 800);
+		yAnimalScale = (float)(getResolution().getHeight() / 600);
+		frame.addWindowFocusListener(new WindowFocusListener() {
+			
+			@Override
+			public void windowLostFocus(WindowEvent e) {
+				
+				isMinimized = true;
+			}
+			
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				
+				isMinimized = false;
+			}
+		});
+		
 		return frame;
 	}
 	
@@ -151,4 +170,10 @@ public class DrawAq extends Canvas {
 		
 		return yAnimalScale;
 	}
+	
+	public static boolean isMinimized () {
+		
+		return isMinimized;
+	}
+
 }

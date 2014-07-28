@@ -29,7 +29,6 @@ public class Aquarium extends Utility {
 	private float boost;
 	private boolean working = true;
 	private Lamp lamp;
-	private int indexFix;
 	private DrawAq dAq;
 	private Color backgroundColor = new Color(111, 181, 223);
 	///private List<Animal> animals = new ArrayList<Animal>();
@@ -37,9 +36,8 @@ public class Aquarium extends Utility {
 	private int bottom = 0;
 	private int top = 0;
 	private int animalCount = 0;
-	private float xScale;
-	private float yScale;
-	Random rndBoost = new Random();
+	private StatusPanel status;
+	private Random rndBoost = new Random();
 	private Shark owner;   //0xFFFE
 	private Shark player;  //0xFFFD
 	private boolean isMultiplayer;
@@ -47,7 +45,7 @@ public class Aquarium extends Utility {
 	private boolean isClient; 
 	
 	
-	public Aquarium (Filter filter, Lamp lamp, int capacity, boolean isServer, boolean isClient) {
+	public Aquarium (Filter filter, Lamp lamp, int capacity, boolean isServer, boolean isClient, StatusPanel status) {
 		
 		this.lamp = lamp;
 		this.filter = filter;
@@ -57,6 +55,7 @@ public class Aquarium extends Utility {
 		isMultiplayer = isClient | isServer;
 		dAq = new DrawAq(this);
 		dAq.setBackground(backgroundColor);
+		this.status = status;
 	}
 	
 	public int getNumberOfAnimals () {
@@ -73,6 +72,23 @@ public class Aquarium extends Utility {
 		}
 	}
 	
+	public void addAnimal (Animal a) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+		
+		if(top == 0xFFFC)
+			top = bottom = 0;
+		
+		synchronized(this) {
+			animals[top] = a;
+			a.setIndex(top);
+			top++;
+		}
+		
+		if (isServer)
+			PacketSender.addAnimal(a.getSpeciesCode(), a.getImageIndex(), a.getIndex(), a.getX(), a.getY(), a.getVelocity());
+		
+		a.startThread();
+		animalCount++;
+	}
 	
 	public void addAnimal () throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		
@@ -107,9 +123,12 @@ public class Aquarium extends Utility {
 		String speciesName = null;
 		
 		for(Animal.SpeciesList spec : allSpecies) {
-			if(spec.getOrdinal() == code) {
+			if(code == spec.getOrdinal()) {
 				a = (Animal) spec.getInstance().getDeclaredConstructor(Aquarium.class, int.class).newInstance(this, v);
-				speciesName = spec.getSpeciesName();
+				break;
+			} else if(code == Mine.CODE) {
+				a = new Mine(this,v);
+				break;
 			}
 		}
 		
@@ -242,24 +261,39 @@ public class Aquarium extends Utility {
 	public boolean containsShark (Animal a) {
 		
 		boolean isEatenPlayer = false;
+		boolean isEatenOwner = false;
 		
 		// hitbox reduction
 		Rectangle2D rect = new Rectangle2D.Double(a.getX(), a.getY(), 
 				a.getHitboxW(), a.getHitboxH());
-		boolean isEatenOwner = rect.intersects(owner.getX(), owner.getY(), 
+		if(!owner.ishpLost())
+			isEatenOwner = rect.intersects(owner.getX(), owner.getY(), 
 				owner.getHitboxW(), owner.getHitboxH());
-		if(isMultiplayer)
+		if(isMultiplayer && !owner.ishpLost())
 			isEatenPlayer = rect.intersects(player.getX(), player.getY(), 
 					player.getHitboxW(), player.getHitboxH());
 		
 		
-		// set something like adding points to player or deduct health when medusa attack xD
+		// set something like adding points to player or deduct health
 		if(isEatenOwner) {
-			//System.out.println(Math.round((owner.getImageWidth() / a.getImageWidth()) * 10));
-			System.out.println(owner.getImageWidth() +" "+ a.getImageWidth());
-			System.out.println(((double)owner.getImageWidth() / (double)a.getImageWidth()) * 5);
+			owner.addPoints( (int)((owner.getImageWidth() / (double)a.getImageWidth()) * (boost+2)) );
+			status.setPointsOwner(owner.getPoints());
+			// Mine or something else
+			if(a.getSpeciesCode() == Mine.CODE) {
+				owner.decreaseHealth(10);
+				status.setHealthMultiplierOwner((double)owner.getHealth() / Shark.MAX_HEALTH);
+				owner.specEffHealthDecrease();
+			}
 		} else if(isEatenPlayer) {
-			System.out.println(Math.round((player.getImageWidth() / a.getImageWidth()) * 100));
+			player.addPoints( (int)((player.getImageWidth() / (double)a.getImageWidth()) * (boost+2)) );
+			status.setPointsPlayer(player.getPoints());
+			// Mine or something else
+			if(a.getSpeciesCode() == Mine.CODE) {
+				player.decreaseHealth(10);
+				player.specEffHealthDecrease();
+				status.setHealthMultiplierOwner((double)player.getHealth() / Shark.MAX_HEALTH);
+				player.specEffHealthDecrease();
+			}
 		}
 		
 		return isEatenOwner | isEatenPlayer;
@@ -283,13 +317,12 @@ public class Aquarium extends Utility {
 	public void setBoost (float b) {
 		
 		this.boost = b;
+		//System.out.println(b);
 	}
 	
 	public float boost () {
 		
-			//return (int)(boost * Math.abs(rndBoost.nextGaussian()));
 			float base = (float)Math.abs(rndBoost.nextGaussian()) + 0.3f;
-			//System.out.println(boost);
 			return (base += boost);
 	}
 	
@@ -312,19 +345,6 @@ public class Aquarium extends Utility {
 			owner.startThread();
 		}
 		
-		/*
-		owner = new Shark(this, true);
-		if(isMultiplayer)
-			PacketSender.addAnimal(owner.getSpeciesCode(), 0, 1, owner.getX(), owner.getY(), owner.getVelocity());
-		dAq.addKeyListener(owner);
-		owner.startThread();
-		animals[0xFFFE] = owner;
-		if(isMultiplayer) {
-			player = new Shark(this, false);
-			PacketSender.addAnimal(player.getSpeciesCode(), 0, 0, player.getX(), 
-					player.getY(), player.getVelocity());
-			animals[0xFFFD] = player;
-		}*/
 	}
 	
 	public void initAnimals() {
@@ -332,14 +352,43 @@ public class Aquarium extends Utility {
 		Animal.initAnimals(this);
 	}
 	
-	public Animal getPlayer () {
+	public Shark getPlayer () {
 		
 		return player;
 	}
 	
-	public Animal getOwner () {
+	public Shark getOwner () {
 		
 		return owner;
+	}
+	
+	public void updatePoints (int index, int points, int health) {
+		
+		if(index == 0) {
+			
+			if(owner.getHealth() != health) {
+				owner.setHealth(health);
+				status.setHealthMultiplierOwner((double)health / Shark.MAX_HEALTH);
+				owner.specEffHealthDecrease();
+			}
+			if(owner.getPoints() != points) {
+				owner.setPoints(points);
+				status.setPointsOwner(points);
+			}
+			
+		} else {
+			
+			if(player.getHealth() != health) {
+				player.setHealth(health);
+				status.setHealthMultiplierPlayer((double)health / Shark.MAX_HEALTH);
+				player.specEffHealthDecrease();
+			}
+			if(player.getPoints() != points) {
+				player.setPoints(points);
+				status.setPointsPlayer(points);
+			}
+			
+		}
 	}
 	
 	public void updateSharks (int index, int x, int y, int v, int direction) {
@@ -350,6 +399,7 @@ public class Aquarium extends Utility {
 			owner.setY(y);
 			owner.setVelocity(v);
 			owner.setDirection(direction);
+			
 		} else {
 			
 			player.setX(x);

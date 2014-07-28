@@ -188,6 +188,32 @@ public abstract class PacketSender implements PacketConstants {
 	}
 	
 	
+	public static int updatePoints (int index, int points, int health) {
+		
+		byte[] buffer = new byte[packet.UPDATE_POINTS.length()+1];
+		
+		
+		buffer[0] = (byte)packet.UPDATE_POINTS.op();
+		buffer[1] = (byte)index;
+		buffer[2] = (byte)points;
+		buffer[3] = (byte)(points >>> 8);
+		buffer[4] = (byte)(points >>> 16);
+		buffer[5] = (byte)(points >>> 24);
+		buffer[6] = (byte)health;
+		
+		try {
+			synchronized (udpOutput) {
+				udpOutput.write(buffer, 0, packet.UPDATE_POINTS.length()+1);
+				udpOutput.flush();
+			}
+		} catch (IOException e) {
+			System.out.println("Cannot send data to stream");
+			return 0;
+		}
+		return packet.UPDATE_POINTS.length()+1;
+	}
+
+	
 	public static void setOutputs (PipedOutputStream tcp, PipedOutputStream udp) {
 		
 		tcpOutput = tcp;

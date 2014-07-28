@@ -9,6 +9,7 @@ public interface PacketConstants {
 	public int INITIALIZE_IMAGES  = 0x4;
 	public int CONNECTION_INITIALIZATION = 0x5;
 	public int SHARK_UPDATE = 0x6;
+	public int UPDATE_POINTS = 0x7;
 	public int SETTINGS = 0x81;
 
 	public static enum packet {
@@ -19,6 +20,7 @@ public interface PacketConstants {
 		INITIALIZE_IMAGES(0x4, 6),
 		CONNECTION_INITIALIZATION(0x5, 4),
 		SHARK_UPDATE(0x6, 12),
+		UPDATE_POINTS(0x7, 6),
 		SETTINGS(0x81, 8);
 		
 		private final int op;
@@ -54,6 +56,8 @@ public interface PacketConstants {
 				return SHARK_UPDATE.length();
 			else if(op == SETTINGS.op())
 				return SETTINGS.length();
+			else if(op == UPDATE_POINTS.op())
+				return UPDATE_POINTS.length();
 			
 			return 0;
 		}

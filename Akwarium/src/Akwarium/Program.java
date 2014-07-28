@@ -110,16 +110,16 @@ public class Program {
 			JPanel bPanel = DrawAq.createPanel(new GridLayout(0,4));
 			JPanel tPanel = DrawAq.createPanel(new BorderLayout());
 			
+			// Add status panel
+			JPanel sPanel = new StatusPanel(isMultiplayer);
+			frame.add(sPanel, BorderLayout.PAGE_START);
+			sPanel.setPreferredSize(new Dimension(0, (int)(24 * DrawAq.yAnimalScale())));
+			
+			
 			// Create aquarium
-			Aquarium aquarium = new Aquarium(new Filter(), new Lamp(), 5000, isServer, isClient);
+			Aquarium aquarium = new Aquarium(new Filter(), new Lamp(), 5000, isServer, isClient, (StatusPanel)sPanel);
 			PacketInterpreter.setAq(aquarium);
 
-			
-			// Add status panel
-			JPanel sPanel = new StatusPanel(aquarium);
-			frame.add(sPanel, BorderLayout.PAGE_START);
-			sPanel.setPreferredSize(new Dimension(0, (int)(24 * DrawAq.xAnimalScale())));
-			
 			
 			// Set initial focus on canvas
 			aquarium.getCanvas().setFocusable(true);
@@ -136,6 +136,7 @@ public class Program {
 			cPanel.add(aquarium.getCanvas());
 			frame.setVisible(true);
 			frame.invalidate();
+			frame.pack();
 			frame.repaint();
 			
 			
@@ -149,23 +150,29 @@ public class Program {
 			if(isServer) {
 				aquarium.initAnimals();
 				aquarium.initSharks();
+				Mine.initResources();
 				playerIn = new UDPClient(con.getNextPort());
 				playerIn.startThread();
 				
 			} else if(isClient) {
 				aquarium.initSharks();
+				Mine.initResources();
 				playerOut = new UDPServer(udpInput, con.getIPAddress(), con.getNextPort());
 				playerOut.startThread();
 			} else {
 				aquarium.initAnimals();
 				aquarium.initSharks();  
+				Mine.initResources();
 			}
 		
 			if(isMultiplayer)
 				waitGraphicsReady();
 			
-			float boost = 1f;
+			float base = 1f;
+			float boost;
 			double boostPow;
+			int animalMaxNumber = 10;
+			float exponent = 0.2f;
 			int SYNCH_TIME = 40;
 			
 			while(!isMultiplayer || con.isConnected()) {
@@ -174,19 +181,24 @@ public class Program {
 				
 				if(isServer || !isMultiplayer) {
 					
-					boost += 0.01f;
+					base += 0.01f;
 					//aquarium.increaseShift((float)(0.015*Math.pow(boost, 2)));
-					boostPow = Math.pow(boost, 0.5);
-					aquarium.setBoost((float)(boostPow  *  Math.log(boostPow)));
+					boostPow = Math.pow(base, exponent);
+					boost = (float)(boostPow  *  Math.log(boostPow));
+					aquarium.setBoost(boost);
 					int allAnimals = aquarium.getNumberOfAnimals();
 					Random rand = new Random();
 					int p = rand.nextInt(100);
+					float boostInc = boost/3;
 					
-					if (p < 35 && allAnimals < 8) {
+
+					if (p < 1 && allAnimals < animalMaxNumber + boostInc + 9) {
+						createCustomPet(aquarium, new Mine(aquarium));
+					} else if (p < 10 && allAnimals < animalMaxNumber + boostInc + 8) {
 						createPet(aquarium);
-					} else if (p < 15 && allAnimals < 10) {
+					} else if (p < 20 && allAnimals < animalMaxNumber + boostInc + 4) {
 						createPet(aquarium);
-					} else if (p < 5 && allAnimals < 14) {
+					} else if (p < 40 && allAnimals < animalMaxNumber + boostInc) {
 						createPet(aquarium);
 					}
 					
@@ -299,6 +311,19 @@ public class Program {
 		
 		try {
 			Aq.addAnimal();
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			System.out.println("Cannot create pet");
+			e.printStackTrace();
+			System.exit(-1);	
+		}
+	}
+	
+	public static void createCustomPet (Aquarium Aq, Animal a) {
+		
+		try {
+			Aq.addAnimal(a);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
