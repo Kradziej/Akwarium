@@ -66,14 +66,16 @@ public abstract class Animal extends Utility implements Runnable {
 	protected int imageHeight;
 	protected int hitboxW;
 	protected int hitboxH;
+	protected boolean clientMode;
 	protected static int numberOfBufferedImages = 30;
 	protected int x;
 	protected int y;
 	protected float[] vector = {0,0};
 	protected int direction = 1;
+	protected int directionNew = 1;
 	protected int v;   // pixels per sec
 	protected int index;
-	protected Aquarium Aq;
+	protected Aquarium aq;
 	protected Thread t;
 	protected  boolean threadRun;
 	protected boolean threadStarted;
@@ -95,26 +97,15 @@ public abstract class Animal extends Utility implements Runnable {
 		while(threadRun) {
 			
 			
-			if(Aq.isClient()) {
+			if(clientMode) {
 				
-				int notMoving = 0;
-				int oldX = 0;
-				int oldY = 0;
 				while(threadRun) {
 					
-					if(oldX == x && oldY == y)
-						notMoving++;
-					else
-						notMoving = 0;
-
-					oldX = x;
-					oldY = y;
-					
-					if(notMoving == 3) {
+					if(x == 9999) {
 						terminate();
 						break;
 					}
-					
+						
 					sleepThread(SYNCH_TIME);
 			
 				}
@@ -159,13 +150,13 @@ public abstract class Animal extends Utility implements Runnable {
 			newY = Math.round((vector[1] * v) + y);
 			
 			
-			/*if(newY > Aq.getAquariumHeight() - distanceFromBorderBottom || distanceFromBorderTop > newY) {
+			/*if(newY > aq.getAquariumHeight() - distanceFromBorderBottom || distanceFromBorderTop > newY) {
 				vector[1] = Math.abs(vector[1]) < 0.10f ? -(Math.abs(vector[1]) + 0.10f) : -(vector[1]/4);
 				newY = Math.round((vector[1] * v) + y);
 			}*/
 			
-			if(newY > Aq.getAquariumHeight() - distanceFromBorderBottom)
-				newY = Aq.getAquariumHeight() - distanceFromBorderBottom;
+			if(newY > aq.getAquariumHeight() - distanceFromBorderBottom)
+				newY = aq.getAquariumHeight() - distanceFromBorderBottom;
 			
 			if(distanceFromBorderTop > newY)
 				newY = distanceFromBorderTop;
@@ -177,26 +168,29 @@ public abstract class Animal extends Utility implements Runnable {
 			else if(newX - x < -1)
 				direction = 0;
 			
-			setDirection(direction);
+			imageChange(direction);
 			x = newX;
 			y = newY;
 			
 			
 			// Conditions when on shark -> terminated
-			if(Aq.containsShark(this)) {
+			if(aq.containsShark(this)) {
+				if(aq.isServer())
+					PacketSender.sendNewCoordinates(index, 9999, y, direction);
 				terminate();
 				break;
 			}
 	
 			// When out of the screen on left
 			if(x < (0 - this.getImage().getWidth() - 40)) {
+				if(aq.isServer())
+					PacketSender.sendNewCoordinates(index, 9999, y, direction);
 				terminate();
 				break;
 			}
 			
-			if (Aq.isServer()) {
+			if(aq.isServer())
 				PacketSender.sendNewCoordinates(index, x, y, direction);
-			}
 			
 			
 			try {
@@ -255,8 +249,8 @@ public abstract class Animal extends Utility implements Runnable {
 	protected void setInitialCoordinates () {
 		
 		Random rand = new Random();
-		this.x = Aq.getAquariumWidth() + 60;
-		this.y = rand.nextInt(Aq.getAquariumHeight() - 20) + 10;
+		this.x = aq.getAquariumWidth() + 60;
+		this.y = rand.nextInt(aq.getAquariumHeight() - 20) + 10;
 	}
 
 
@@ -271,6 +265,8 @@ public abstract class Animal extends Utility implements Runnable {
 			image = leftDirImage;
 		if(dir == "right")
 			image = rightDirImage;
+		if(dir == "blank")
+			image = blank;
 	}
 	
 	public void setIndex (int index) {
@@ -336,7 +332,7 @@ public abstract class Animal extends Utility implements Runnable {
 		return buff;
 	}
 	
-	public static void initAnimals (Aquarium Aq) {
+	public static void initAnimals (Aquarium aq) {
 		
 		
 		Color maskColor = new Color(255,255,255);
@@ -362,7 +358,7 @@ public abstract class Animal extends Utility implements Runnable {
 					
 					graphics[i][0][j] = lImg;
 					graphics[i][1][j] = rImg;
-					if(Aq.isMultiplayer())
+					if(aq.isMultiplayer())
 						PacketSender.initializeImages(SpeciesList.values()[i].getOrdinal(), j, c, width);
 					
 			}
@@ -423,8 +419,9 @@ public abstract class Animal extends Utility implements Runnable {
 		return threadStarted;
 	}
 	
-	protected void startThread () {
+	protected void startThread (boolean clientMode) {
 		
+		this.clientMode = clientMode;
 		threadRun = true;
 		threadStarted = true;
 		t = new Thread(this);
@@ -440,13 +437,20 @@ public abstract class Animal extends Utility implements Runnable {
 		
 		this.vector = vector;
 	}
-
+	
 	public void setDirection (int direction) {
 		
-		if(direction == 0)
+		this.direction = direction;
+	}
+
+	public void imageChange (int index) {
+		
+		if(index == 0)
 			flipImage("left");
-		else
+		else if(index == 1)
 			flipImage("right");
+		else if(index == 2)
+			flipImage("blank");
 	}
 
 	public static void loadResources () {

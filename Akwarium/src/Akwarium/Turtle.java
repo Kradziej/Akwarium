@@ -35,35 +35,35 @@ public class Turtle extends Animal {
 	}
 	
 	
-	Turtle (Aquarium Aq) {
+	Turtle (Aquarium aq) {
 		
 		this();
-		this.Aq = Aq;
+		this.aq = aq;
 		this.setInitialCoordinates();
-		v = Math.round(v * Aq.boost());
+		v = Math.round(v * aq.boost());
 	}
 	
 	// Constructor for multiplayer
-	Turtle (Aquarium Aq, int v) {
+	Turtle (Aquarium aq, int v) {
 		
-		this.Aq = Aq;
+		this.aq = aq;
 		this.v = v;
 	}
 	
-	Turtle (String name, int x, int y, Aquarium Aq) {
+	Turtle (String name, int x, int y, Aquarium aq) {
 		
 		this();
 		this.x = x;
 		this.x = y;
-		this.Aq = Aq;
+		this.aq = aq;
 	}
 	
-	Turtle (int x, int y, Aquarium Aq) {
+	Turtle (int x, int y, Aquarium aq) {
 		
 		this();
 		this.x = x;
 		this.y = y;
-		this.Aq = Aq;
+		this.aq = aq;
 	}
 	
 	

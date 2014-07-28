@@ -117,7 +117,8 @@ public class Program {
 			
 			
 			// Create aquarium
-			Aquarium aquarium = new Aquarium(new Filter(), new Lamp(), 5000, isServer, isClient, (StatusPanel)sPanel);
+			Aquarium aquarium = Aquarium.getInstance(new Filter(), new Lamp(), 5000, 
+					isServer, isClient, (StatusPanel)sPanel);
 			PacketInterpreter.setAq(aquarium);
 
 			
@@ -307,10 +308,10 @@ public class Program {
 	}
 
 
-	public static void createPet (Aquarium Aq) {
+	public static void createPet (Aquarium aq) {
 		
 		try {
-			Aq.addAnimal();
+			aq.addAnimal();
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
@@ -320,10 +321,10 @@ public class Program {
 		}
 	}
 	
-	public static void createCustomPet (Aquarium Aq, Animal a) {
+	public static void createCustomPet (Aquarium aq, Animal a) {
 		
 		try {
-			Aq.addAnimal(a);
+			aq.addAnimal(a);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {

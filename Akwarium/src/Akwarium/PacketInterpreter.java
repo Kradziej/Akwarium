@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 
 public abstract class PacketInterpreter implements PacketConstants {
 	
-	private static Aquarium Aq;
+	private static Aquarium aq;
 	private static int iv;
 	
 	public static int interpret(int op, InputStream packetInput) throws IOException {
@@ -29,14 +29,14 @@ public abstract class PacketInterpreter implements PacketConstants {
 			packetInput.read(buffer, 0, packet.UPDATE_COORDINATES.length());
 			index = (buffer[0] << 24) >>> 24 | ((buffer[1] << 24) >>> 16) & 0xFFFF;
 
-			if(Aq.getAnimal(index) == null)
+			if(aq.getAnimal(index) == null)
 				return 0;        // animals not ready
 			
 			x = (buffer[2] << 24) >>> 24 | ((buffer[3] << 24) >>> 16) | ((buffer[4] << 24) >>> 8) | (buffer[5] << 24);
 			y = (buffer[6] << 24) >>> 24 | ((buffer[7] << 24) >>> 16) | ((buffer[8] << 24) >>> 8) | (buffer[9] << 24);
 			direction = buffer[10] & 0xFF;
 			
-			Aq.updateCooridates(index, x, y, direction);
+			aq.updateCooridates(index, x, y, direction);
 			return 0;
 		
 		case ADD_ANIMAL:
@@ -51,7 +51,7 @@ public abstract class PacketInterpreter implements PacketConstants {
 			
 			
 			try {
-				Aq.addAnimal(code, imageIndex, index, x, y, v);
+				aq.addAnimal(code, imageIndex, index, x, y, v);
 			} catch (InstantiationException | IllegalAccessException
 					| IllegalArgumentException | InvocationTargetException
 					| NoSuchMethodException | SecurityException e) {
@@ -65,7 +65,7 @@ public abstract class PacketInterpreter implements PacketConstants {
 			
 			packetInput.read(buffer, 0, packet.REMOVE_ANIMAL.length());
 			index = (buffer[0] << 24) >>> 24 | ((buffer[1] << 24) >>> 16) & 0xFFFF;
-			Aq.removeAnimal(index);
+			aq.removeAnimal(index);
 			return 0;
 			
 		case INITIALIZE_IMAGES:
@@ -91,10 +91,10 @@ public abstract class PacketInterpreter implements PacketConstants {
 			packetInput.read(buffer, 0, packet.SHARK_UPDATE.length());
 			index = buffer[0] & 0xFF;
 			
-			if(index == 0 && Aq.getOwner() == null)
+			if(index == 0 && aq.getOwner() == null)
 				return 0;
 			
-			if(index == 1 && Aq.getPlayer() == null)
+			if(index == 1 && aq.getPlayer() == null)
 				return 0;
 
 			x = (buffer[1] << 24) >>> 24 | ((buffer[2] << 24) >>> 16) | ((buffer[3] << 24) >>> 8) | (buffer[4] << 24);
@@ -106,7 +106,7 @@ public abstract class PacketInterpreter implements PacketConstants {
 				x = Math.round(x * (1/DrawAq.xScale()));
 				y = Math.round(y * (1/DrawAq.yScale()));
 			}
-			Aq.updateSharks(index, x, y, v, direction);
+			aq.updateSharks(index, x, y, v, direction);
 			return 0;
 				
 			
@@ -127,7 +127,7 @@ public abstract class PacketInterpreter implements PacketConstants {
 			index = buffer[0] & 0xFF;
 			int points = (buffer[1] << 24) >>> 24 | ((buffer[2] << 24) >>> 16) | ((buffer[3] << 24) >>> 8) | (buffer[4] << 24);
 			int health =  buffer[5] & 0xFF;
-			Aq.updatePoints(index, points, health);
+			aq.updatePoints(index, points, health);
 		}
 		
 		return -1;
@@ -136,7 +136,7 @@ public abstract class PacketInterpreter implements PacketConstants {
 
 	public static void setAq(Aquarium aquarium) {
 		
-		Aq = aquarium;
+		aq = aquarium;
 	}
 	
 	

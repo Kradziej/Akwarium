@@ -27,15 +27,15 @@ public class Shark extends Animal implements KeyListener {
 	private boolean specEffHealthDecrease;
 	private int effectCounter = 0;
 	private boolean effectActive;
-	private static final byte[] DECREASE_HEALTH = {1,0,0,0,2,0,0,0,1,0,0,0,2,0,0,0,1,0,0,0,2}; 
+	private static final byte[] DECREASE_HEALTH = {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1}; 
 	
 	Shark() {}
 	
 	
-	Shark(Aquarium Aq, boolean isOwner) {
+	Shark(Aquarium aq, boolean isOwner) {
 		
 		this();
-		this.Aq = Aq;
+		this.aq = aq;
 		this.isOwner = isOwner;
 		
 		if(isOwner)
@@ -69,14 +69,14 @@ public class Shark extends Animal implements KeyListener {
 			newY = Math.round((vector[1] * v) + y);
 			
 			
-			if(newX > Aq.getAquariumWidth() - this.getImage().getWidth())
-				newX = Aq.getAquariumWidth() - this.getImage().getWidth();
+			if(newX > aq.getAquariumWidth() - this.getImage().getWidth())
+				newX = aq.getAquariumWidth() - this.getImage().getWidth();
 			
 			if(0 > newX)
 				newX = 0;
 			
-			if(newY > Aq.getAquariumHeight() - distanceFromBorderBottom)
-				newY = Aq.getAquariumHeight() - distanceFromBorderBottom;
+			if(newY > aq.getAquariumHeight() - distanceFromBorderBottom)
+				newY = aq.getAquariumHeight() - distanceFromBorderBottom;
 			
 			if(distanceFromBorderTop > newY)
 				newY = distanceFromBorderTop;
@@ -107,9 +107,12 @@ public class Shark extends Animal implements KeyListener {
 			
 			// flip image
 			if(newX - x > 2)
-				direction = 1;
+				directionNew = 1;
 			else if(newX - x < -2)
-				direction = 0;
+				directionNew = 0;
+			
+			direction = directionNew;
+			
 			
 			if(effectActive) {
 				
@@ -121,11 +124,8 @@ public class Shark extends Animal implements KeyListener {
 					ishpLost = true;
 					switch(EFFECT_PATTERN[effectCounter]) {
 					
-					case 1:
-						image = blank;
-						break;
-					case 2:
-						setDirection(direction);
+					case 0:
+						direction = 2;
 						break;
 					}
 				}
@@ -138,30 +138,21 @@ public class Shark extends Animal implements KeyListener {
 					ishpLost = false;
 				}
 				
-			} else {
-				
-				setDirection(direction);
 			}
-			
+				
 			
 			x = newX;
 			y = newY;
-				
 			
-			if (Aq.isMultiplayer()) {
+			imageChange(direction);
+			
+			if (aq.isMultiplayer()) {
 				if(isOwner) {
 					PacketSender.sharkUpdate(0, x, y, v, direction);
-					PacketSender.updatePoints(0, points, health);
-					PacketSender.updatePoints(1, Aq.getPlayer().getPoints(), Aq.getPlayer().getHealth());
 				} else {
 					PacketSender.sharkUpdate(1, x, y, v, direction);
 				}
 			}
-			
-			if(Aq.isClient()) {
-				
-			}
-	
 			
 			sleepThread(SYNCH_TIME);
 		}
@@ -256,7 +247,7 @@ public class Shark extends Animal implements KeyListener {
 		
 		Random rand = new Random();
 		this.x = 3;
-		this.y = rand.nextInt(Aq.getAquariumHeight() - 120) + 60;
+		this.y = rand.nextInt(aq.getAquariumHeight() - 120) + 60;
 	}
 	
 

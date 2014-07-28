@@ -41,7 +41,7 @@ public abstract class PacketSender implements PacketConstants {
 				tcpOutput.flush();
 			}
 		} catch (IOException e) {
-			System.out.println("Cannot send data to stream");
+			System.out.println("Cannot send data to stream for " + packet.ADD_ANIMAL.toString());
 			return 0;
 		}
 		return packet.ADD_ANIMAL.length()+1;
@@ -96,7 +96,9 @@ public abstract class PacketSender implements PacketConstants {
 				udpOutput.flush();
 			}
 		} catch (IOException e) {
-			System.out.println("Cannot send data to stream");
+			System.out.println("Cannot send data to stream for " + packet.UPDATE_COORDINATES.toString());
+			e.printStackTrace();
+			System.exit(-1);
 			return 0;
 		}
 		return packet.UPDATE_COORDINATES.length()+1;
@@ -121,7 +123,7 @@ public abstract class PacketSender implements PacketConstants {
 				tcpOutput.flush();
 			}
 		} catch (IOException e) {
-			System.out.println("Cannot send data to stream");
+			System.out.println("Cannot send data to stream for " + packet.INITIALIZE_IMAGES.toString());
 			return 0;
 		}
 		
@@ -146,7 +148,7 @@ public abstract class PacketSender implements PacketConstants {
 				tcpOutput.flush();
 			}
 		} catch (IOException e) {
-			System.out.println("Cannot send data to stream");
+			System.out.println("Cannot send data to stream for " + packet.CONNECTION_INITIALIZATION.toString());
 			return 0;
 		}
 		return packet.CONNECTION_INITIALIZATION.length()+1;
@@ -181,7 +183,7 @@ public abstract class PacketSender implements PacketConstants {
 				udpOutput.flush();
 			}
 		} catch (IOException e) {
-			System.out.println("Cannot send data to stream");
+			System.out.println("Cannot send data to stream for " + packet.SHARK_UPDATE.toString());
 			return 0;
 		}
 		return packet.SHARK_UPDATE.length()+1;
@@ -207,7 +209,7 @@ public abstract class PacketSender implements PacketConstants {
 				udpOutput.flush();
 			}
 		} catch (IOException e) {
-			System.out.println("Cannot send data to stream");
+			System.out.println("Cannot send data to stream for " + packet.UPDATE_POINTS.toString());
 			return 0;
 		}
 		return packet.UPDATE_POINTS.length()+1;

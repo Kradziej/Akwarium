@@ -36,35 +36,35 @@ public class Fish extends Animal {
 	}
 	
 	
-	Fish (Aquarium Aq) {
+	Fish (Aquarium aq) {
 		
 		this();
-		this.Aq = Aq;
+		this.aq = aq;
 		this.setInitialCoordinates();
-		v = Math.round(v * Aq.boost());
+		v = Math.round(v * aq.boost());
 	}
 	
 	// Constructor for multiplayer
-	Fish (Aquarium Aq, int v) {
+	Fish (Aquarium aq, int v) {
 			
-			this.Aq = Aq;
+			this.aq = aq;
 			this.v = v;
 	}
 	
-	Fish (String name, int x, int y, Aquarium Aq) {
+	Fish (String name, int x, int y, Aquarium aq) {
 		
 		this();
 		this.x = x;
 		this.x = y;
-		this.Aq = Aq;
+		this.aq = aq;
 	}
 	
-	Fish (int x, int y, Aquarium Aq) {
+	Fish (int x, int y, Aquarium aq) {
 		
 		this();
 		this.x = x;
 		this.y = y;
-		this.Aq = Aq;
+		this.aq = aq;
 	}
 	
 	public String getSpeciesName () {

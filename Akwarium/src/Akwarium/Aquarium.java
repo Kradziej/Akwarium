@@ -43,9 +43,10 @@ public class Aquarium extends Utility {
 	private boolean isMultiplayer;
 	private boolean isServer;  // w zaleznosci czy client czy server jeden bedzie puszczal thready drugi nie
 	private boolean isClient; 
+	private static Aquarium instance;
 	
 	
-	public Aquarium (Filter filter, Lamp lamp, int capacity, boolean isServer, boolean isClient, StatusPanel status) {
+	private Aquarium (Filter filter, Lamp lamp, int capacity, boolean isServer, boolean isClient, StatusPanel status) {
 		
 		this.lamp = lamp;
 		this.filter = filter;
@@ -56,6 +57,16 @@ public class Aquarium extends Utility {
 		dAq = new DrawAq(this);
 		dAq.setBackground(backgroundColor);
 		this.status = status;
+	}
+	
+	public static Aquarium getInstance (Filter filter, Lamp lamp, int capacity, boolean isServer, 
+			boolean isClient, StatusPanel status) {
+		
+		if(instance == null) {
+			instance = new Aquarium(filter, lamp, capacity, isServer, isClient, status);
+		}
+		
+		return instance;
 	}
 	
 	public int getNumberOfAnimals () {
@@ -86,7 +97,7 @@ public class Aquarium extends Utility {
 		if (isServer)
 			PacketSender.addAnimal(a.getSpeciesCode(), a.getImageIndex(), a.getIndex(), a.getX(), a.getY(), a.getVelocity());
 		
-		a.startThread();
+		a.startThread(false);
 		animalCount++;
 	}
 	
@@ -107,10 +118,10 @@ public class Aquarium extends Utility {
 			top++;
 		}
 		
-		if (isServer)
+		if(isServer)
 			PacketSender.addAnimal(a.getSpeciesCode(), a.getImageIndex(), a.getIndex(), a.getX(), a.getY(), a.getVelocity());
 		
-		a.startThread();
+		a.startThread(false);
 		animalCount++;
 	}
 	
@@ -146,7 +157,7 @@ public class Aquarium extends Utility {
 			top++;
 		}
 		
-		a.startThread();
+		a.startThread(true);
 		animalCount++;
 	}
 	
@@ -284,16 +295,20 @@ public class Aquarium extends Utility {
 				status.setHealthMultiplierOwner((double)owner.getHealth() / Shark.MAX_HEALTH);
 				owner.specEffHealthDecrease();
 			}
+			if(isMultiplayer)
+				PacketSender.updatePoints(0, owner.getPoints(), owner.getHealth());
+			
 		} else if(isEatenPlayer) {
 			player.addPoints( (int)((player.getImageWidth() / (double)a.getImageWidth()) * (boost+2)) );
 			status.setPointsPlayer(player.getPoints());
 			// Mine or something else
 			if(a.getSpeciesCode() == Mine.CODE) {
 				player.decreaseHealth(10);
-				player.specEffHealthDecrease();
-				status.setHealthMultiplierOwner((double)player.getHealth() / Shark.MAX_HEALTH);
+				status.setHealthMultiplierPlayer((double)player.getHealth() / Shark.MAX_HEALTH);
 				player.specEffHealthDecrease();
 			}
+			if(isMultiplayer)
+				PacketSender.updatePoints(1, player.getPoints(), player.getHealth());
 		}
 		
 		return isEatenOwner | isEatenPlayer;
@@ -334,15 +349,15 @@ public class Aquarium extends Utility {
 			player = new Shark(this, false);
 			if(isClient) {
 				dAq.addKeyListener(player);
-				player.startThread();
+				player.startThread(false);
 			} else {
 				dAq.addKeyListener(owner);
-				owner.startThread();
+				owner.startThread(false);
 			}
 		} else {
 			owner = new Shark(this, true);
 			dAq.addKeyListener(owner);
-			owner.startThread();
+			owner.startThread(false);
 		}
 		
 	}
@@ -398,14 +413,14 @@ public class Aquarium extends Utility {
 			owner.setX(x);
 			owner.setY(y);
 			owner.setVelocity(v);
-			owner.setDirection(direction);
+			owner.imageChange(direction);
 			
 		} else {
 			
 			player.setX(x);
 			player.setY(y);
 			player.setVelocity(v);
-			player.setDirection(direction);
+			player.imageChange(direction);
 		}
 	}
 	
@@ -413,7 +428,7 @@ public class Aquarium extends Utility {
 		
 		animals[index].setX(x);
 		animals[index].setY(y);
-		animals[index].setDirection(direction);
+		animals[index].imageChange(direction);
 	}
 
 	public void killAllAnimals() {

@@ -62,6 +62,7 @@ public class UDPServer implements Runnable, PacketConstants {
 			
 		} catch (IOException e) {
 		
+			e.printStackTrace();
 			System.out.println("Cannot read data from input stream");
 		}
 		

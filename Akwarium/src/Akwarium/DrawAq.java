@@ -18,7 +18,7 @@ import java.awt.event.WindowListener;
 
 public class DrawAq extends Canvas {
 
-	private Aquarium Aq;
+	private Aquarium aq;
 	//public static int width = 1152;
 	//public static int height = 768;
 	private static int resolutionIndex;
@@ -36,7 +36,7 @@ public class DrawAq extends Canvas {
 	
 	DrawAq (Aquarium Aq) {
 	
-		this.Aq = Aq;
+		this.aq = Aq;
 		/*try { 
 			background = ImageIO.read(new File("src/resources/background.jpg"));
 		} catch (IOException e) {
@@ -85,7 +85,7 @@ public class DrawAq extends Canvas {
 		
 		Graphics g = this.getGraphics();
 		Graphics2D g2d = (Graphics2D)g;
-		g2d.clearRect(0, 0, Aq.getAquariumWidth(), Aq.getAquariumHeight());
+		g2d.clearRect(0, 0, aq.getAquariumWidth(), aq.getAquariumHeight());
 	}
 	
 	public void clearShape (int x, int y, Shape s) {
@@ -110,7 +110,7 @@ public class DrawAq extends Canvas {
 	
 	public void createBuffer () {
 		
-		buffer = createImage(Aq.getAquariumWidth(), Aq.getAquariumHeight());
+		buffer = createImage(aq.getAquariumWidth(), aq.getAquariumHeight());
 		g2dBuffer = (Graphics2D)buffer.getGraphics();
 	}
 	

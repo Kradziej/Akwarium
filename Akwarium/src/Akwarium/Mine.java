@@ -33,35 +33,35 @@ public class Mine extends Animal {
 	}
 	
 	
-	Mine (Aquarium Aq) {
+	Mine (Aquarium aq) {
 		
 		this();
-		this.Aq = Aq;
+		this.aq = aq;
 		this.setInitialCoordinates();
-		v = Math.round(v * Aq.boost());
+		v = Math.round(v * aq.boost());
 	}
 	
 	// Constructor for multiplayer
-	Mine (Aquarium Aq, int v) {
+	Mine (Aquarium aq, int v) {
 			
-			this.Aq = Aq;
+			this.aq = aq;
 			this.v = v;
 	}
 	
-	Mine (String name, int x, int y, Aquarium Aq) {
+	Mine (String name, int x, int y, Aquarium aq) {
 		
 		this();
 		this.x = x;
 		this.x = y;
-		this.Aq = Aq;
+		this.aq = aq;
 	}
 	
-	Mine (int x, int y, Aquarium Aq) {
+	Mine (int x, int y, Aquarium aq) {
 		
 		this();
 		this.x = x;
 		this.y = y;
-		this.Aq = Aq;
+		this.aq = aq;
 	}
 	
 	public static void initResources() {
@@ -79,7 +79,7 @@ public class Mine extends Animal {
 		while(threadRun) {
 			
 			
-			if(Aq.isClient()) {
+			if(aq.isClient()) {
 				
 				int notMoving = 0;
 				int oldX = 0;
@@ -121,8 +121,8 @@ public class Mine extends Animal {
 			newY = Math.round((vector[1] * v) + y);
 			
 			
-			if(newY > Aq.getAquariumHeight() - distanceFromBorderBottom)
-				newY = Aq.getAquariumHeight() - distanceFromBorderBottom;
+			if(newY > aq.getAquariumHeight() - distanceFromBorderBottom)
+				newY = aq.getAquariumHeight() - distanceFromBorderBottom;
 			
 			if(distanceFromBorderTop > newY)
 				newY = distanceFromBorderTop;
@@ -133,7 +133,7 @@ public class Mine extends Animal {
 			
 			
 			// Conditions when on shark -> terminated
-			if(Aq.containsShark(this)) {
+			if(aq.containsShark(this)) {
 				terminate();
 				break;
 			}
@@ -144,7 +144,7 @@ public class Mine extends Animal {
 				break;
 			}
 			
-			if (Aq.isServer()) {
+			if (aq.isServer()) {
 				PacketSender.sendNewCoordinates(index, x, y, direction);
 			}
 			
