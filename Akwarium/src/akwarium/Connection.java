@@ -1,4 +1,4 @@
-package Akwarium;
+package akwarium;
 
 import java.net.InetAddress;
 

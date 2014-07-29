@@ -1,4 +1,4 @@
-package Akwarium;
+package akwarium;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,20 +9,21 @@ public class MyButtonDelete extends JButton implements ActionListener {
 
 	private Aquarium aquarium;
 	private String name;
-	
+
 	MyButtonDelete(Aquarium aquarium, String name) {
-		
+
 		super(name);
 		this.name = name;
 		this.aquarium = aquarium;
 		this.addActionListener(this);
 	}
-	
+
+	@Override
 	public synchronized void actionPerformed(ActionEvent e) {
-		
+
 		if( !((JButton)e.getSource()).isEnabled() )
 			return;
-		
+
 		((JButton)e.getSource()).setEnabled(false);
 		int allAnimals = aquarium.getNumberOfAnimals();
 		if(allAnimals == 0)
@@ -32,12 +33,13 @@ public class MyButtonDelete extends JButton implements ActionListener {
 		//aquarium.removeAnimal(n);
 		((JButton)e.getSource()).setEnabled(true);
 	}
-	
+
+	@Override
 	public synchronized void setEnabled(boolean b) {
-		
+
 		synchronized(this) {
 			super.setEnabled(b);
 		}
 	}
-	
+
 }
