@@ -2,7 +2,7 @@ package akwarium;
 
 import java.awt.image.BufferedImage;
 
-public class Mine extends Animal {
+public class Mine extends Obstacles {
 
 	private float[] vector = {-0.5f,0};
 	public static final int CODE = 0xFE;

@@ -12,7 +12,7 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 
-public abstract class Animal implements Runnable {
+public abstract class Animal extends AqObject implements Runnable {
 
 	public static enum SpeciesList {
 		FISH("Ryba", Fish.class, 0x0), TURTLE("Zolw", Turtle.class, 0x1);
@@ -46,43 +46,54 @@ public abstract class Animal implements Runnable {
 
 	protected Color c;
 	protected Shape s;
-	protected BufferedImage image;
 	protected BufferedImage leftDirImage;
 	protected BufferedImage rightDirImage;
+	protected int imageIndex;
 	protected static BufferedImage[] resources = new BufferedImage[2];
 	protected static BufferedImage[][][] graphics;    // [0]for all species [1]first is left, second right [2]number of buff images
 	protected static BufferedImage sharkOwnerImage;
 	protected static BufferedImage sharkPlayerImage;
 	protected static BufferedImage mine;
 	protected static BufferedImage blank;
-	protected int imageWidth;
-	protected int imageHeight;
 	protected int hitboxW;
 	protected int hitboxH;
 	protected boolean clientMode;
-	protected static int numberOfBufferedImages = 30;
-	protected int x;
-	protected int y;
-	protected float[] vector = {0,0};
-	protected int direction = 1;
-	protected int directionNew = 1;
-	protected int v;   // pixels per sec
 	protected int index;
 	protected Aquarium aq;
 	protected Thread t;
 	protected  boolean threadRun;
 	protected boolean threadStarted;
-	public static SpeciesList species;
-	protected int imageIndex;
+	protected SpeciesList species;
 	protected static int distanceFromBorderLeft = 0;
 	protected static int distanceFromBorderRight = 135;
 	protected static int distanceFromBorderTop = 15;
 	protected static int distanceFromBorderBottom = 60;
 	protected static final int SYNCH_TIME = 30;
+	protected static final int NUMBER_OF_BUFFERED_IMAGES = 30;
 
+	
+	
+	Animal(int baseV, Animal.SpeciesList spec, float hitboxMutliplier, Aquarium aq) {
+		
+		species = spec;
+		Random rand = new Random();
+		int index = species.getOrdinal();
+		int selectImage = rand.nextInt(NUMBER_OF_BUFFERED_IMAGES);
+		leftDirImage = graphics[index][0][selectImage];
+		rightDirImage = graphics[index][1][selectImage];
+		imageIndex = selectImage;
+		image = rightDirImage;
+		imageWidth = image.getWidth();
+		imageHeight = image.getHeight();
+		hitboxW = imageWidth - Math.round(hitboxMutliplier * imageWidth);
+		hitboxH = imageHeight - Math.round(hitboxMutliplier * imageHeight);
+		v = (int)(baseV * DrawAq.xAnimalScale() * aq.boost());
+		if(aq.isServer())
+			setInitialCoordinates();
+	}
+	
+	
 
-
-	@Override
 	public void run() {
 
 		while(threadRun) {
@@ -192,10 +203,26 @@ public abstract class Animal implements Runnable {
 		}
 	}
 
-	protected abstract String getSpeciesName ();
-	protected abstract int getSpeciesCode ();
-	protected abstract void setImageIndex(int imageIndex);
+	
+	protected String getSpeciesName () {
 
+		return species.getSpeciesName();
+	}
+
+	
+	protected int getSpeciesCode () {
+
+		return species.getOrdinal();
+	}
+	
+	
+	protected void setImageIndex(int imageIndex) {
+
+		int index = species.getOrdinal();
+		leftDirImage = graphics[index][0][imageIndex];
+		rightDirImage = graphics[index][1][imageIndex];
+		image = rightDirImage;
+	}
 
 
 	protected Color getColor() {
@@ -334,10 +361,10 @@ public abstract class Animal implements Runnable {
 		for (int i = 0; i < speciesNumber; i++) {
 
 			graphics[i] = new BufferedImage[2][];
-			graphics[i][0] = new BufferedImage[numberOfBufferedImages];
-			graphics[i][1] = new BufferedImage[numberOfBufferedImages];
+			graphics[i][0] = new BufferedImage[NUMBER_OF_BUFFERED_IMAGES];
+			graphics[i][1] = new BufferedImage[NUMBER_OF_BUFFERED_IMAGES];
 
-			for(int j = 0; j < numberOfBufferedImages; j++) {
+			for(int j = 0; j < NUMBER_OF_BUFFERED_IMAGES; j++) {
 
 				BufferedImage rImg = copyImage(Animal.resources[i]);
 				int width = 50 + rand.nextInt(20);
@@ -378,8 +405,8 @@ public abstract class Animal implements Runnable {
 		if(graphics[ord] == null)
 			graphics[ord] = new BufferedImage[2][];
 		if(graphics[ord][0] == null) {
-			graphics[ord][0] = new BufferedImage[numberOfBufferedImages];
-			graphics[ord][1] = new BufferedImage[numberOfBufferedImages];
+			graphics[ord][0] = new BufferedImage[NUMBER_OF_BUFFERED_IMAGES];
+			graphics[ord][1] = new BufferedImage[NUMBER_OF_BUFFERED_IMAGES];
 		}
 
 		BufferedImage rImg = copyImage(resources[ord]);
@@ -389,7 +416,7 @@ public abstract class Animal implements Runnable {
 		graphics[ord][0][index] = lImg;
 		graphics[ord][1][index] = rImg;
 
-		if(index == (numberOfBufferedImages - 1))
+		if(index == (NUMBER_OF_BUFFERED_IMAGES - 1))
 			return true;
 
 		return false;
