@@ -2,7 +2,7 @@ package akwarium;
 
 import java.awt.image.BufferedImage;
 
-public abstract class AqObject implements Runnable {
+public abstract class AqObject {
 	
 	protected int x;
 	protected int y;
@@ -12,4 +12,6 @@ public abstract class AqObject implements Runnable {
 	protected int imageWidth;
 	protected int imageHeight;
 	protected BufferedImage image;
+	protected BufferedImage leftDirImage;
+	protected BufferedImage rightDirImage;
 }

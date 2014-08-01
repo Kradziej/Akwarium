@@ -1,0 +1,20 @@
+odswiezanie pozycji 0x1  --> UDP
+2 bajty indeks zwierzaka na liscie
+3 bajty pozycja x
+3 bajty pozycja y
+dodawanie 0x2
+2 bajty indeks zwierzaka na liscie
+1 bajt typ zwierzaka 0x0 ryba / 0x1 zolw / 0x2 meduza
+1 bajt index obrazka dla tej ryby (255)
+3 bajty pozycja x poczatkowa
+3 bajty pozycja y poczatkowa
+2 bajt predkosc
+usuwanie 0x03
+2 bajty indeks zwierzaka na liscie
+inicjalizacja obrazkow 0x04
+dodawane po kolei
+1 bajt typ zwierzaka 0x0 ryba / 0x1 zolw / 0x2 meduza
+1 bajt indeks na liscie obrazkow
+3 bajty color R / G / B
+1 bajt width
+wyslanie iv 0x05

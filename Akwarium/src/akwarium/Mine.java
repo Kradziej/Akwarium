@@ -5,8 +5,6 @@ import java.awt.image.BufferedImage;
 public class Mine extends Obstacles {
 
 	private float[] vector = {-0.5f,0};
-	public static final int CODE = 0xFE;
-	private String name = "Mine";
 	private static BufferedImage image;
 	private static int baseWidth = 45;
 	private static int imageWidth;

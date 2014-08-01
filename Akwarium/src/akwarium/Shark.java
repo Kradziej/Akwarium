@@ -2,12 +2,12 @@ package akwarium;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Random;
 
-public class Shark extends Animal implements KeyListener {
+public class Shark extends AqObject implements KeyListener {
 
-	private String species = "Rekin";
 	private HashSet<Integer> keys = new HashSet<Integer>();
 	public static final int MAX_HEALTH = 100;
 	private int health = MAX_HEALTH;
@@ -15,10 +15,10 @@ public class Shark extends Animal implements KeyListener {
 	private boolean ishpLost;
 	private boolean isOwner;
 	private static int baseWidth = 160;
-	public static final int CODE = 0xFF;
 	private boolean specEffHealthDecrease;
 	private int effectCounter = 0;
 	private boolean effectActive;
+	private AqObjectsList obj;
 	private static final byte[] DECREASE_HEALTH = {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1};
 
 	Shark() {}
@@ -30,10 +30,13 @@ public class Shark extends Animal implements KeyListener {
 		this.aq = aq;
 		this.isOwner = isOwner;
 
-		if(isOwner)
+		if(isOwner) {
 			rightDirImage = copyImage(sharkOwnerImage);
-		else
+			obj = AqObjectsList.OWNER;
+		} else {
 			rightDirImage = copyImage(sharkPlayerImage);
+			obj = AqObjectsList.PLAYER;
+		}
 
 		rightDirImage = scaleImage(rightDirImage, Math.round(baseWidth * DrawAq.xAnimalScale()) );
 		leftDirImage = flipImage(copyImage(rightDirImage));
@@ -131,7 +134,6 @@ public class Shark extends Animal implements KeyListener {
 				}
 
 			}
-
 
 			x = newX;
 			y = newY;

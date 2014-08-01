@@ -12,36 +12,8 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 
-public abstract class Animal extends AqObject implements Runnable {
+public abstract class Animal extends AqObject {
 
-	public static enum SpeciesList {
-		FISH("Ryba", Fish.class, 0x0), TURTLE("Zolw", Turtle.class, 0x1);
-		private String species;
-		private Class<? extends Animal> instance;
-		private int ordinal;
-
-		SpeciesList (String s, Class<? extends Animal> iName, int ord) {
-
-			species = s;
-			instance = iName;
-			ordinal = ord;
-		}
-
-		public int getOrdinal () {
-
-			return ordinal;
-		}
-
-		public String getSpeciesName () {
-
-			return species;
-		}
-
-		public Class<? extends Animal> getInstance () {
-
-			return instance;
-		}
-	}
 
 
 	protected Color c;
@@ -49,12 +21,12 @@ public abstract class Animal extends AqObject implements Runnable {
 	protected BufferedImage leftDirImage;
 	protected BufferedImage rightDirImage;
 	protected int imageIndex;
-	protected static BufferedImage[] resources = new BufferedImage[2];
-	protected static BufferedImage[][][] graphics;    // [0]for all species [1]first is left, second right [2]number of buff images
-	protected static BufferedImage sharkOwnerImage;
-	protected static BufferedImage sharkPlayerImage;
-	protected static BufferedImage mine;
-	protected static BufferedImage blank;
+	//protected static BufferedImage[] resources = new BufferedImage[2];
+	//protected static BufferedImage[][][] graphics;    // [0]for all species [1]first is left, second right [2]number of buff images
+	//protected static BufferedImage sharkOwnerImage;
+	//protected static BufferedImage sharkPlayerImage;
+	//protected static BufferedImage mine;
+	//protected static BufferedImage blank;
 	protected int hitboxW;
 	protected int hitboxH;
 	protected boolean clientMode;
@@ -63,21 +35,20 @@ public abstract class Animal extends AqObject implements Runnable {
 	protected Thread t;
 	protected  boolean threadRun;
 	protected boolean threadStarted;
-	protected SpeciesList species;
+	protected AqObjectsList obj;
 	protected static int distanceFromBorderLeft = 0;
 	protected static int distanceFromBorderRight = 135;
 	protected static int distanceFromBorderTop = 15;
 	protected static int distanceFromBorderBottom = 60;
-	protected static final int SYNCH_TIME = 30;
 	protected static final int NUMBER_OF_BUFFERED_IMAGES = 30;
 
 	
 	
-	Animal(int baseV, Animal.SpeciesList spec, float hitboxMutliplier, Aquarium aq) {
+	Animal(int baseV, AqObjectsList spec, float hitboxMutliplier, Aquarium aq) {
 		
-		species = spec;
+		obj = spec;
 		Random rand = new Random();
-		int index = species.getOrdinal();
+		int index = obj.getOrdinal();
 		int selectImage = rand.nextInt(NUMBER_OF_BUFFERED_IMAGES);
 		leftDirImage = graphics[index][0][selectImage];
 		rightDirImage = graphics[index][1][selectImage];
@@ -92,117 +63,6 @@ public abstract class Animal extends AqObject implements Runnable {
 			setInitialCoordinates();
 	}
 	
-	
-
-	public void run() {
-
-		while(threadRun) {
-
-
-			if(clientMode) {
-
-				while(threadRun) {
-
-					if(x == 9999) {
-						terminate();
-						break;
-					}
-
-					sleepThread(SYNCH_TIME);
-
-				}
-
-				break;
-			}
-
-
-
-			Random rand = new Random();
-			int rNumber = rand.nextInt();
-			int newX;
-			int newY;
-
-			// set random direction vectors
-			float f = (rand.nextInt(31) + 1) * 0.01f;
-			if(rNumber < -1073741824) {
-				float sum = vector[0] + f;
-				vector[0] = sum > 1.0f ? vector[0] - f : sum;
-			}
-			else {
-				float sum = vector[0] - f;
-				vector[0] = sum < -1.0f ? vector[0] + f : sum;
-			}
-
-			rand.setSeed(System.currentTimeMillis());
-			rand.nextInt();
-
-
-			f = (rand.nextInt(17) + 1) * 0.01f;
-			if(rNumber < 0) {
-				float sum = vector[1] + f;
-				vector[1] = sum > 0.25f ? vector[1] - f : sum;
-			} else {
-				float sum = vector[1] - f;
-				vector[1] = sum < -0.25f ? vector[1] + f : sum;
-			}
-
-			// calculate new position from velocity and vector
-			// check if it's out of window
-			newX = Math.round((vector[0] * v) + x);
-			newY = Math.round((vector[1] * v) + y);
-
-
-			/*if(newY > aq.getAquariumHeight() - distanceFromBorderBottom || distanceFromBorderTop > newY) {
-				vector[1] = Math.abs(vector[1]) < 0.10f ? -(Math.abs(vector[1]) + 0.10f) : -(vector[1]/4);
-				newY = Math.round((vector[1] * v) + y);
-			}*/
-
-			if(newY > aq.getAquariumHeight() - distanceFromBorderBottom)
-				newY = aq.getAquariumHeight() - distanceFromBorderBottom;
-
-			if(distanceFromBorderTop > newY)
-				newY = distanceFromBorderTop;
-
-
-			// flip image
-			if(newX - x > 1)
-				direction = 1;
-			else if(newX - x < -1)
-				direction = 0;
-
-			imageChange(direction);
-			x = newX;
-			y = newY;
-
-
-			// Conditions when on shark -> terminated
-			if(aq.containsShark(this)) {
-				if(aq.isServer())
-					PacketSender.sendNewCoordinates(index, 9999, y, direction);
-				terminate();
-				break;
-			}
-
-			// When out of the screen on left
-			if(x < (0 - this.getImage().getWidth() - 40)) {
-				if(aq.isServer())
-					PacketSender.sendNewCoordinates(index, 9999, y, direction);
-				terminate();
-				break;
-			}
-
-			if(aq.isServer())
-				PacketSender.sendNewCoordinates(index, x, y, direction);
-
-
-			try {
-				Thread.sleep(SYNCH_TIME);
-			} catch (InterruptedException e) {
-				System.out.println("Thread " + Thread.currentThread().toString() + " interrupted!");
-			}
-		}
-	}
-
 	
 	protected String getSpeciesName () {
 
