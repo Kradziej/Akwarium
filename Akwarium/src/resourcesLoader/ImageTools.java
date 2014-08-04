@@ -1,49 +1,27 @@
 package resourcesLoader;
 
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.Random;
-
 import akwarium.Animal;
+import akwarium.AqObjectsEnum;
 import akwarium.Aquarium;
 import akwarium.DrawAq;
 import akwarium.PacketSender;
-import akwarium.Animal.SpeciesList;
 
-public class ImageTools {
+class ImageTools {
 	
 	
-	public static void initResources (Aquarium aq) {
+	BufferedImage scaleImage (BufferedImage img, int width, int height) {
 
-
-		Color maskColor = new Color(255,255,255);
-		Random rand = new Random();
-		int speciesNumber = SpeciesList.values().length;
-		graphics = new BufferedImage[speciesNumber][][];
-
-		for (int i = 0; i < speciesNumber; i++) {
-
-			graphics[i] = new BufferedImage[2][];
-			graphics[i][0] = new BufferedImage[NUMBER_OF_BUFFERED_IMAGES];
-			graphics[i][1] = new BufferedImage[NUMBER_OF_BUFFERED_IMAGES];
-
-			for(int j = 0; j < NUMBER_OF_BUFFERED_IMAGES; j++) {
-
-				BufferedImage rImg = copyImage(Animal.resources[i]);
-				int width = 50 + rand.nextInt(20);
-
-				Color c = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
-				changeImageColor(rImg, maskColor, c);
-				rImg = scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
-				BufferedImage lImg = flipImage(copyImage(rImg));
-
-				graphics[i][0][j] = lImg;
-				graphics[i][1][j] = rImg;
-				if(aq.isMultiplayer())
-					PacketSender.initializeImages(SpeciesList.values()[i].getOrdinal(), j, c, width);
-
-			}
-		}
+		//int height = (int)(width * ((double)img.getHeight()/img.getWidth()));
+		BufferedImage buff = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = buff.createGraphics();
+		g.drawImage(img.getScaledInstance(width, height, Image.SCALE_SMOOTH), 0, 0, null);
+		g.dispose();
+		return buff;
 	}
 
 }

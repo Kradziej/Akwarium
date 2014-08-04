@@ -18,7 +18,7 @@ public class Shark extends AqObject implements KeyListener {
 	private boolean specEffHealthDecrease;
 	private int effectCounter = 0;
 	private boolean effectActive;
-	private AqObjectsList obj;
+	private AqObjectsEnum obj;
 	private static final byte[] DECREASE_HEALTH = {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1};
 
 	Shark() {}

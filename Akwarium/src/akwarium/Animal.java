@@ -1,6 +1,7 @@
 package akwarium;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Shape;
@@ -35,7 +36,9 @@ public abstract class Animal extends AqObject {
 	protected Thread t;
 	protected  boolean threadRun;
 	protected boolean threadStarted;
-	protected AqObjectsList obj;
+	protected AqObjectsEnum obj;
+	protected int baseWidth;
+	protected int baseHeight;
 	protected static int distanceFromBorderLeft = 0;
 	protected static int distanceFromBorderRight = 135;
 	protected static int distanceFromBorderTop = 15;
@@ -44,7 +47,7 @@ public abstract class Animal extends AqObject {
 
 	
 	
-	Animal(int baseV, AqObjectsList spec, float hitboxMutliplier, Aquarium aq) {
+	Animal(int baseV, AqObjectsEnum spec, float hitboxMutliplier, Aquarium aq) {
 		
 		obj = spec;
 		Random rand = new Random();
@@ -377,6 +380,12 @@ public abstract class Animal extends AqObject {
 		} catch (InterruptedException e) {
 			System.out.println("Thread " + Thread.currentThread().toString() + " interrupted!");
 		}
+	}
+	
+	protected Dimension getNewDimensions() {
+		
+		Random rand = new Random();
+		int width = baseWidth + rand.nextInt(0.4f * baseWidth);
 	}
 
 

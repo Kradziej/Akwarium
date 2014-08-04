@@ -1,5 +1,6 @@
 package akwarium;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
 public abstract class AqObject {
@@ -14,4 +15,6 @@ public abstract class AqObject {
 	protected BufferedImage image;
 	protected BufferedImage leftDirImage;
 	protected BufferedImage rightDirImage;
+	
+	protected abstract Dimension getNewDimensions();
 }
