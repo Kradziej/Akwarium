@@ -17,26 +17,52 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 import akwarium.Animal;
+import akwarium.AqObject;
 import akwarium.AqObjectsEnum;
 import akwarium.Aquarium;
 import akwarium.DrawAq;
 import akwarium.PacketSender;
 import akwarium.Program;
+import akwarium.SpeciesList;
 
 public class Resources {
 	
 	ImageTools conv;
 	//private BufferedImage[] resources;
-	private static HashMap<String, BufferedImage> resources;
+	private HashMap<String, BufferedImage> resources;
 	// 1dim = all species resource list // 2dim 0-left image 1-right image // 3dim different colors
-	private static BufferedImage[][][] graphics;
-	private static BufferedImage blank;
-	public static final int NUMBER_OF_BUFFERED_IMAGES = 30;
+	private BufferedImage[][][] graphics;
+	private BufferedImage blank;
+	private static Resources res;
+	private boolean loaded;
 	
-	public Resources() {
+	private Resources() {
 		
 		conv = new ImageTools();
 		resources = new HashMap<>();
+	}
+	
+	public static Resources getInstance() {
+		
+		if(res == null)
+			res = new Resources();
+		
+		return res;
+	}
+	
+	public BufferedImage getGraphics(int ordinal, int orientation, int index) {
+		
+		return graphics[ordinal][orientation][index];
+	}
+	
+	public BufferedImage getBlank() {
+		
+		return blank;
+	}
+	
+	public BufferedImage getResourceByName(String name) {
+		
+		return resources.get(name);
 	}
 	
 	
@@ -78,7 +104,6 @@ public class Resources {
 	
 	public void initResources () {
 
-
 		Color maskColor = new Color(255,255,255);
 		Random rand = new Random();
 		int speciesNumber = AqObjectsEnum.UNCONTROLLABLE.length;
@@ -86,54 +111,74 @@ public class Resources {
 		
 		for(AqObjectsEnum aObj : AqObjectsEnum.UNCONTROLLABLE) {
 			
+			int numImages = aObj.getNumberOfBufferedImages();
+			
 			graphics[aObj.getOrdinal()] = new BufferedImage[2][];
-			graphics[aObj.getOrdinal()][0] = new BufferedImage[NUMBER_OF_BUFFERED_IMAGES];
-			graphics[aObj.getOrdinal()][1] = new BufferedImage[NUMBER_OF_BUFFERED_IMAGES];
+			graphics[aObj.getOrdinal()][0] = new BufferedImage[numImages];
+			graphics[aObj.getOrdinal()][1] = new BufferedImage[numImages];
 			
-			for(int i = 0; i < NUMBER_OF_BUFFERED_IMAGES; i++) {
+			for(int i = 0; i < numImages; i++) {
 			
-				BufferedImage rImg = copyImage( resources.get(aObj.getObjectName()) );
-				int width = 50 + rand.nextInt(20);
+				BufferedImage rImg = conv.copyImage( resources.get(aObj.getObjectName()) );
+				int width;
+				Color c;
+				if(numImages != 1) {
+					width = aObj.getBaseDim().width + rand.nextInt((int)(width * 0.4f));
+					c = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
+					conv.changeImageColor(rImg, maskColor, c);
+					rImg = conv.scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
+				}
 				
+				BufferedImage lImg = conv.flipImage(conv.copyImage(rImg));
 
-				Color c = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
-				changeImageColor(rImg, maskColor, c);
-				rImg = scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
-				BufferedImage lImg = flipImage(copyImage(rImg));
-
-				graphics[i][0][j] = lImg;
-				graphics[i][1][j] = rImg;
+				graphics[aObj.getOrdinal()][0][i] = lImg;
+				graphics[aObj.getOrdinal()][1][i] = rImg;
+				
 				if(aq.isMultiplayer())
-					PacketSender.initializeImages(SpeciesList.values()[i].getOrdinal(), j, c, width);
+					PacketSender.initializeImages(aObj.getOrdinal(), i, width, c);
 			}
 
 		}
+		
+		loaded = true;
+		PacketSender.imagesInitializationEnd();
+	}
+	
+	public boolean initAnimalsClient (int ordinal, int index, Color color, int width, boolean loaded) {
 
-		for (int i = 0; i < speciesNumber; i++) {
-
-			graphics[i] = new BufferedImage[2][];
-			graphics[i][0] = new BufferedImage[NUMBER_OF_BUFFERED_IMAGES];
-			graphics[i][1] = new BufferedImage[NUMBER_OF_BUFFERED_IMAGES];
-
-			for(int j = 0; j < NUMBER_OF_BUFFERED_IMAGES; j++) {
-
-				BufferedImage rImg = copyImage(Animal.resources[i]);
-				int width = 50 + rand.nextInt(20);
-
-				Color c = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
-				changeImageColor(rImg, maskColor, c);
-				rImg = scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
-				BufferedImage lImg = flipImage(copyImage(rImg));
-
-				graphics[i][0][j] = lImg;
-				graphics[i][1][j] = rImg;
-				if(aq.isMultiplayer())
-					PacketSender.initializeImages(SpeciesList.values()[i].getOrdinal(), j, c, width);
-
-			}
+		// SEND INIT TO CLIENT XD
+		Color maskColor = new Color(255,255,255);
+		AqObjectsEnum[] objects = AqObjectsEnum.values();
+		AqObjectsEnum aObj = objects[ordinal];
+		int numImages = aObj.getNumberOfBufferedImages();
+		
+		if(graphics == null) {
+			int speciesNumber = AqObjectsEnum.values().length;
+			graphics = new BufferedImage[speciesNumber][][];
 		}
 		
-		
+		if(graphics[ordinal] == null)
+			graphics[ordinal] = new BufferedImage[2][];
+		if(graphics[ordinal][0] == null) {
+			graphics[ordinal][0] = new BufferedImage[numImages];
+			graphics[ordinal][1] = new BufferedImage[numImages];
+		}
+
+		BufferedImage rImg = conv.copyImage(resources.get(aObj.getObjectName()));
+		if(numImages != 1) {
+			conv.changeImageColor(rImg, maskColor, color);
+			rImg = conv.scaleImage(rImg, Math.round(width * DrawAq.xAnimalScale()));
+		}
+		BufferedImage lImg = conv.flipImage(conv.copyImage(rImg));
+		graphics[ordinal][0][index] = lImg;
+		graphics[ordinal][1][index] = rImg;
+
+		if(loaded) {
+			this.loaded = loaded;
+			return true;		// if all images are loaded
+		}
+			
+		return loaded;
 	}
 	
 

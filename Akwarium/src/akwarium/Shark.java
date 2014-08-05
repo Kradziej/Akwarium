@@ -48,7 +48,7 @@ public class Shark extends AqObject implements KeyListener {
 		this.setInitialCoordinates();
 		v = (int)(19 * DrawAq.xAnimalScale());
 	}
-
+	
 	@Override
 	public void run() {
 

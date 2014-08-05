@@ -10,6 +10,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Random;
+import resourcesLoader.Resources;
 
 import javax.imageio.ImageIO;
 
@@ -22,6 +23,7 @@ public abstract class Animal extends AqObject {
 	protected BufferedImage leftDirImage;
 	protected BufferedImage rightDirImage;
 	protected int imageIndex;
+	protected Resources res;
 	//protected static BufferedImage[] resources = new BufferedImage[2];
 	//protected static BufferedImage[][][] graphics;    // [0]for all species [1]first is left, second right [2]number of buff images
 	//protected static BufferedImage sharkOwnerImage;
@@ -43,7 +45,6 @@ public abstract class Animal extends AqObject {
 	protected static int distanceFromBorderRight = 135;
 	protected static int distanceFromBorderTop = 15;
 	protected static int distanceFromBorderBottom = 60;
-	protected static final int NUMBER_OF_BUFFERED_IMAGES = 30;
 
 	
 	
@@ -52,38 +53,39 @@ public abstract class Animal extends AqObject {
 		obj = spec;
 		Random rand = new Random();
 		int index = obj.getOrdinal();
-		int selectImage = rand.nextInt(NUMBER_OF_BUFFERED_IMAGES);
-		leftDirImage = graphics[index][0][selectImage];
-		rightDirImage = graphics[index][1][selectImage];
+		int selectImage = rand.nextInt(obj.getNumberOfBufferedImages());
+		res = Resources.getInstance();
+		leftDirImage = res.getGraphics(index, 0, selectImage);
+		rightDirImage = res.getGraphics(index, 1, selectImage);
 		imageIndex = selectImage;
 		image = rightDirImage;
 		imageWidth = image.getWidth();
 		imageHeight = image.getHeight();
-		hitboxW = imageWidth - Math.round(hitboxMutliplier * imageWidth);
-		hitboxH = imageHeight - Math.round(hitboxMutliplier * imageHeight);
+		hitboxW = imageWidth - Math.round(obj.getHitboxMultiplier() * imageWidth);
+		hitboxH = imageHeight - Math.round(obj.getHitboxMultiplier() * imageHeight);
 		v = (int)(baseV * DrawAq.xAnimalScale() * aq.boost());
 		if(aq.isServer())
 			setInitialCoordinates();
 	}
 	
-	
+
 	protected String getSpeciesName () {
 
-		return species.getSpeciesName();
+		return obj.getObjectName();
 	}
 
 	
 	protected int getSpeciesCode () {
 
-		return species.getOrdinal();
+		return obj.getOrdinal();
 	}
 	
 	
 	protected void setImageIndex(int imageIndex) {
 
-		int index = species.getOrdinal();
-		leftDirImage = graphics[index][0][imageIndex];
-		rightDirImage = graphics[index][1][imageIndex];
+		int index = obj.getOrdinal();
+		leftDirImage = res.graphics[index][0][imageIndex];
+		rightDirImage = res.graphics[index][1][imageIndex];
 		image = rightDirImage;
 	}
 
@@ -158,59 +160,6 @@ public abstract class Animal extends AqObject {
 	public int getIndex() {
 
 		return index;
-	}
-
-	protected static void changeImageColor (BufferedImage image, Color maskColor, Color c) {
-
-
-		if(maskColor.equals(c))
-			return;
-
-		for(int i = 0; i < image.getWidth(null); i++) {
-			for(int j = 0; j < image.getHeight(null); j++) {
-
-				int rgb = image.getRGB(i,j);
-				if (((rgb >> 24) & 0xFF) == 0)
-					continue;
-
-				rgb = rgb | (0xFF << 24);
-				if( rgb == maskColor.getRGB() )
-					try {
-						image.setRGB(i, j, c.getRGB());
-					} catch(NullPointerException e) {
-						e.printStackTrace();
-						System.exit(0);
-					}
-			}
-		}
-	}
-
-
-	public static BufferedImage copyImage (BufferedImage src) {
-
-		BufferedImage copy = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		Graphics g = copy.createGraphics();
-		g.drawImage(src, 0, 0, null);
-		g.dispose();
-		return copy;
-	}
-
-	public static BufferedImage flipImage (BufferedImage img) {
-
-		AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
-		tx.translate(-img.getWidth(null), 0);
-		AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-		return op.filter(img, null);
-	}
-
-	public static BufferedImage scaleImage (BufferedImage img, int width) {
-
-		int height = (int)(width * ((double)img.getHeight()/img.getWidth()));
-		BufferedImage buff = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = buff.createGraphics();
-		g.drawImage(img.getScaledInstance(width, height, Image.SCALE_SMOOTH), 0, 0, null);
-		g.dispose();
-		return buff;
 	}
 
 	public static void initAnimals (Aquarium aq) {
@@ -385,7 +334,7 @@ public abstract class Animal extends AqObject {
 	protected Dimension getNewDimensions() {
 		
 		Random rand = new Random();
-		int width = baseWidth + rand.nextInt(0.4f * baseWidth);
+		int width = baseWidth + rand.nextInt((int)(0.4f * baseWidth));
 	}
 
 

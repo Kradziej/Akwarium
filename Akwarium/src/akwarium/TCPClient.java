@@ -1,6 +1,8 @@
 package akwarium;
 
 import java.awt.Dimension;
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,11 +13,12 @@ import java.net.InetSocketAddress;
 import java.net.NoRouteToHostException;
 import java.net.Socket;
 import java.net.SocketException;
+
 import javax.swing.JOptionPane;
 
 public class TCPClient extends Connection implements Runnable {
 
-	private byte[] buffer = new byte[64];
+	private byte[] buffer = new byte[128];
 	private int port = 4945;
 	private boolean isConnected;
 	private boolean disconnected;
@@ -81,9 +84,11 @@ public class TCPClient extends Connection implements Runnable {
 			// Run listening
 			in = client.getInputStream();
 			int op;
-			while ((op = in.read()) != -1) {
+			DataInputStream inBuff = new DataInputStream(in);
+			while (true) {
 
-				switch(PacketInterpreter.interpret(op, in)) {
+				op = inBuff.readShort();
+				switch(PacketInterpreter.interpret(op, inBuff)) {
 
 				case 0:					     // standard OK response
 					buffer[0] = (byte)0x00;
@@ -143,11 +148,16 @@ public class TCPClient extends Connection implements Runnable {
 			} else if(e.getClass() == NoRouteToHostException.class) {
 				System.out.println("Internet connection problem");
 				serverDown = true;
+			} else if(e.getClass() == EOFException.class) {
+				System.out.println("Server disconnected");
+				disconnected = true;
+				isConnected = false;
 			} else {
 				System.out.println("Cannot read/send data to server");
 				e.printStackTrace();
 				System.exit(-1);
 			}
+			
 
 		}
 

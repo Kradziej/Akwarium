@@ -3,14 +3,15 @@ package akwarium;
 
 public interface PacketConstants {
 
-	public int UPDATE_COORDINATES = 0x1;
-	public int ADD_ANIMAL = 0x2;
-	public int REMOVE_ANIMAL = 0x3;
-	public int INITIALIZE_IMAGES  = 0x4;
-	public int CONNECTION_INITIALIZATION = 0x5;
-	public int SHARK_UPDATE = 0x6;
-	public int UPDATE_POINTS = 0x7;
-	public int SETTINGS = 0x81;
+	public short UPDATE_COORDINATES = (short) 0x8101;
+	public short UPDATE_PLAYERS = (short) 0x8102;
+	public short ADD_ANIMAL = (short) 0x8201;
+	public short REMOVE_ANIMAL = (short) 0x8202;
+	public short INITIALIZE_IMAGES  = (short) 0x8301;
+	public short CONNECTION_INITIALIZATION = (short) 0x8302;
+	public short IMAGES_INIT_END = (short) 0x8303;
+	public short UPDATE_POINTS = (short) 0x8401;
+	public short SETTINGS = (short) 0x85FF;
 
 
 	public class packetBlock {
@@ -46,14 +47,15 @@ public interface PacketConstants {
 
 	public static enum packet {
 
-		UPDATE_COORDINATES(0x1, 11),
-		ADD_ANIMAL(0x2, 14),
-		REMOVE_ANIMAL(0x3, 2),
-		INITIALIZE_IMAGES(0x4, 6),
-		CONNECTION_INITIALIZATION(0x5, 4),
-		SHARK_UPDATE(0x6, 12),
-		UPDATE_POINTS(0x7, 6),
-		SETTINGS(0x81, 8);
+		UPDATE_COORDINATES(PacketConstants.UPDATE_COORDINATES, 11),
+		ADD_ANIMAL(PacketConstants.ADD_ANIMAL, 14),
+		REMOVE_ANIMAL(PacketConstants.REMOVE_ANIMAL, 2),
+		INITIALIZE_IMAGES(PacketConstants.INITIALIZE_IMAGES, 6),
+		CONNECTION_INITIALIZATION(PacketConstants.CONNECTION_INITIALIZATION, 4),
+		UPDATE_PLAYERS(PacketConstants.UPDATE_PLAYERS, 12),
+		UPDATE_POINTS(PacketConstants.UPDATE_POINTS, 6),
+		SETTINGS(PacketConstants.SETTINGS, 8),
+		IMAGES_INIT_END(PacketConstants.IMAGES_INIT_END, 3);
 
 		private final int op;
 		private final int len;
