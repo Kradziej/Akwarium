@@ -25,10 +25,9 @@ public class PacketSender extends Thread implements PacketConstants {
 		packetBlock packet;
 
 		while(threadRun) {
+			
 			try {
-				packet = queue.poll(30, TimeUnit.MICROSECONDS);
-				if(packet == null)
-					continue;
+				packet = queue.take();
 			} catch (InterruptedException e) {
 				System.out.println("Queue interrapted!");
 				e.printStackTrace();

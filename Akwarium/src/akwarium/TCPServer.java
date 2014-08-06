@@ -1,5 +1,6 @@
 package akwarium;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,6 +10,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+
 import javax.swing.JOptionPane;
 
 public class TCPServer extends Connection implements Runnable, PacketConstants {
@@ -20,16 +22,22 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 	private boolean disconnected;
 	private boolean isSettingsReady;
 	private boolean isGraphicsReady;
+	private boolean runServer = true;
 	private int port = 4945;
 	private InetAddress IPAddress;     // server client is connected with
 	private PipedInputStream tcpInput;
 	private PipedInputStream udpInput;
+	private InputStream clientIn;
+	private OutputStream clientOut;
+	private ResponseHandler rHandler;
 	Thread t;
 
 
 	TCPServer () {
 
 		port = 4945;
+		rHandler = new ResponseHandler();
+		
 	}
 
 	TCPServer (PipedInputStream tcp, PipedInputStream udp) {
@@ -47,7 +55,6 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 		Socket client = null;
 		InputStream in = null;
 		OutputStream out = null;
-		int op;
 		int bytesToRead;
 		int retries = 0;
 
@@ -58,28 +65,17 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 			server.setSoTimeout(0);
 			client = server.accept();
 			IPAddress = client.getInetAddress();
-			in = client.getInputStream();
-
-
-			while ((op = in.read()) != -1) {
-
-				// hello message
-				if((op ^ 0x80) == 0) {
-					out = client.getOutputStream();
-					PacketSender.sendIv();   // send iv
-					continue;
-				}
-
-				// wait for settings from client like resolution values
-				if((op ^ 0x81) == 0) {
-					if(PacketInterpreter.interpret(op, in) == 0) {
-						isSettingsReady = true;
-						break;
-					}
-				}
+			clientIn = client.getInputStream();
+			clientOut = client.getOutputStream();
+			DataInputStream dataClientIn = new DataInputStream(clientIn);
+			short op;
+			
+			while (runServer) {
+				
+				op = dataClientIn.readShort();
+				runServer = rHandler.interpret(op, dataClientIn);
 			}
-
-
+			
 			while ((op = tcpInput.read()) != -1) {
 				bytesToRead = packet.getSize(op);
 				bufferOut[0] = (byte)op;
@@ -149,13 +145,23 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 
 
 	}
+	
 
+	public OutputStream getSocketOutput() {
+		
+		return clientOut;
+	}
 
 	@Override
 	public void startThread () {
 
 		t = new Thread(this);
 		t.start();
+	}
+	
+	public void terminate () {
+		
+		runServer = false;
 	}
 
 	@Override

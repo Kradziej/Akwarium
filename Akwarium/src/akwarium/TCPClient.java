@@ -27,11 +27,13 @@ public class TCPClient extends Connection implements Runnable {
 	private boolean serverDown;
 	private InetAddress IPAddress;    // address of server
 	private UDPClient recCoor;
+	private ResponseHandler rHandler;
 	private Thread t;
 
 	TCPClient () {
 
 		port = 4945;
+		rHandler = new ResponseHandler();
 	}
 
 	TCPClient (InetAddress IPAddress) {

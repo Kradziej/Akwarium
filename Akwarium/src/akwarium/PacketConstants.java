@@ -3,6 +3,8 @@ package akwarium;
 
 public interface PacketConstants {
 
+	// Data
+	public short HELLO_MESSAGE = (short) 0x8000;
 	public short UPDATE_COORDINATES = (short) 0x8101;
 	public short UPDATE_PLAYERS = (short) 0x8102;
 	public short ADD_ANIMAL = (short) 0x8201;
@@ -12,8 +14,16 @@ public interface PacketConstants {
 	public short IMAGES_INIT_END = (short) 0x8303;
 	public short UPDATE_POINTS = (short) 0x8401;
 	public short SETTINGS = (short) 0x85FF;
-
-
+	
+	// Responses
+	public short OK = (short) 0x0000;
+	public short FAIL = (short) 0x0001;
+	public short ERROR = (short) 0xFFFF;
+	public short INVALID_PACKET = (short) 0xFF00;
+	public short ANIMAL_NOT_EXIST_ERROR = (short) 0xFF01;
+	public short IMAGE_INDEX_OUT_OF_BOUNDS = (short) 0xFF02;
+	
+	
 	public class packetBlock {
 
 		private byte[] buffer;
@@ -55,7 +65,8 @@ public interface PacketConstants {
 		UPDATE_PLAYERS(PacketConstants.UPDATE_PLAYERS, 12),
 		UPDATE_POINTS(PacketConstants.UPDATE_POINTS, 6),
 		SETTINGS(PacketConstants.SETTINGS, 8),
-		IMAGES_INIT_END(PacketConstants.IMAGES_INIT_END, 3);
+		IMAGES_INIT_END(PacketConstants.IMAGES_INIT_END, 3),
+		HELLO_MESSAGE(PacketConstants.HELLO_MESSAGE, 6);
 
 		private final int op;
 		private final int len;
@@ -73,8 +84,9 @@ public interface PacketConstants {
 			return len;
 		}
 
+		/*
 		public static int getSize (int op) {
-
+			
 
 			if(op == UPDATE_COORDINATES.op())
 				return UPDATE_COORDINATES.length();
@@ -95,5 +107,6 @@ public interface PacketConstants {
 
 			return 0;
 		}
+		*/
 	}
 }

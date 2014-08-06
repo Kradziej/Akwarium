@@ -7,20 +7,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
-public abstract class PacketInterpreter implements PacketConstants {
+public class PacketInterpreter extends PacketHandler implements PacketConstants {
 
 	private static Aquarium aq;
 	private static int iv;
-
-	public static int interpret(int op, DataInputStream packetInput)
-			throws IOException {
+	
+	
+	public boolean interpret(short op, DataInputStream packetInput) throws IOException {
 
 		short index = 0;
 		int code = 0;
-		int x;
-		int y;
-		int v;
-		int direction;
+		int x = 0;
+		int y = 0;
+		int v = 0;
+		int direction = 0;
 
 		switch (op) {
 
