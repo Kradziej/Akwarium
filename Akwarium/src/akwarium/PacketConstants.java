@@ -23,6 +23,8 @@ public interface PacketConstants {
 	public short ANIMAL_NOT_EXIST_ERROR = (short) 0xFF01;
 	public short IMAGE_INDEX_OUT_OF_BOUNDS = (short) 0xFF02;
 	
+	public int MAX_PACKET_LENGTH = 32;
+	
 	
 	public class packetBlock {
 
@@ -42,7 +44,7 @@ public interface PacketConstants {
 			return isTcpPacket;
 		}
 
-		public byte[] getBuffer() {
+		public byte[] getData() {
 
 			return buffer;
 		}
@@ -57,17 +59,27 @@ public interface PacketConstants {
 
 	public static enum packet {
 
+		
+		// Data (length without header)
 		UPDATE_COORDINATES(PacketConstants.UPDATE_COORDINATES, 11),
 		ADD_ANIMAL(PacketConstants.ADD_ANIMAL, 14),
 		REMOVE_ANIMAL(PacketConstants.REMOVE_ANIMAL, 2),
 		INITIALIZE_IMAGES(PacketConstants.INITIALIZE_IMAGES, 6),
 		CONNECTION_INITIALIZATION(PacketConstants.CONNECTION_INITIALIZATION, 4),
-		UPDATE_PLAYERS(PacketConstants.UPDATE_PLAYERS, 12),
+		UPDATE_PLAYERS(PacketConstants.UPDATE_PLAYERS, 13),
 		UPDATE_POINTS(PacketConstants.UPDATE_POINTS, 6),
 		SETTINGS(PacketConstants.SETTINGS, 8),
-		IMAGES_INIT_END(PacketConstants.IMAGES_INIT_END, 3),
-		HELLO_MESSAGE(PacketConstants.HELLO_MESSAGE, 6);
-
+		IMAGES_INIT_END(PacketConstants.IMAGES_INIT_END, 1),
+		HELLO_MESSAGE(PacketConstants.HELLO_MESSAGE, 4),
+		
+		// Responses
+		OK(PacketConstants.OK, 2), 
+		FAIL(PacketConstants.FAIL, 2),
+		ERROR(PacketConstants.ERROR, 2),
+		INVALID_PACKET(PacketConstants.INVALID_PACKET, 2),
+		ANIMAL_NOT_EXIST_ERROR(PacketConstants.ANIMAL_NOT_EXIST_ERROR, 2),
+		IMAGE_INDEX_OUT_OF_BOUNDS(PacketConstants.IMAGE_INDEX_OUT_OF_BOUNDS, 2);
+		
 		private final int op;
 		private final int len;
 

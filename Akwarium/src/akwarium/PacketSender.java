@@ -13,11 +13,26 @@ import java.util.concurrent.TimeUnit;
 
 public class PacketSender extends Thread implements PacketConstants {
 
-	private static PipedOutputStream tcpOutput;
-	private static PipedOutputStream udpOutput;
-	private static ArrayBlockingQueue<packetBlock> queue;
-	private static int iv;
-	private static boolean threadRun = true;
+	private PipedOutputStream tcpOutput;
+	private PipedOutputStream udpOutput;
+	private ArrayBlockingQueue<packetBlock> queue;
+	private int iv;
+	private boolean threadRun = true;
+	private static PacketSender packetSender;
+	
+	private PacketSender () {
+		
+		queue = new ArrayBlockingQueue<packetBlock>(150, true);
+	}
+	
+	
+	public static PacketSender getSender () {
+		
+		if(packetSender == null)
+			packetSender = new PacketSender();
+		
+		return packetSender;
+	}
 
 	@Override
 	public void run() {
@@ -38,11 +53,11 @@ public class PacketSender extends Thread implements PacketConstants {
 
 				if(packet.isTcpPacket()) {
 
-					tcpOutput.write(packet.getBuffer(), 0, packet.size());
+					tcpOutput.write(packet.getData(), 0, packet.size());
 					tcpOutput.flush();
 				} else {
 
-					udpOutput.write(packet.getBuffer(), 0, packet.size());
+					udpOutput.write(packet.getData(), 0, packet.size());
 					udpOutput.flush();
 				}
 
@@ -54,64 +69,73 @@ public class PacketSender extends Thread implements PacketConstants {
 
 		}
 	}
-
-	protected static void terminate () {
-
-		threadRun = false;
+	
+	
+	public int sendResponse (PacketConstants.packet packet) {
+		
+		DataStream stream = createDataStream(2);
+		
+		try {
+			stream.out.writeShort(packet.op());
+			stream.out.close();
+		} catch (IOException e) {
+			System.out.println("Cannot send data to queue " + packet.toString());
+			return 0;
+		}
+	
+		queue.offer(new packetBlock(stream.toByteArray(), false));
+		return stream.bytesInBuffer();
 	}
+	
 
+	public int addAnimal (int code, int imageIndex, int index, int x, int y, int v) {
 
-	public static int addAnimal (int code, int imageIndex, int index, int x, int y, int v) {
-
-		ByteArrayOutputStream bytesBuffer = new ByteArrayOutputStream(64);
-		DataOutputStream out = new DataOutputStream(bytesBuffer);
+		DataStream stream = createDataStream();
 
 		// scale
 		x = Math.round(x * DrawAq.xScale());
 		y = Math.round(y * DrawAq.yScale());
 		
 		try {
-			out.writeShort(packet.ADD_ANIMAL.op());   // DOUBLE PACKET HEADERS
-			out.writeShort(index);
-			out.writeByte(code);
-			out.writeByte(imageIndex);
-			out.writeInt(x);
-			out.writeInt(y);
-			out.writeShort(v);
-			out.close();
+			stream.out.writeShort(packet.ADD_ANIMAL.op());   // DOUBLE PACKET HEADERS
+			stream.out.writeShort(index);
+			stream.out.writeByte(code);
+			stream.out.writeByte(imageIndex);
+			stream.out.writeInt(x);
+			stream.out.writeInt(y);
+			stream.out.writeShort(v);
+			stream.out.close();
 
 		} catch (IOException e) {
 			System.out.println("Cannot send data to queue " + packet.ADD_ANIMAL.toString());
 			return 0;
 		}
 		
-		queue.offer(new packetBlock(bytesBuffer.toByteArray(), true));
-		return bytesBuffer.size();
+		queue.offer(new packetBlock(stream.toByteArray(), true));
+		return stream.bytesInBuffer();
 
 	}
 
-	public static int removeAnimal (int index) {
+	public int removeAnimal (int index) {
 
-		ByteArrayOutputStream bytesBuffer = new ByteArrayOutputStream(64);
-		DataOutputStream out = new DataOutputStream(bytesBuffer);
+		DataStream stream = createDataStream();
 
 		try {
-			out.writeShort(packet.REMOVE_ANIMAL.op());
-			out.writeShort(index);
-			out.close();
+			stream.out.writeShort(packet.REMOVE_ANIMAL.op());
+			stream.out.writeShort(index);
+			stream.out.close();
 		} catch (IOException e) {
 			System.out.println("Cannot send data to queue " + packet.REMOVE_ANIMAL.toString());
 			return 0;
 		}
 
-		queue.offer(new packetBlock(bytesBuffer.toByteArray(), true));
-		return bytesBuffer.size();
+		queue.offer(new packetBlock(stream.toByteArray(), true));
+		return stream.bytesInBuffer();
 	}
 
-	public static int sendNewCoordinates (int index, int x, int y, int direction) {
+	public int sendNewCoordinates (int index, int x, int y, int direction) {
 
-		ByteArrayOutputStream bytesBuffer = new ByteArrayOutputStream(64);
-		DataOutputStream out = new DataOutputStream(bytesBuffer);
+		DataStream stream = createDataStream();
 
 		// scale
 		x = Math.round(x * DrawAq.xScale());
@@ -119,139 +143,170 @@ public class PacketSender extends Thread implements PacketConstants {
 		
 		
 		try {
-			out.writeShort(packet.UPDATE_COORDINATES.op());
-			out.writeShort(index);
-			out.writeInt(x);
-			out.writeInt(y);
-			out.writeByte(direction);
-			out.close();
+			stream.out.writeShort(packet.UPDATE_COORDINATES.op());
+			stream.out.writeShort(index);
+			stream.out.writeInt(x);
+			stream.out.writeInt(y);
+			stream.out.writeByte(direction);
+			stream.out.close();
 		} catch (IOException e) {
 			System.out.println("Cannot send data to queue " + packet.UPDATE_COORDINATES.toString());
 			return 0;
 		}
 		
-		queue.offer(new packetBlock(bytesBuffer.toByteArray(), false));
-		return bytesBuffer.size();
+		queue.offer(new packetBlock(stream.toByteArray(), false));
+		return stream.bytesInBuffer();
 	}
 
 
-	public static int initializeImages (int code, int index, int width, Color color) {
+	public int initializeImages (int code, int index, int width, Color color) {
 
-		ByteArrayOutputStream bytesBuffer = new ByteArrayOutputStream(64);
-		DataOutputStream out = new DataOutputStream(bytesBuffer);
+		DataStream stream = createDataStream();
 		
 		try {
-			out.writeShort(packet.INITIALIZE_IMAGES.op());
-			out.writeByte(code);
-			out.writeByte(index);
-			out.writeByte(color.getRed());
-			out.writeByte(color.getGreen());
-			out.writeByte(color.getBlue());
-			out.writeByte(width);   // fix this to larger!~!!!!!!!!!!!!!!!!!
-			out.close();
+			stream.out.writeShort(packet.INITIALIZE_IMAGES.op());
+			stream.out.writeByte(code);
+			stream.out.writeByte(index);
+			stream.out.writeByte(color.getRed());
+			stream.out.writeByte(color.getGreen());
+			stream.out.writeByte(color.getBlue());
+			stream.out.writeByte(width);   // fix this to larger!~!!!!!!!!!!!!!!!!!
+			stream.out.close();
 		} catch (IOException e) {
 			System.out.println("Cannot send data to queue " + packet.INITIALIZE_IMAGES.toString());
 			return 0;
 		}
 		
-		queue.offer(new packetBlock(bytesBuffer.toByteArray(), true));
-		return bytesBuffer.size();
+		queue.offer(new packetBlock(stream.toByteArray(), true));
+		return stream.bytesInBuffer();
 	}
 
-	public static int sendIv () {
+	public int sendIv () {
 
-		ByteArrayOutputStream bytesBuffer = new ByteArrayOutputStream(64);
-		DataOutputStream out = new DataOutputStream(bytesBuffer);
+		DataStream stream = createDataStream();
 		
 		Random rand = new Random();
 		iv = rand.nextInt(Integer.MAX_VALUE);
 
 		try {
-			out.writeShort(packet.CONNECTION_INITIALIZATION.op());
-			out.writeInt(iv);
-			out.close();
+			stream.out.writeShort(packet.CONNECTION_INITIALIZATION.op());
+			stream.out.writeInt(iv);
+			stream.out.close();
 		} catch (IOException e) {
 			System.out.println("Cannot send data to queue " + packet.CONNECTION_INITIALIZATION.toString());
 			return 0;
 		}
 		
 		
-		queue.offer(new packetBlock(bytesBuffer.toByteArray(), true));
-		return bytesBuffer.size();
+		queue.offer(new packetBlock(stream.toByteArray(), true));
+		return stream.bytesInBuffer();
 	}
 
-	public static int playerUpdate (int index, int x, int y, int v, int direction) {
+	public int playerUpdate (int index, int x, int y, int v, int direction) {
 
-		ByteArrayOutputStream bytesBuffer = new ByteArrayOutputStream(64);
-		DataOutputStream out = new DataOutputStream(bytesBuffer);
-
+		DataStream stream = createDataStream();
+		
 		if(index == 0) {  // owner coordinates send to the client
 			x = Math.round(x * DrawAq.xScale());
 			y = Math.round(y * DrawAq.yScale());
 		}
 
 		try {
-			out.writeShort(packet.UPDATE_PLAYERS.op());
-			out.writeByte(index);
-			out.writeInt(x);
-			out.writeInt(y);
-			out.writeShort(v);
-			out.writeShort(direction);
-			out.close();
+			stream.out.writeShort(packet.UPDATE_PLAYERS.op());
+			stream.out.writeByte(index);
+			stream.out.writeInt(x);
+			stream.out.writeInt(y);
+			stream.out.writeShort(v);
+			stream.out.writeShort(direction);
+			stream.out.close();
 		} catch (IOException e) {
 			System.out.println("Cannot send data to queue " + packet.UPDATE_PLAYERS.toString());
 			return 0;
 		}
 
-		queue.offer(new packetBlock(bytesBuffer.toByteArray(), false));
-		return bytesBuffer.size();
+		queue.offer(new packetBlock(stream.toByteArray(), false));
+		return stream.bytesInBuffer();
 	}
 
 
-	public static int updatePoints (int index, int points, int health) {
+	public int updatePoints (int index, int points, int health) {
 		
-		ByteArrayOutputStream bytesBuffer = new ByteArrayOutputStream(64);
-		DataOutputStream out = new DataOutputStream(bytesBuffer);
+		DataStream stream = createDataStream();
 		
 		try {
-			out.writeShort(packet.UPDATE_POINTS.op());
-			out.writeByte(index);
-			out.writeInt(points);
-			out.writeByte(health);
-			out.close();
+			stream.out.writeShort(packet.UPDATE_POINTS.op());
+			stream.out.writeByte(index);
+			stream.out.writeInt(points);
+			stream.out.writeByte(health);
+			stream.out.close();
 		} catch (IOException e) {
 			System.out.println("Cannot send data to queue " + packet.UPDATE_PLAYERS.toString());
 			return 0;
 		}
 		
-		queue.offer(new packetBlock(bytesBuffer.toByteArray(), false));
-		return bytesBuffer.size();
+		queue.offer(new packetBlock(stream.toByteArray(), false));
+		return stream.bytesInBuffer();
 	}
 	
-	public static int imagesInitializationEnd() {
+	public int imagesInitializationEnd () {
 		
-		ByteArrayOutputStream bytesBuffer = new ByteArrayOutputStream(8);
-		DataOutputStream out = new DataOutputStream(bytesBuffer);
+		DataStream stream = createDataStream();
 		
 		try {
-			out.writeShort(packet.IMAGES_INIT_END.op());
-			out.writeBoolean(true);
-			out.close();
+			stream.out.writeShort(packet.IMAGES_INIT_END.op());
+			stream.out.writeBoolean(true);
+			stream.out.close();
 		} catch (IOException e) {
 			System.out.println("Cannot send data to queue " + packet.IMAGES_INIT_END.toString());
 			return 0;
 		}
 	
-		queue.offer(new packetBlock(bytesBuffer.toByteArray(), false));
-		return bytesBuffer.size();
+		queue.offer(new packetBlock(stream.toByteArray(), false));
+		return stream.bytesInBuffer();
+	}
+	
+	
+	private DataStream createDataStream (int size) {
+		
+		DataStream stream = new DataStream(size);
+		return stream;
 	}
 
+	private DataStream createDataStream () {
+		
+		DataStream stream = new DataStream(MAX_PACKET_LENGTH);
+		return stream;
+	}
+	
+	private class DataStream {
+		
+		ByteArrayOutputStream bytesBuffer;
+		DataOutputStream out;
+		
+		DataStream(int size) {
+			bytesBuffer = new ByteArrayOutputStream(size);
+			out = new DataOutputStream(bytesBuffer);
+		}
+		
+		byte[] toByteArray () {
+			return bytesBuffer.toByteArray();
+		}
+		
+		int bytesInBuffer () {
+			return bytesBuffer.size();
+		}
+	}
+	
+	protected void terminate () {
 
-	public static void init (PipedOutputStream tcp, PipedOutputStream udp) {
+		threadRun = false;
+	}
+
+	
+	public void init (PipedOutputStream tcp, PipedOutputStream udp) {
 
 		tcpOutput = tcp;
 		udpOutput = udp;
-		queue = new ArrayBlockingQueue<packetBlock>(150, true);
 	}
 
 	

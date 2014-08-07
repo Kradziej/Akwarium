@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
-public class PacketInterpreter extends PacketHandler implements PacketConstants {
+public class PacketInterpreter implements PacketConstants {
 
 	private static Aquarium aq;
 	private static int iv;
 	
 	
-	public boolean interpret(short op, DataInputStream packetInput) throws IOException {
+	public int interpret(short op, DataInputStream packetInput) throws IOException {
 
 		short index = 0;
 		int code = 0;
@@ -29,14 +29,14 @@ public class PacketInterpreter extends PacketHandler implements PacketConstants 
 			index = packetInput.readShort();
 
 			if (aq.getAnimal(index) == null)
-				return 0; // animals not ready
+				return 1; // animals not ready
 
 			x = packetInput.readInt();
 			y = packetInput.readInt();
 			direction = packetInput.readByte();
 
 			aq.updateCooridates(index, x, y, direction);
-			return 0;
+			return 1;
 
 		case ADD_ANIMAL:
 
@@ -56,13 +56,13 @@ public class PacketInterpreter extends PacketHandler implements PacketConstants 
 				e.printStackTrace();
 				System.exit(-1);
 			}
-			return 0;
+			return 1;
 
 		case REMOVE_ANIMAL:
 
 			index = packetInput.readShort();
 			aq.removeAnimal(index);
-			return 0;
+			return 1;
 
 		case INITIALIZE_IMAGES:
 
@@ -71,10 +71,7 @@ public class PacketInterpreter extends PacketHandler implements PacketConstants 
 			Color color = new Color(packetInput.readByte(), packetInput.readByte(), packetInput.readByte());
 			int width = packetInput.readByte();
 			
-			if (Animal.initAnimalsClient(code, index, color, width))
-				return 2;
-
-			return 0;
+			return 1;
 
 		case CONNECTION_INITIALIZATION:
 
@@ -86,10 +83,10 @@ public class PacketInterpreter extends PacketHandler implements PacketConstants 
 			index = packetInput.readByte();
 			
 			if (index == 0 && aq.getOwner() == null)
-				return 0;
+				return 1;
 
 			if (index == 1 && aq.getPlayer() == null)
-				return 0;
+				return 1;
 
 			x = packetInput.readInt();
 			y = packetInput.readInt();
@@ -101,7 +98,7 @@ public class PacketInterpreter extends PacketHandler implements PacketConstants 
 				y = Math.round(y * (1 / DrawAq.yScale()));
 			}
 			aq.updateSharks(index, x, y, v, direction);
-			return 0;
+			return 1;
 
 		case SETTINGS:
 
@@ -112,7 +109,7 @@ public class PacketInterpreter extends PacketHandler implements PacketConstants 
 			Dimension d = DrawAq.getResolution();
 			DrawAq.setScales((float) (w / d.getWidth()),
 					(float) (h / d.getHeight()));
-			return 0;
+			return 1;
 
 		case UPDATE_POINTS:
 
@@ -121,10 +118,12 @@ public class PacketInterpreter extends PacketHandler implements PacketConstants 
 			int health = packetInput.readByte();
 
 			aq.updatePoints(index, points, health);
+			return 1;
 		}
 
-		return -1;
+		return 0;
 	}
+	
 
 	public static void setAq(Aquarium aquarium) {
 
