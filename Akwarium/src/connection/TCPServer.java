@@ -1,4 +1,4 @@
-package akwarium;
+package connection;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -12,6 +12,11 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import javax.swing.JOptionPane;
+
+import packet.PacketConstants;
+import packet.ResponseHandler;
+import packet.PacketConstants.packet;
+import akwarium.Connection;
 
 public class TCPServer extends Connection implements Runnable, PacketConstants {
 

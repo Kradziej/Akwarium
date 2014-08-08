@@ -1,4 +1,4 @@
-package akwarium;
+package connection;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
@@ -7,7 +7,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+
 import javax.swing.JOptionPane;
+
+import packet.PacketConstants;
+import packet.PacketConstants.packet;
 
 public class UDPServer implements Runnable, PacketConstants {
 

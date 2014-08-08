@@ -1,4 +1,4 @@
-package akwarium;
+package connection;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -8,6 +8,8 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 
 import javax.swing.JOptionPane;
+
+import packet.PacketInterpreter;
 
 public class UDPClient extends PacketInterpreter implements Runnable {
 

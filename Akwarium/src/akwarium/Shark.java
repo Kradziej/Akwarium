@@ -6,6 +6,8 @@ import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Random;
 
+import packet.PacketSender;
+
 public class Shark extends AqObject implements KeyListener {
 
 	private HashSet<Integer> keys = new HashSet<Integer>();

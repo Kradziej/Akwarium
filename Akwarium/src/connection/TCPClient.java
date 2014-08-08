@@ -1,4 +1,4 @@
-package akwarium;
+package connection;
 
 import java.awt.Dimension;
 import java.io.DataInputStream;
@@ -15,6 +15,11 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import javax.swing.JOptionPane;
+
+import packet.PacketInterpreter;
+import packet.ResponseHandler;
+import akwarium.Connection;
+import akwarium.DrawAq;
 
 public class TCPClient extends Connection implements Runnable {
 
@@ -67,7 +72,7 @@ public class TCPClient extends Connection implements Runnable {
 
 			// send hello message
 			out.write(buffer, 0, 5);
-
+			
 			// send settings
 			Dimension d = DrawAq.getResolution();
 			buffer[0] = (byte)0x81;

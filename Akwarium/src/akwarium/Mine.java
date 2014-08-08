@@ -2,6 +2,8 @@ package akwarium;
 
 import java.awt.image.BufferedImage;
 
+import packet.PacketSender;
+
 public class Mine extends Obstacles {
 
 	private float[] vector = {-0.5f,0};

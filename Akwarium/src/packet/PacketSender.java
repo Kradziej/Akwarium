@@ -1,4 +1,4 @@
-package akwarium;
+package packet;
 
 import java.awt.Color;
 import java.io.ByteArrayInputStream;
@@ -10,8 +10,10 @@ import java.io.PipedOutputStream;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import akwarium.DrawAq;
+import static packet.PacketConstants.*;
 
-public class PacketSender extends Thread implements PacketConstants {
+public class PacketSender extends Thread {
 
 	private PipedOutputStream tcpOutput;
 	private PipedOutputStream udpOutput;
@@ -71,6 +73,38 @@ public class PacketSender extends Thread implements PacketConstants {
 	}
 	
 	
+	// ONLY SENDS PACKETS DO NOT SCALE X FOR EXAMPLE!!!!!!!!!!!!!!!!!!!!!!
+	public int sendData (short header, Object... args) {
+		
+		DataStream stream = createDataStream();
+
+		try {
+			stream.out.writeShort(header);   // HEADER
+			for(Object o : args) {
+				
+				if(o.getClass() == Integer.class)
+					stream.out.writeInt((Integer)o);
+				else if(o.getClass() == Short.class)
+					stream.out.writeShort((Short)o);
+				else if(o.getClass() == Byte.class)
+					stream.out.writeByte((Byte)o);
+				else if(o.getClass() == Double.class)
+					stream.out.writeDouble((Double)o);
+				else if(o.getClass() == Float.class)
+					stream.out.writeFloat((Float)o);
+			}
+			stream.out.close();
+
+		} catch (IOException e) {
+			System.out.println("Cannot send data to queue " + packet.ADD_ANIMAL.toString());
+			return 0;
+		}
+		
+		queue.offer(new packetBlock(stream.toByteArray(), true));
+		return stream.bytesInBuffer();
+	}
+	
+	
 	public int sendResponse (PacketConstants.packet packet) {
 		
 		DataStream stream = createDataStream(2);
@@ -86,6 +120,16 @@ public class PacketSender extends Thread implements PacketConstants {
 		queue.offer(new packetBlock(stream.toByteArray(), false));
 		return stream.bytesInBuffer();
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 
 	public int addAnimal (int code, int imageIndex, int index, int x, int y, int v) {

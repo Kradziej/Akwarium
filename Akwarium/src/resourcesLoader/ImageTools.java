@@ -8,11 +8,11 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
+import packet.PacketSender;
 import akwarium.Animal;
 import akwarium.AqObjectsEnum;
 import akwarium.Aquarium;
 import akwarium.DrawAq;
-import akwarium.PacketSender;
 
 class ImageTools {
 	

@@ -1,4 +1,4 @@
-package akwarium;
+package packet;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,11 +7,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
-public class PacketInterpreter implements PacketConstants {
+import akwarium.Aquarium;
+import akwarium.DrawAq;
+import static packet.PacketConstants.*;
+
+class PacketInterpreter {
 
 	private static Aquarium aq;
 	private static int iv;
 	
+
 	
 	public int interpret(short op, DataInputStream packetInput) throws IOException {
 
@@ -21,14 +26,14 @@ public class PacketInterpreter implements PacketConstants {
 		int y = 0;
 		int v = 0;
 		int direction = 0;
-
+		
 		switch (op) {
 
 		case UPDATE_COORDINATES:
 
 			index = packetInput.readShort();
 
-			if (aq.getAnimal(index) == null)
+			if (aq.getAnimal(index) == null)   // NEEDED?
 				return 1; // animals not ready
 
 			x = packetInput.readInt();
@@ -82,7 +87,7 @@ public class PacketInterpreter implements PacketConstants {
 
 			index = packetInput.readByte();
 			
-			if (index == 0 && aq.getOwner() == null)
+			if (index == 0 && aq.getOwner() == null)   // I DONT KNOW ABOUT THIS
 				return 1;
 
 			if (index == 1 && aq.getPlayer() == null)
@@ -93,7 +98,7 @@ public class PacketInterpreter implements PacketConstants {
 			v = packetInput.readShort();
 			direction = packetInput.readByte();
 			
-			if (index == 1) { // player coordinates incoming
+			if (index == 1) { // player coordinates incomingC   // LOL NOPEEEEEEEEEEEEEEEEEEE
 				x = Math.round(x * (1 / DrawAq.xScale()));
 				y = Math.round(y * (1 / DrawAq.yScale()));
 			}

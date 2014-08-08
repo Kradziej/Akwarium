@@ -10,9 +10,12 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Random;
+
 import resourcesLoader.Resources;
 
 import javax.imageio.ImageIO;
+
+import packet.PacketSender;
 
 public abstract class Animal extends AqObject {
 

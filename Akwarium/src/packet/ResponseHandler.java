@@ -1,9 +1,9 @@
-package akwarium;
+package packet;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class ResponseHandler implements PacketConstants {
+class ResponseHandler implements PacketConstants {
 	
 	private int retries;
 	private static final int MAX_RETRIES = 5;
@@ -49,8 +49,9 @@ public class ResponseHandler implements PacketConstants {
 		// if false --> INVALID_RESPONSE 
 		if (retries == MAX_RETRIES) {
 			System.out.println("DESYNCHRONIZATION");
-		}
 			return -1;
+		}
+			
 		
 		return 0;   
 		

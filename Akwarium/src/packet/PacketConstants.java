@@ -1,4 +1,4 @@
-package akwarium;
+package packet;
 
 
 public interface PacketConstants {
@@ -61,7 +61,7 @@ public interface PacketConstants {
 
 		
 		// Data (length without header)
-		UPDATE_COORDINATES(PacketConstants.UPDATE_COORDINATES, 11),
+		UPDATE_COORDINATES(PacketConstants.UPDATE_COORDINATES, 11, new int[]{4,4,2,1}),
 		ADD_ANIMAL(PacketConstants.ADD_ANIMAL, 14),
 		REMOVE_ANIMAL(PacketConstants.REMOVE_ANIMAL, 2),
 		INITIALIZE_IMAGES(PacketConstants.INITIALIZE_IMAGES, 6),
@@ -80,12 +80,14 @@ public interface PacketConstants {
 		ANIMAL_NOT_EXIST_ERROR(PacketConstants.ANIMAL_NOT_EXIST_ERROR, 2),
 		IMAGE_INDEX_OUT_OF_BOUNDS(PacketConstants.IMAGE_INDEX_OUT_OF_BOUNDS, 2);
 		
-		private final int op;
-		private final int len;
+		private short op;
+		private int len;
+		private int[] seq; 
 
-		packet (int op, int len) {
+		packet (short op, int len, int[] seq) {
 			this.op = op;
 			this.len = len;
+			this.seq = seq;
 		}
 
 		public int op () {
@@ -95,6 +97,20 @@ public interface PacketConstants {
 		public int length () {
 			return len;
 		}
+		
+		public int[] seq () {
+			return seq;
+		}
+		
+		public static packet getPacketByOP (short op) {
+			
+			for(packet p : packet.values()) {
+				
+				if(p.op == op)
+					return p;
+			}
+		}
+		
 
 		/*
 		public static int getSize (int op) {

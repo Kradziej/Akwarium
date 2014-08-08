@@ -16,12 +16,12 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 
+import packet.PacketSender;
 import akwarium.Animal;
 import akwarium.AqObject;
 import akwarium.AqObjectsEnum;
 import akwarium.Aquarium;
 import akwarium.DrawAq;
-import akwarium.PacketSender;
 import akwarium.Program;
 import akwarium.SpeciesList;
 

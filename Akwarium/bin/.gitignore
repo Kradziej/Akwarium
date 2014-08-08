@@ -1,5 +1,2 @@
-/MANIFEST.MF
-/akwarium/
-/jtest/
-/logic/
-/resourcesLoader/
+/connection
+/packet

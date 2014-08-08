@@ -14,6 +14,13 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import packet.PacketInterpreter;
+import packet.PacketSender;
+import connection.TCPClient;
+import connection.TCPServer;
+import connection.UDPClient;
+import connection.UDPServer;
+
 public class Program {
 
 	static boolean isMultiplayer;

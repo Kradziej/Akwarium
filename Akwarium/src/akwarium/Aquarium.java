@@ -4,6 +4,8 @@ import java.awt.geom.Rectangle2D;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 
+import packet.PacketSender;
+
 public class Aquarium {
 
 	private float boost;
