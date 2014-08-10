@@ -13,20 +13,19 @@ import javax.swing.JOptionPane;
 import packet.PacketConstants;
 import packet.PacketConstants.packet;
 
-public class UDPServer implements Runnable, PacketConstants {
+public class UDPServer extends Connection implements Runnable, PacketConstants {
 
 	private byte[] buffer = new byte[64];
 	private int port;
 	private InetAddress IPAddress;
 	private int iv;
-	private static PipedInputStream packetInput;
-	Thread t;
+	private boolean isConnected;
+	private Thread t;
 
-	UDPServer (PipedInputStream in, InetAddress IPAddress, int port) {
+	UDPServer (InetAddress IPAddress, int port) {
 
 		this.port = port;
 		this.IPAddress = IPAddress;
-		packetInput = in;
 	}
 
 
@@ -78,6 +77,31 @@ public class UDPServer implements Runnable, PacketConstants {
 
 		t = new Thread(this);
 		t.start();
+	}
+
+
+	@Override
+	public int getNextPort() {
+		port++;
+		return port;
+	}
+
+
+	@Override
+	public boolean isConnected() {
+		return isConnected;
+	}
+
+
+	@Override
+	public InetAddress getIPAddress() {
+		return IPAddress;
+	}
+
+
+	@Override
+	public void setConnected(boolean connected) {
+		this.isConnected = connected;
 	}
 
 }

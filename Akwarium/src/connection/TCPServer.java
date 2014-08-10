@@ -16,7 +16,6 @@ import javax.swing.JOptionPane;
 import packet.PacketConstants;
 import packet.ResponseHandler;
 import packet.PacketConstants.packet;
-import akwarium.Connection;
 
 public class TCPServer extends Connection implements Runnable, PacketConstants {
 
@@ -28,7 +27,6 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 	private boolean isSettingsReady;
 	private boolean isGraphicsReady;
 	private boolean runServer = true;
-	private int port = 4945;
 	private InetAddress IPAddress;     // server client is connected with
 	private PipedInputStream tcpInput;
 	private PipedInputStream udpInput;
@@ -106,7 +104,7 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 					break;
 
 				case 0xFE:   // iv ready
-					sendCoor = new UDPServer(udpInput, client.getInetAddress(), port);
+					sendCoor = new UDPServer(client.getInetAddress(), port);
 					sendCoor.startThread();
 					isConnected = true;
 					break;

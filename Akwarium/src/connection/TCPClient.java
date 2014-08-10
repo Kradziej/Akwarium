@@ -16,15 +16,14 @@ import java.net.SocketException;
 
 import javax.swing.JOptionPane;
 
-import packet.PacketInterpreter;
-import packet.ResponseHandler;
-import akwarium.Connection;
+import packet.PacketHandler;
+import packet.PacketSender;
+import static packet.PacketConstants.packet;
 import akwarium.DrawAq;
 
 public class TCPClient extends Connection implements Runnable {
 
 	private byte[] buffer = new byte[128];
-	private int port = 4945;
 	private boolean isConnected;
 	private boolean disconnected;
 	private boolean isGraphicsReady;
@@ -32,13 +31,11 @@ public class TCPClient extends Connection implements Runnable {
 	private boolean serverDown;
 	private InetAddress IPAddress;    // address of server
 	private UDPClient recCoor;
-	private ResponseHandler rHandler;
 	private Thread t;
 
 	TCPClient () {
 
 		port = 4945;
-		rHandler = new ResponseHandler();
 	}
 
 	TCPClient (InetAddress IPAddress) {
@@ -54,48 +51,38 @@ public class TCPClient extends Connection implements Runnable {
 		InputStream in = null;
 		OutputStream out = null;
 		int retries = 0;
-
-
-		int time = (int)System.currentTimeMillis();
-		buffer[0] = (byte)0x80;
-		buffer[1] = (byte)time;  // Hello message xD
-		buffer[2] = (byte)(time >>> 8);
-		buffer[3] = (byte)(time >>> 16);
-		buffer[4] = (byte)(time >>> 24);
+		short op;
+		boolean result;
+		PacketSender sender = PacketSender.getSender();
+		PacketHandler interpretor = new PacketHandler(this);
 
 		try {
 
 			client = new Socket();
 			client.connect(new InetSocketAddress(IPAddress, port), 0); // socket.accept()
 			isServerUp = true;
+			// init client output
 			out = client.getOutputStream();
-
+			sender.addTcpOutput(out);
+			
 			// send hello message
-			out.write(buffer, 0, 5);
+			int time = (int)System.currentTimeMillis();
+			sender.sendData(packet.HELLO_MESSAGE, time);
 			
 			// send settings
 			Dimension d = DrawAq.getResolution();
-			buffer[0] = (byte)0x81;
-			int w = (int)d.getWidth();
-			buffer[1] = (byte) w;
-			buffer[2] = (byte)(w >>> 8);
-			buffer[3] = (byte)(w >>> 16);
-			buffer[4] = (byte)(w >>> 24);
-			int h = (int)d.getHeight();
-			buffer[5] = (byte) h;
-			buffer[6] = (byte)(h >>> 8);
-			buffer[7] = (byte)(h >>> 16);
-			buffer[8] = (byte)(h >>> 24);
-			out.write(buffer, 0, 9);
-
+			sender.sendData(packet.SETTINGS, d.getWidth(), d.getHeight());
+			
 			// Run listening
 			in = client.getInputStream();
-			int op;
+			
 			DataInputStream inBuff = new DataInputStream(in);
 			while (true) {
 
 				op = inBuff.readShort();
-				switch(PacketInterpreter.interpret(op, inBuff)) {
+				interpretor.interpret(op, inBuff);
+				
+				switch() {
 
 				case 0:					     // standard OK response
 					buffer[0] = (byte)0x00;
@@ -122,7 +109,7 @@ public class TCPClient extends Connection implements Runnable {
 					buffer[0] = (byte)0xFE;   // iv resolved
 					buffer[1] = (byte)0x00;
 					out.write(buffer, 0, 2);
-					recCoor = new UDPClient(port);
+					recCoor = new UDPClient(IPAddress, port);
 					recCoor.startThread();
 					isConnected = true;
 					break;
@@ -182,7 +169,6 @@ public class TCPClient extends Connection implements Runnable {
 	}
 
 
-	@Override
 	public void startThread () {
 
 		t = new Thread(this);
@@ -199,12 +185,6 @@ public class TCPClient extends Connection implements Runnable {
 	public boolean isServerUp () {
 
 		return isServerUp;
-	}
-
-	@Override
-	public boolean isDisconnected () {
-
-		return disconnected;
 	}
 
 	@Override
@@ -231,6 +211,12 @@ public class TCPClient extends Connection implements Runnable {
 
 		port++;
 		return port;
+	}
+
+	@Override
+	public void setConnected(boolean connected) {
+		
+		this.isConnected = true;
 	}
 
 }

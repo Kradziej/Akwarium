@@ -6,20 +6,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PipedOutputStream;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
 import akwarium.DrawAq;
 import static packet.PacketConstants.*;
 
-public class PacketSender extends Thread {
+public class PacketSender implements Runnable {
 
-	private PipedOutputStream tcpOutput;
-	private PipedOutputStream udpOutput;
+	private OutputStream tcpOut;
+	private OutputStream udpOut;
 	private ArrayBlockingQueue<packetBlock> queue;
 	private int iv;
 	private boolean threadRun = true;
+	private static Thread t;
 	private static PacketSender packetSender;
 	
 	private PacketSender () {
@@ -30,10 +33,27 @@ public class PacketSender extends Thread {
 	
 	public static PacketSender getSender () {
 		
-		if(packetSender == null)
+		if(packetSender == null) {
 			packetSender = new PacketSender();
+			t = new Thread(packetSender);
+			t.start();
+		}
 		
 		return packetSender;
+	}
+	
+	public void addTcpOutput (OutputStream tcp) {
+		this.tcpOut = tcp;
+	}
+	
+	public void addUdpOutput (OutputStream udp) {
+		this.udpOut = udp;
+	}
+	
+	protected void terminate () {
+
+		queue.clear();
+		threadRun = false;
 	}
 
 	@Override
@@ -46,7 +66,7 @@ public class PacketSender extends Thread {
 			try {
 				packet = queue.take();
 			} catch (InterruptedException e) {
-				System.out.println("Queue interrapted!");
+				System.out.println("Queue interrupted!");
 				e.printStackTrace();
 				return;
 			}
@@ -55,31 +75,37 @@ public class PacketSender extends Thread {
 
 				if(packet.isTcpPacket()) {
 
-					tcpOutput.write(packet.getData(), 0, packet.size());
-					tcpOutput.flush();
+					tcpOut.write(packet.getData());
 				} else {
 
-					udpOutput.write(packet.getData(), 0, packet.size());
-					udpOutput.flush();
+					udpOut.write(packet.getData());
 				}
 
-			} catch (IOException e) {
-				System.out.println("Cannot send data to stream");
-				e.printStackTrace();
-				return;
+			} catch (IOException | NullPointerException e) {
+				if(e.getClass() == NullPointerException.class) {
+					System.out.println( (packet.isTcpPacket() ? "TCP" : "UDP") + " output not yet initialized!" );
+					return;
+				} else {
+					System.out.println("Cannot send packet");
+					e.printStackTrace();
+					return;
+				}
 			}
 
 		}
 	}
 	
 	
+	
+	
+	
 	// ONLY SENDS PACKETS DO NOT SCALE X FOR EXAMPLE!!!!!!!!!!!!!!!!!!!!!!
-	public int sendData (short header, Object... args) {
+	public int sendData (PacketConstants.packet header, Object... args) {
 		
 		DataStream stream = createDataStream();
 
 		try {
-			stream.out.writeShort(header);   // HEADER
+			stream.out.writeShort(header.op());   // HEADER
 			for(Object o : args) {
 				
 				if(o.getClass() == Integer.class)
@@ -92,11 +118,13 @@ public class PacketSender extends Thread {
 					stream.out.writeDouble((Double)o);
 				else if(o.getClass() == Float.class)
 					stream.out.writeFloat((Float)o);
+				else if(o.getClass() == Boolean.class)
+					stream.out.writeBoolean((Boolean)o);
 			}
 			stream.out.close();
 
 		} catch (IOException e) {
-			System.out.println("Cannot send data to queue " + packet.ADD_ANIMAL.toString());
+			System.out.println("Cannot send data to queue for " + header.toString());
 			return 0;
 		}
 		
@@ -105,15 +133,15 @@ public class PacketSender extends Thread {
 	}
 	
 	
-	public int sendResponse (PacketConstants.packet packet) {
+	public int sendResponse (PacketConstants.packet response) {
 		
 		DataStream stream = createDataStream(2);
 		
 		try {
-			stream.out.writeShort(packet.op());
+			stream.out.writeShort(response.op());
 			stream.out.close();
 		} catch (IOException e) {
-			System.out.println("Cannot send data to queue " + packet.toString());
+			System.out.println("Cannot send data to queue " + response.toString());
 			return 0;
 		}
 	
@@ -127,6 +155,8 @@ public class PacketSender extends Thread {
 	
 	
 	
+	
+	/*
 	
 	
 	
@@ -310,6 +340,13 @@ public class PacketSender extends Thread {
 	}
 	
 	
+	
+	*/
+	
+	
+	
+	
+	
 	private DataStream createDataStream (int size) {
 		
 		DataStream stream = new DataStream(size);
@@ -341,19 +378,5 @@ public class PacketSender extends Thread {
 		}
 	}
 	
-	protected void terminate () {
-
-		threadRun = false;
-	}
-
-	
-	public void init (PipedOutputStream tcp, PipedOutputStream udp) {
-
-		tcpOutput = tcp;
-		udpOutput = udp;
-	}
-
-	
-
 }
 

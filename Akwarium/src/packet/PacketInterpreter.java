@@ -31,6 +31,7 @@ class PacketInterpreter {
 
 		case UPDATE_COORDINATES:
 
+			// short | int | int | byte
 			index = packetInput.readShort();
 
 			if (aq.getAnimal(index) == null)   // NEEDED?
@@ -45,6 +46,7 @@ class PacketInterpreter {
 
 		case ADD_ANIMAL:
 
+			// short | byte | byte | int | int | short
 			index = packetInput.readShort();
 			code = packetInput.readByte();
 			int imageIndex = packetInput.readByte();
@@ -65,12 +67,14 @@ class PacketInterpreter {
 
 		case REMOVE_ANIMAL:
 
+			// short
 			index = packetInput.readShort();
 			aq.removeAnimal(index);
 			return 1;
 
 		case INITIALIZE_IMAGES:
 
+			// byte | byte | colorRGB(byte | byte | byte) | short
 			code = packetInput.readByte();
 			index = packetInput.readByte();
 			Color color = new Color(packetInput.readByte(), packetInput.readByte(), packetInput.readByte());
@@ -80,11 +84,13 @@ class PacketInterpreter {
 
 		case CONNECTION_INITIALIZATION:
 
+			// int
 			iv = packetInput.readInt();
 			return 1;
 
 		case UPDATE_PLAYERS:
 
+			// byte | int | int | short | byte 
 			index = packetInput.readByte();
 			
 			if (index == 0 && aq.getOwner() == null)   // I DONT KNOW ABOUT THIS
@@ -107,6 +113,7 @@ class PacketInterpreter {
 
 		case SETTINGS:
 
+			// int | int
 			int w = packetInput.readInt();
 			int h = packetInput.readInt();
 			
@@ -118,6 +125,7 @@ class PacketInterpreter {
 
 		case UPDATE_POINTS:
 
+			// byte | int | byte
 			index = packetInput.readByte();
 			int points = packetInput.readInt();
 			int health = packetInput.readByte();

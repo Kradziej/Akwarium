@@ -1,5 +1,7 @@
 package packet;
 
+import akwarium.Aquarium;
+
 
 public interface PacketConstants {
 
@@ -18,12 +20,15 @@ public interface PacketConstants {
 	// Responses
 	public short OK = (short) 0x0000;
 	public short FAIL = (short) 0x0001;
+	public short CONNECTED = (short) 0x0002;
+	public short DISCONNECTED = (short) 0x0003;
 	public short ERROR = (short) 0xFFFF;
 	public short INVALID_PACKET = (short) 0xFF00;
 	public short ANIMAL_NOT_EXIST_ERROR = (short) 0xFF01;
 	public short IMAGE_INDEX_OUT_OF_BOUNDS = (short) 0xFF02;
 	
 	public int MAX_PACKET_LENGTH = 32;
+	public Aquarium AQ;
 	
 	
 	public class packetBlock {
@@ -55,50 +60,64 @@ public interface PacketConstants {
 		}
 	}
 
+	
+	public interface Trigger {
+	
+		public void call(Object... args);
+	}
 
 
-	public static enum packet {
+	public enum packet {
 
 		
 		// Data (length without header)
-		UPDATE_COORDINATES(PacketConstants.UPDATE_COORDINATES, 11, new int[]{4,4,2,1}),
-		ADD_ANIMAL(PacketConstants.ADD_ANIMAL, 14),
-		REMOVE_ANIMAL(PacketConstants.REMOVE_ANIMAL, 2),
-		INITIALIZE_IMAGES(PacketConstants.INITIALIZE_IMAGES, 6),
-		CONNECTION_INITIALIZATION(PacketConstants.CONNECTION_INITIALIZATION, 4),
-		UPDATE_PLAYERS(PacketConstants.UPDATE_PLAYERS, 13),
-		UPDATE_POINTS(PacketConstants.UPDATE_POINTS, 6),
-		SETTINGS(PacketConstants.SETTINGS, 8),
-		IMAGES_INIT_END(PacketConstants.IMAGES_INIT_END, 1),
-		HELLO_MESSAGE(PacketConstants.HELLO_MESSAGE, 4),
+		UPDATE_COORDINATES( PacketConstants.UPDATE_COORDINATES, new Object[]{(short)0, (int)0, (int)0, (byte)0} ),
+		ADD_ANIMAL( PacketConstants.ADD_ANIMAL, new Object[]{(short)0, (byte)0, (byte)0, (int)0, (int)0, (short)0} ),
+		REMOVE_ANIMAL( PacketConstants.REMOVE_ANIMAL, new Object[]{(short)0} ),
+		INITIALIZE_IMAGES( PacketConstants.INITIALIZE_IMAGES, new Object[]{(byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (short)0} ),
+		CONNECTION_INITIALIZATION( PacketConstants.CONNECTION_INITIALIZATION, new Object[]{(int)0} ),
+		UPDATE_PLAYERS( PacketConstants.UPDATE_PLAYERS, new Object[]{(byte)0, (int)0, (int)0, (short)0, (byte)0} ),
+		UPDATE_POINTS( PacketConstants.UPDATE_POINTS, new Object[]{(byte)0, (int)0, (byte)0} ),
+		SETTINGS( PacketConstants.SETTINGS, new Object[]{(int)0, (int)0} ),
+		IMAGES_INIT_END( PacketConstants.IMAGES_INIT_END, new Object[]{(boolean)false} ),
+		HELLO_MESSAGE( PacketConstants.HELLO_MESSAGE, new Object[]{(int)0} ),
 		
 		// Responses
-		OK(PacketConstants.OK, 2), 
-		FAIL(PacketConstants.FAIL, 2),
-		ERROR(PacketConstants.ERROR, 2),
-		INVALID_PACKET(PacketConstants.INVALID_PACKET, 2),
-		ANIMAL_NOT_EXIST_ERROR(PacketConstants.ANIMAL_NOT_EXIST_ERROR, 2),
-		IMAGE_INDEX_OUT_OF_BOUNDS(PacketConstants.IMAGE_INDEX_OUT_OF_BOUNDS, 2);
+		OK( PacketConstants.OK ), 
+		FAIL( PacketConstants.FAIL ),
+		ERROR( PacketConstants.ERROR ),
+		INVALID_PACKET( PacketConstants.INVALID_PACKET ),
+		ANIMAL_NOT_EXIST_ERROR( PacketConstants.ANIMAL_NOT_EXIST_ERROR ),
+		IMAGE_INDEX_OUT_OF_BOUNDS( PacketConstants.IMAGE_INDEX_OUT_OF_BOUNDS ),
+		CONNECTED( PacketConstants.CONNECTED ),
+		DISCONNECTED( PacketConstants.DISCONNECTED );
+		
 		
 		private short op;
-		private int len;
-		private int[] seq; 
-
-		packet (short op, int len, int[] seq) {
+		private Object[] seq; 
+		private boolean response;
+		
+		packet (short op) {
+			
 			this.op = op;
-			this.len = len;
+			this.response = true;
+		}
+
+		packet (short op, Object[] seq) {
+			this.op = op;
 			this.seq = seq;
+		}
+		
+		public boolean isResponse () {
+			
+			return response;
 		}
 
 		public int op () {
 			return op;
 		}
 
-		public int length () {
-			return len;
-		}
-		
-		public int[] seq () {
+		public Object[] seq () {
 			return seq;
 		}
 		
@@ -109,6 +128,8 @@ public interface PacketConstants {
 				if(p.op == op)
 					return p;
 			}
+			
+			return null;
 		}
 		
 

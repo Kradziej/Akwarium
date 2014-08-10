@@ -5,26 +5,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 
 import javax.swing.JOptionPane;
 
-import packet.PacketInterpreter;
-
-public class UDPClient extends PacketInterpreter implements Runnable {
+public class UDPClient extends Connection implements Runnable {
 
 	private byte[] buffer = new byte[64];
 	private int port;
 	private boolean runServer = true;
 	private int iv;
-	DatagramSocket socket;
+	private boolean isConnected;
+	private DatagramSocket socket;
+	private InetAddress IPAddress;
 	private InputStream in;
 	private Thread t;
 
 
-	UDPClient (int port) {
+	UDPClient (InetAddress iPAddress, int port) {
 
 		this.port = port;
+		this.IPAddress = iPAddress;
 	}
 
 	@Override
@@ -86,6 +88,11 @@ public class UDPClient extends PacketInterpreter implements Runnable {
 	}
 
 
+	@Override
+	public void setConnected(boolean connected) {
+		
+		this.isConnected = true;
+	}
 
 	public void startThread () {
 
@@ -97,6 +104,30 @@ public class UDPClient extends PacketInterpreter implements Runnable {
 
 		socket.close();
 		runServer = false;
+	}
+	
+	@Override
+	public int getNextPort() {
+		port++;
+		return port;
+	}
+
+
+	@Override
+	public boolean isConnected() {
+		return isConnected;
+	}
+
+
+	@Override
+	public InetAddress getIPAddress() {
+		return IPAddress;
+	}
+
+
+	@Override
+	public void setConnected(boolean connected) {
+		this.isConnected = connected;
 	}
 
 }

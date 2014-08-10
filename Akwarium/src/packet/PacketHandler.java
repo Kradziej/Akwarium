@@ -4,34 +4,79 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import connection.Connection;
 import packet.PacketConstants.packet;
 
-public abstract class PacketHandler {
+public class PacketHandler {
 
-	PacketInterpreter packetInterpreter;
-	ResponseHandler responseHandler;
+	private Connection con;
 	
-	public PacketHandler () {
+	public PacketHandler (Connection con) {
 		
-		this.packetInterpreter = new PacketInterpreter();
-		this.responseHandler = new ResponseHandler();
+		this.con = con;
 	}
 	
+
+	public boolean interpretResponse (PacketConstants.packet p) {
+		
+		if(p.equals(packet.INVALID_PACKET)) {
+			System.out.println("Invalid packet send!");
+			return false;
+		} else if(p.equals(packet.ERROR)) {
+			System.out.println("Error packet received, disconnecting...");
+			return false;
+		}
+		/*else if(p.equals(packet.CONNECTED)) {       ELSEWHERE THIS SHIT!!!
+			con.setConnected(true);
+		} else if(p.equals(packet.DISCONNECTED)) {
+			con.setConnected(false);
+		}*/
+		
+		return true;
+	}
 	
-	public boolean interpret0000 (short op, DataInputStream packetInput)  {
+	public boolean interpret (short op, DataInputStream packetInput)  {
 		
 		ArrayList<Object> val = new ArrayList<>();
-		 
 		packet p = packet.getPacketByOP(op);
-		for(int i : p.seq()) {
-			if(i == 4)
-				packetInput.readInt()
+		
+		if(p == null) {
+			System.out.println("Invalid packet header");
+			PacketSender.getSender().sendResponse(packet.INVALID_PACKET);
+			return false;
 		}
+		
+		if(p.isResponse())
+			return interpretResponse(p);
+		
+		try {
+		for(Object o : p.seq()) {
+			if(o.getClass() == Integer.class)
+				val.add(packetInput.readInt());
+			else if(o.getClass() == Short.class)
+				val.add(packetInput.readShort());
+			else if(o.getClass() == Byte.class)
+				val.add(packetInput.readByte());
+			else if(o.getClass() == Double.class)
+				val.add(packetInput.readDouble());
+			else if(o.getClass() == Float.class)
+				val.add(packetInput.readFloat());
+			else if(o.getClass() == Boolean.class)
+				val.add(Boolean.valueOf(packetInput.readBoolean()));
+		}
+		} catch (IOException e) {
+			System.out.println("Cannot read data from ");
+			e.printStackTrace();
+			return false;
+		}
+		
+		
+		return true;
 	}
 	
 	
 	
-	
+	/*
 	// returns true if packet is handled or false if packet indicates error
 	public boolean interpret (short op, DataInputStream packetInput)  {
 		
@@ -68,6 +113,6 @@ public abstract class PacketHandler {
 		}
 		
 		return result >= 0 ? true : false;
-	}
+	}*/
 	
 }

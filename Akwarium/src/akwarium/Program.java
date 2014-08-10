@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 import packet.PacketInterpreter;
 import packet.PacketSender;
+import connection.Connection;
 import connection.TCPClient;
 import connection.TCPServer;
 import connection.UDPClient;
