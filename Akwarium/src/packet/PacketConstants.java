@@ -2,7 +2,6 @@ package packet;
 
 import akwarium.Aquarium;
 
-
 public interface PacketConstants {
 
 	// Data
@@ -28,7 +27,6 @@ public interface PacketConstants {
 	public short IMAGE_INDEX_OUT_OF_BOUNDS = (short) 0xFF02;
 	
 	public int MAX_PACKET_LENGTH = 32;
-	public Aquarium AQ;
 	
 	
 	public class packetBlock {
@@ -61,9 +59,9 @@ public interface PacketConstants {
 	}
 
 	
-	public interface Trigger {
-	
-		public void call(Object... args);
+	public interface Trigger<T> extends PacketInterpreter {
+		
+		void call(Object... args);
 	}
 
 
@@ -71,7 +69,10 @@ public interface PacketConstants {
 
 		
 		// Data (length without header)
-		UPDATE_COORDINATES( PacketConstants.UPDATE_COORDINATES, new Object[]{(short)0, (int)0, (int)0, (byte)0} ),
+		UPDATE_COORDINATES( PacketConstants.UPDATE_COORDINATES, new Object[]{(short)0, (int)0, (int)0, (byte)0}, new Trigger<Aquarium>() {
+			Aquarium ref;
+			public void call(Object... args) { ref.updateCoordinates(args); }
+		}),
 		ADD_ANIMAL( PacketConstants.ADD_ANIMAL, new Object[]{(short)0, (byte)0, (byte)0, (int)0, (int)0, (short)0} ),
 		REMOVE_ANIMAL( PacketConstants.REMOVE_ANIMAL, new Object[]{(short)0} ),
 		INITIALIZE_IMAGES( PacketConstants.INITIALIZE_IMAGES, new Object[]{(byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (short)0} ),

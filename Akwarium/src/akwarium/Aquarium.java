@@ -4,9 +4,10 @@ import java.awt.geom.Rectangle2D;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 
+import packet.PacketInterpreter;
 import packet.PacketSender;
 
-public class Aquarium {
+public class Aquarium implements PacketInterpreter {
 
 	private float boost;
 	private boolean working = true;

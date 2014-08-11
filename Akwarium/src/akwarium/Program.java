@@ -14,7 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import packet.PacketInterpreter;
+import packet.PacketInterpreter__;
 import packet.PacketSender;
 import connection.Connection;
 import connection.TCPClient;
@@ -115,7 +115,7 @@ public class Program {
 
 			// Create aquarium
 			Aquarium aquarium = Aquarium.getInstance(isServer, isClient, (StatusPanel)sPanel);
-			PacketInterpreter.setAq(aquarium);
+			PacketInterpreter__.setAq(aquarium);
 
 
 			// Set initial focus on canvas
