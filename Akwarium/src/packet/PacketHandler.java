@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import connection.Connection;
-import packet.PacketConstants.packet;
+import packet.PacketConstants.Packet;
 
 public class PacketHandler {
 
@@ -17,12 +17,12 @@ public class PacketHandler {
 	}
 	
 
-	public boolean interpretResponse (PacketConstants.packet p) {
+	public boolean interpretResponse (PacketConstants.Packet p) {
 		
-		if(p.equals(packet.INVALID_PACKET)) {
+		if(p.equals(Packet.INVALID_PACKET)) {
 			System.out.println("Invalid packet send!");
 			return false;
-		} else if(p.equals(packet.ERROR)) {
+		} else if(p.equals(Packet.ERROR)) {
 			System.out.println("Error packet received, disconnecting...");
 			return false;
 		}
@@ -38,11 +38,11 @@ public class PacketHandler {
 	public boolean interpret (short op, DataInputStream packetInput)  {
 		
 		ArrayList<Object> val = new ArrayList<>();
-		packet p = packet.getPacketByOP(op);
+		Packet p = Packet.getPacketByOP(op);
 		
 		if(p == null) {
 			System.out.println("Invalid packet header");
-			PacketSender.getSender().sendResponse(packet.INVALID_PACKET);
+			PacketSender.getSender().sendResponse(Packet.INVALID_PACKET);
 			return false;
 		}
 		

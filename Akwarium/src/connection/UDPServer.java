@@ -11,7 +11,7 @@ import java.net.SocketException;
 import javax.swing.JOptionPane;
 
 import packet.PacketConstants;
-import packet.PacketConstants.packet;
+import packet.PacketConstants.Packet;
 
 public class UDPServer extends Connection implements Runnable, PacketConstants {
 
@@ -55,7 +55,7 @@ public class UDPServer extends Connection implements Runnable, PacketConstants {
 			int bytesRead;
 			while ((op = packetInput.read()) != -1) {
 
-				bytesRead = packet.getSize(op);
+				bytesRead = Packet.getSize(op);
 				buffer[0] = (byte)op;
 				packetInput.read(buffer, 1, bytesRead);
 				dPacket = new DatagramPacket(buffer, bytesRead+1, IPAddress, port);

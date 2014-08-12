@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 
 import packet.PacketConstants;
 import packet.ResponseHandler;
-import packet.PacketConstants.packet;
+import packet.PacketConstants.Packet;
 
 public class TCPServer extends Connection implements Runnable, PacketConstants {
 
@@ -80,7 +80,7 @@ public class TCPServer extends Connection implements Runnable, PacketConstants {
 			}
 			
 			while ((op = tcpInput.read()) != -1) {
-				bytesToRead = packet.getSize(op);
+				bytesToRead = Packet.getSize(op);
 				bufferOut[0] = (byte)op;
 				tcpInput.read(bufferOut, 1, bytesToRead);
 				out.write(bufferOut, 0, bytesToRead+1);

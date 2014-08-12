@@ -1,5 +1,7 @@
 package packet;
 
+import java.lang.reflect.Method;
+
 import akwarium.Aquarium;
 
 public interface PacketConstants {
@@ -29,13 +31,13 @@ public interface PacketConstants {
 	public int MAX_PACKET_LENGTH = 32;
 	
 	
-	public class packetBlock {
+	public class PacketBlock {
 
 		private byte[] buffer;
 		private boolean isTcpPacket;
 		private int length;
 
-		packetBlock(byte[] buffer, boolean isTcpPacket) {
+		PacketBlock(byte[] buffer, boolean isTcpPacket) {
 
 			this.isTcpPacket = isTcpPacket;
 			this.buffer = buffer;
@@ -59,29 +61,26 @@ public interface PacketConstants {
 	}
 
 	
-	public interface Trigger<T> extends PacketInterpreter {
+	public interface Trigger {
 		
 		void call(Object... args);
 	}
 
 
-	public enum packet {
+	public enum Packet {
 
 		
 		// Data (length without header)
-		UPDATE_COORDINATES( PacketConstants.UPDATE_COORDINATES, new Object[]{(short)0, (int)0, (int)0, (byte)0}, new Trigger<Aquarium>() {
-			Aquarium ref;
-			public void call(Object... args) { ref.updateCoordinates(args); }
-		}),
-		ADD_ANIMAL( PacketConstants.ADD_ANIMAL, new Object[]{(short)0, (byte)0, (byte)0, (int)0, (int)0, (short)0} ),
-		REMOVE_ANIMAL( PacketConstants.REMOVE_ANIMAL, new Object[]{(short)0} ),
-		INITIALIZE_IMAGES( PacketConstants.INITIALIZE_IMAGES, new Object[]{(byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (short)0} ),
-		CONNECTION_INITIALIZATION( PacketConstants.CONNECTION_INITIALIZATION, new Object[]{(int)0} ),
-		UPDATE_PLAYERS( PacketConstants.UPDATE_PLAYERS, new Object[]{(byte)0, (int)0, (int)0, (short)0, (byte)0} ),
-		UPDATE_POINTS( PacketConstants.UPDATE_POINTS, new Object[]{(byte)0, (int)0, (byte)0} ),
-		SETTINGS( PacketConstants.SETTINGS, new Object[]{(int)0, (int)0} ),
-		IMAGES_INIT_END( PacketConstants.IMAGES_INIT_END, new Object[]{(boolean)false} ),
-		HELLO_MESSAGE( PacketConstants.HELLO_MESSAGE, new Object[]{(int)0} ),
+		UPDATE_COORDINATES( PacketConstants.UPDATE_COORDINATES, new Object[]{(short)0, (int)0, (int)0, (byte)0}, "updateCoordinates" ),
+		ADD_ANIMAL( PacketConstants.ADD_ANIMAL, new Object[]{(short)0, (byte)0, (byte)0, (int)0, (int)0, (short)0}, "addAnimal" ),
+		REMOVE_ANIMAL( PacketConstants.REMOVE_ANIMAL, new Object[]{(short)0}, "removeAnimal" ),
+		INITIALIZE_IMAGES( PacketConstants.INITIALIZE_IMAGES, new Object[]{(byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (short)0}, "initializeImages" ),
+		CONNECTION_INITIALIZATION( PacketConstants.CONNECTION_INITIALIZATION, new Object[]{(int)0}, "connectionInitialization" ),
+		UPDATE_PLAYERS( PacketConstants.UPDATE_PLAYERS, new Object[]{(byte)0, (int)0, (int)0, (short)0, (byte)0}, "updatePlayers" ),
+		UPDATE_POINTS( PacketConstants.UPDATE_POINTS, new Object[]{(byte)0, (int)0, (byte)0}, "updatePoints" ),
+		SETTINGS( PacketConstants.SETTINGS, new Object[]{(int)0, (int)0}, "settings" ),
+		IMAGES_INIT_END( PacketConstants.IMAGES_INIT_END, new Object[]{(boolean)false}, "imagesInitEnd" ),
+		HELLO_MESSAGE( PacketConstants.HELLO_MESSAGE, new Object[]{(int)0}, "helloMessage" ),
 		
 		// Responses
 		OK( PacketConstants.OK ), 
@@ -97,16 +96,25 @@ public interface PacketConstants {
 		private short op;
 		private Object[] seq; 
 		private boolean response;
+		private String triggerName;
+		private Method trigger;
+		public static final Packet[] DATA_PACKETS = {UPDATE_COORDINATES, ADD_ANIMAL, REMOVE_ANIMAL, INITIALIZE_IMAGES,
+			CONNECTION_INITIALIZATION, UPDATE_PLAYERS, UPDATE_POINTS, SETTINGS, IMAGES_INIT_END, HELLO_MESSAGE};
+		public static final Packet[] RESPONSE_PACKETS = {OK, FAIL, ERROR, INVALID_PACKET, ANIMAL_NOT_EXIST_ERROR, 
+			IMAGE_INDEX_OUT_OF_BOUNDS, CONNECTED, DISCONNECTED};
 		
-		packet (short op) {
+		
+		Packet (short op) {
 			
 			this.op = op;
 			this.response = true;
 		}
 
-		packet (short op, Object[] seq) {
+		Packet (short op, Object[] seq, String triggerName) {
 			this.op = op;
 			this.seq = seq;
+			this.triggerName = triggerName;
+			
 		}
 		
 		public boolean isResponse () {
@@ -122,15 +130,25 @@ public interface PacketConstants {
 			return seq;
 		}
 		
-		public static packet getPacketByOP (short op) {
+		public static Packet getPacketByOP (short op) {
 			
-			for(packet p : packet.values()) {
+			for(Packet p : Packet.values()) {
 				
 				if(p.op == op)
 					return p;
 			}
 			
 			return null;
+		}
+		
+		public void setTrigger (Object o) {
+			
+			try {
+				trigger = o.getClass().getMethod(triggerName, Object[].class);
+			} catch (NoSuchMethodException | SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 

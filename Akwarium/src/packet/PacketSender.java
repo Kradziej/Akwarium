@@ -19,7 +19,7 @@ public class PacketSender implements Runnable {
 
 	private OutputStream tcpOut;
 	private OutputStream udpOut;
-	private ArrayBlockingQueue<packetBlock> queue;
+	private ArrayBlockingQueue<PacketBlock> queue;
 	private int iv;
 	private boolean threadRun = true;
 	private static Thread t;
@@ -27,7 +27,7 @@ public class PacketSender implements Runnable {
 	
 	private PacketSender () {
 		
-		queue = new ArrayBlockingQueue<packetBlock>(150, true);
+		queue = new ArrayBlockingQueue<PacketBlock>(150, true);
 	}
 	
 	
@@ -59,7 +59,7 @@ public class PacketSender implements Runnable {
 	@Override
 	public void run() {
 
-		packetBlock packet;
+		PacketBlock packet;
 
 		while(threadRun) {
 			
@@ -100,7 +100,7 @@ public class PacketSender implements Runnable {
 	
 	
 	// ONLY SENDS PACKETS DO NOT SCALE X FOR EXAMPLE!!!!!!!!!!!!!!!!!!!!!!
-	public int sendData (PacketConstants.packet header, Object... args) {
+	public int sendData (PacketConstants.Packet header, Object... args) {
 		
 		DataStream stream = createDataStream();
 
@@ -128,12 +128,12 @@ public class PacketSender implements Runnable {
 			return 0;
 		}
 		
-		queue.offer(new packetBlock(stream.toByteArray(), true));
+		queue.offer(new PacketBlock(stream.toByteArray(), true));
 		return stream.bytesInBuffer();
 	}
 	
 	
-	public int sendResponse (PacketConstants.packet response) {
+	public int sendResponse (PacketConstants.Packet response) {
 		
 		DataStream stream = createDataStream(2);
 		
@@ -145,7 +145,7 @@ public class PacketSender implements Runnable {
 			return 0;
 		}
 	
-		queue.offer(new packetBlock(stream.toByteArray(), false));
+		queue.offer(new PacketBlock(stream.toByteArray(), false));
 		return stream.bytesInBuffer();
 	}
 	

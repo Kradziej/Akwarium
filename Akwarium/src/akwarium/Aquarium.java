@@ -105,8 +105,9 @@ public class Aquarium implements PacketInterpreter {
 
 
 	// Adding animal, function for client !!!
-	public void addAnimal (int code, int imageIndex, int index, int x, int y, int v) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-
+	//public void addAnimal (int code, int imageIndex, int index, int x, int y, int v) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	  public void addAnimal (Object... args) {
+	
 		Animal.SpeciesList[] allSpecies = Animal.SpeciesList.values();
 		Animal a = null;
 		String speciesName = null;
@@ -382,8 +383,9 @@ public class Aquarium implements PacketInterpreter {
 		}
 	}
 
-	public void updateCooridates (int index, int x, int y, int direction) {
-
+	//public void updateCooridates (int index, int x, int y, int direction) {
+	public void updateCooridates (Object... args) {
+	
 		animals[index].setX(x);
 		animals[index].setY(y);
 		animals[index].imageChange(direction);
