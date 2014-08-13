@@ -403,6 +403,12 @@ public class Aquarium implements PacketInterpreter {
 		owner.terminate();
 		player.terminate();
 	}
+	
+	
+	public String toString() {
+		
+		return "Aquarium";
+	}
 
 
 }

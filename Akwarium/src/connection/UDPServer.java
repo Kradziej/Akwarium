@@ -104,4 +104,16 @@ public class UDPServer extends Connection implements Runnable, PacketConstants {
 		this.isConnected = connected;
 	}
 
+
+	@Override
+	public boolean isServerUp() {
+		throw new UnsupportedOperationException();
+	}
+
+
+	@Override
+	public boolean isGraphicsReady() {
+		throw new UnsupportedOperationException();
+	}
+
 }

@@ -1,6 +1,8 @@
 package packet;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 
 import akwarium.Aquarium;
 
@@ -61,12 +63,6 @@ public interface PacketConstants {
 	}
 
 	
-	public interface Trigger {
-		
-		void call(Object... args);
-	}
-
-
 	public enum Packet {
 
 		
@@ -83,14 +79,14 @@ public interface PacketConstants {
 		HELLO_MESSAGE( PacketConstants.HELLO_MESSAGE, new Object[]{(int)0}, "helloMessage" ),
 		
 		// Responses
-		OK( PacketConstants.OK ), 
-		FAIL( PacketConstants.FAIL ),
-		ERROR( PacketConstants.ERROR ),
-		INVALID_PACKET( PacketConstants.INVALID_PACKET ),
-		ANIMAL_NOT_EXIST_ERROR( PacketConstants.ANIMAL_NOT_EXIST_ERROR ),
-		IMAGE_INDEX_OUT_OF_BOUNDS( PacketConstants.IMAGE_INDEX_OUT_OF_BOUNDS ),
-		CONNECTED( PacketConstants.CONNECTED ),
-		DISCONNECTED( PacketConstants.DISCONNECTED );
+		OK( PacketConstants.OK, "ok" ), 
+		FAIL( PacketConstants.FAIL, "fail" ),
+		ERROR( PacketConstants.ERROR, "error" ),
+		INVALID_PACKET( PacketConstants.INVALID_PACKET, "invalidPacket" ),
+		ANIMAL_NOT_EXIST_ERROR( PacketConstants.ANIMAL_NOT_EXIST_ERROR, "animalNotExistError" ),
+		IMAGE_INDEX_OUT_OF_BOUNDS( PacketConstants.IMAGE_INDEX_OUT_OF_BOUNDS, "imageIndexOutOfBounds" ),
+		CONNECTED( PacketConstants.CONNECTED, "connected" ),
+		DISCONNECTED( PacketConstants.DISCONNECTED, "disconnected" );
 		
 		
 		private short op;
@@ -98,19 +94,30 @@ public interface PacketConstants {
 		private boolean response;
 		private String triggerName;
 		private Method trigger;
+		private Object triggerObj;
+		private static final HashMap<Short, Packet> opToEnum = new HashMap<>(); 
 		public static final Packet[] DATA_PACKETS = {UPDATE_COORDINATES, ADD_ANIMAL, REMOVE_ANIMAL, INITIALIZE_IMAGES,
 			CONNECTION_INITIALIZATION, UPDATE_PLAYERS, UPDATE_POINTS, SETTINGS, IMAGES_INIT_END, HELLO_MESSAGE};
 		public static final Packet[] RESPONSE_PACKETS = {OK, FAIL, ERROR, INVALID_PACKET, ANIMAL_NOT_EXIST_ERROR, 
 			IMAGE_INDEX_OUT_OF_BOUNDS, CONNECTED, DISCONNECTED};
 		
 		
-		Packet (short op) {
+		static {
+			
+			for(Packet p : Packet.values()) {
+				opToEnum.put(p.op, p);
+			}
+		}
+		
+
+		Packet (short op, String triggerName) {
 			
 			this.op = op;
-			this.response = true;
+			this.triggerName = triggerName;
 		}
 
 		Packet (short op, Object[] seq, String triggerName) {
+			
 			this.op = op;
 			this.seq = seq;
 			this.triggerName = triggerName;
@@ -131,50 +138,80 @@ public interface PacketConstants {
 		}
 		
 		public static Packet getPacketByOP (short op) {
-			
-			for(Packet p : Packet.values()) {
-				
-				if(p.op == op)
-					return p;
-			}
-			
-			return null;
+			return opToEnum.get(op);
 		}
 		
+		/**
+		 * Set method which can be called by {@link #invoke()} method.   
+		 * @param o
+		 */
 		public void setTrigger (Object o) {
 			
 			try {
 				trigger = o.getClass().getMethod(triggerName, Object[].class);
+				triggerObj = o;
 			} catch (NoSuchMethodException | SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Cannot set trigger for " + this.toString() + ": " + e.getClass().toString());
+				return;
 			}
 		}
 		
-
-		/*
-		public static int getSize (int op) {
+		
+		public static void setDataPacketsTrigger (Object o) {
 			
-
-			if(op == UPDATE_COORDINATES.op())
-				return UPDATE_COORDINATES.length();
-			else if(op == ADD_ANIMAL.op())
-				return ADD_ANIMAL.length();
-			else if(op == REMOVE_ANIMAL.op())
-				return REMOVE_ANIMAL.length();
-			else if(op == INITIALIZE_IMAGES.op())
-				return INITIALIZE_IMAGES.length();
-			else if(op == CONNECTION_INITIALIZATION.op())
-				return CONNECTION_INITIALIZATION.length();
-			else if(op == SHARK_UPDATE.op())
-				return SHARK_UPDATE.length();
-			else if(op == SETTINGS.op())
-				return SETTINGS.length();
-			else if(op == UPDATE_POINTS.op())
-				return UPDATE_POINTS.length();
-
-			return 0;
+			for(Packet p : DATA_PACKETS) {
+				
+				try {
+					p.trigger = o.getClass().getMethod(p.triggerName, Object[].class);
+					p.triggerObj = o;
+				} catch (NoSuchMethodException | SecurityException e) {
+					System.out.println("Cannot set trigger for " + p.toString() + ": " + e.getClass().toString());
+					return;
+				}
+			}
+			
 		}
-		*/
+		
+		public static void setResponsePacketsTrigger (Object o) {
+			
+			for(Packet p : RESPONSE_PACKETS) {
+				
+				try {
+					p.trigger = o.getClass().getMethod(p.triggerName, Object[].class);
+					p.triggerObj = o;
+				} catch (NoSuchMethodException | SecurityException e) {
+					System.out.println("Cannot set trigger for " + p.toString() + ": " + e.getClass().toString());
+					return;
+				}
+			}
+			
+		}
+		
+		public void invoke(Object... args) {
+			
+			try {
+				trigger.invoke(triggerObj, args);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				System.out.println("Cannot call method " + trigger.getName() + " from " + triggerObj.toString() + ": "
+			+ e.getClass().toString());
+			}
+		}
+		
+		/**
+		 * Check if trigger method for all enum constants was set.
+		 * @return true if all enum constants have their own triggers.
+		 */
+		public static boolean checkTriggers () {
+			
+			for(Packet p : Packet.values()) {
+				
+				if(p.trigger == null)
+					return false;
+			}
+			
+			return true;
+		}
+		
+
 	}
 }

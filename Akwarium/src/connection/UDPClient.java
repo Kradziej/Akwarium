@@ -7,6 +7,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.nio.channels.UnsupportedAddressTypeException;
 
 import javax.swing.JOptionPane;
 
@@ -88,12 +89,6 @@ public class UDPClient extends Connection implements Runnable {
 	}
 
 
-	@Override
-	public void setConnected(boolean connected) {
-		
-		this.isConnected = true;
-	}
-
 	public void startThread () {
 
 		t = new Thread(this);
@@ -128,6 +123,16 @@ public class UDPClient extends Connection implements Runnable {
 	@Override
 	public void setConnected(boolean connected) {
 		this.isConnected = connected;
+	}
+
+	@Override
+	public boolean isServerUp() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean isGraphicsReady() {
+		throw new UnsupportedOperationException();
 	}
 
 }

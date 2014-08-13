@@ -18,19 +18,17 @@ import javax.swing.JOptionPane;
 
 import packet.PacketHandler;
 import packet.PacketSender;
-import static packet.PacketConstants.packet;
+import static packet.PacketConstants.Packet;
 import akwarium.DrawAq;
 
 public class TCPClient extends Connection implements Runnable {
 
-	private byte[] buffer = new byte[128];
 	private boolean isConnected;
-	private boolean disconnected;
 	private boolean isGraphicsReady;
 	private boolean isServerUp;
-	private boolean serverDown;
 	private InetAddress IPAddress;    // address of server
 	private UDPClient recCoor;
+	Socket client;
 	private Thread t;
 
 	TCPClient () {
@@ -47,14 +45,10 @@ public class TCPClient extends Connection implements Runnable {
 	@Override
 	public void run () {
 
-		Socket client = null;
 		InputStream in = null;
 		OutputStream out = null;
-		int retries = 0;
 		short op;
-		boolean result;
 		PacketSender sender = PacketSender.getSender();
-		PacketHandler interpretor = new PacketHandler(this);
 
 		try {
 
@@ -67,71 +61,36 @@ public class TCPClient extends Connection implements Runnable {
 			
 			// send hello message
 			int time = (int)System.currentTimeMillis();
-			sender.sendData(packet.HELLO_MESSAGE, time);
+			sender.sendData(Packet.HELLO_MESSAGE, time);
+			try {
+				Thread.currentThread().wait();
+			} catch (InterruptedException e) {
+				System.out.println(this.toString() + " thread interrupted!");
+				client.close();
+				return;
+			}
 			
 			// send settings
 			Dimension d = DrawAq.getResolution();
-			sender.sendData(packet.SETTINGS, d.getWidth(), d.getHeight());
+			sender.sendData(Packet.SETTINGS, d.getWidth(), d.getHeight());
 			
 			// Run listening
 			in = client.getInputStream();
-			
 			DataInputStream inBuff = new DataInputStream(in);
+			
 			while (true) {
 
 				op = inBuff.readShort();
-				interpretor.interpret(op, inBuff);
-				
-				switch() {
-
-				case 0:					     // standard OK response
-					buffer[0] = (byte)0x00;
-					buffer[1] = (byte)0x00;
-					out.write(buffer, 0, 2);
-					retries = 0;
-					break;
-
-				case -1:					 // FAILED
-					buffer[0] = (byte)0xFF;
-					buffer[1] = (byte)0x00;
-					out.write(buffer, 0, 2);
-					retries++;
-					if(retries > 4) {
-						System.out.println("DESYNCHRONIZATION");
-						isConnected = false;
-						client.close();
-						recCoor.terminate();
-						return;
-					}
-					break;
-
-				case 1:
-					buffer[0] = (byte)0xFE;   // iv resolved
-					buffer[1] = (byte)0x00;
-					out.write(buffer, 0, 2);
-					recCoor = new UDPClient(IPAddress, port);
-					recCoor.startThread();
-					isConnected = true;
-					break;
-
-				case 2:   					  // images loaded
-					buffer[0] = (byte)0xFD;
-					buffer[1] = (byte)0x00;
-					out.write(buffer, 0, 2);
-					isGraphicsReady = true;
-					break;
-
-				}
+				PacketHandler.interpret(op, inBuff);
 			}
 
 		} catch (IOException e) {
 			if(e.getClass() ==  SocketException.class) {
 				System.out.println("Server disconnected");
-				disconnected = true;
 				isConnected = false;
 			} else if(e.getClass() ==  ConnectException.class) {
 				System.out.println("Cannot connect to server");
-				serverDown = true;
+				isServerUp = false;
 			} else if(e.getClass() ==  BindException.class) {
 				System.out.println("Cannot bind to port " + port);
 				JOptionPane.showMessageDialog(null,
@@ -141,10 +100,9 @@ public class TCPClient extends Connection implements Runnable {
 				System.exit(-1);
 			} else if(e.getClass() == NoRouteToHostException.class) {
 				System.out.println("Internet connection problem");
-				serverDown = true;
+				isServerUp = false;
 			} else if(e.getClass() == EOFException.class) {
 				System.out.println("Server disconnected");
-				disconnected = true;
 				isConnected = false;
 			} else {
 				System.out.println("Cannot read/send data to server");
@@ -188,12 +146,6 @@ public class TCPClient extends Connection implements Runnable {
 	}
 
 	@Override
-	public boolean getServerDown () {
-
-		return serverDown;
-	}
-
-	@Override
 	public boolean isGraphicsReady () {
 
 		return isGraphicsReady;
@@ -211,6 +163,11 @@ public class TCPClient extends Connection implements Runnable {
 
 		port++;
 		return port;
+	}
+	
+	public String toString () {
+		
+		return "TCP Client";
 	}
 
 	@Override
