@@ -39,7 +39,7 @@ public abstract class Animal extends AqObject {
 	protected int index;
 	protected Aquarium aq;
 	protected Thread t;
-	protected  boolean threadRun;
+	protected volatile boolean threadRun;
 	protected boolean threadStarted;
 	protected AqObjectsEnum obj;
 	protected int baseWidth;

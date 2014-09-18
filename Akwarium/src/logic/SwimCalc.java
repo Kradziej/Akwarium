@@ -6,7 +6,7 @@ public class SwimCalc implements Runnable {
 	
 	
 	private Thread t;
-	private boolean threadRun;
+	private volatile boolean threadRun;
 	private static final int SYNCH_TIME = 30;
 	
 
